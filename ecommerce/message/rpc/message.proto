@@ -1,0 +1,194 @@
+syntax = "proto3";
+
+package message;
+option go_package="./message";
+
+// 消息服务
+service MessageService {
+    // 消息发送
+    rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+    rpc BatchSendMessage(BatchSendMessageRequest) returns (BatchSendMessageResponse);
+    rpc SendTemplateMessage(SendTemplateMessageRequest) returns (SendTemplateMessageResponse);
+    
+    // 消息管理
+    rpc GetMessage(GetMessageRequest) returns (GetMessageResponse);
+    rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse);
+    rpc ReadMessage(ReadMessageRequest) returns (ReadMessageResponse);
+    rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+    
+    // 消息模板
+    rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse);
+    rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse);
+    rpc GetTemplate(GetTemplateRequest) returns (GetTemplateResponse);
+    rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse);
+}
+
+// 消息实体
+message Message {
+    int64 id = 1;
+    int64 user_id = 2;
+    string title = 3;
+    string content = 4;
+    int32 type = 5;         // 1:系统通知 2:订单消息 3:活动消息 4:物流消息
+    int32 send_channel = 6; // 1:站内信 2:短信 3:邮件 4:APP推送
+    string extra_data = 7;  // 额外数据，JSON格式
+    bool is_read = 8;
+    int64 read_time = 9;
+    int64 created_at = 10;
+}
+
+// 消息模板
+message MessageTemplate {
+    int64 id = 1;
+    string code = 2;
+    string name = 3;
+    string title_template = 4;
+    string content_template = 5;
+    int32 type = 6;
+    repeated int32 channels = 7;
+    string config = 8;      // 渠道配置，JSON格式
+    int32 status = 9;      // 1:启用 2:禁用
+    int64 created_at = 10;
+    int64 updated_at = 11;
+}
+
+// 发送消息
+message SendMessageRequest {
+    int64 user_id = 1;
+    string title = 2;
+    string content = 3;
+    int32 type = 4;
+    int32 send_channel = 5;
+    string extra_data = 6;
+}
+
+message SendMessageResponse {
+    int64 message_id = 1;
+}
+
+// 批量发送
+message BatchSendMessageRequest {
+    repeated int64 user_ids = 1;
+    string title = 2;
+    string content = 3;
+    int32 type = 4;
+    int32 send_channel = 5;
+    string extra_data = 6;
+}
+
+message BatchSendMessageResponse {
+    repeated int64 message_ids = 1;
+    repeated BatchSendError errors = 2;
+}
+
+message BatchSendError {
+    int64 user_id = 1;
+    string error = 2;
+}
+
+// 发送模板消息
+message SendTemplateMessageRequest {
+    string template_code = 1;
+    int64 user_id = 2;
+    map<string, string> params = 3;
+    repeated int32 channels = 4;
+}
+
+message SendTemplateMessageResponse {
+    repeated int64 message_ids = 1;
+}
+
+// 获取消息
+message GetMessageRequest {
+    int64 message_id = 1;
+}
+
+message GetMessageResponse {
+    Message message = 1;
+}
+
+// 消息列表
+message ListMessagesRequest {
+    int64 user_id = 1;
+    int32 type = 2;
+    bool unread_only = 3;
+    int32 page = 4;
+    int32 page_size = 5;
+}
+
+message ListMessagesResponse {
+    repeated Message messages = 1;
+    int64 total = 2;
+}
+
+// 读消息
+message ReadMessageRequest {
+    int64 message_id = 1;
+    int64 user_id = 2;
+}
+
+message ReadMessageResponse {
+    bool success = 1;
+}
+
+// 删除消息
+message DeleteMessageRequest {
+    int64 message_id = 1;
+    int64 user_id = 2;
+}
+
+message DeleteMessageResponse {
+    bool success = 1;
+}
+
+// 创建模板
+message CreateTemplateRequest {
+    string code = 1;
+    string name = 2;
+    string title_template = 3;
+    string content_template = 4;
+    int32 type = 5;
+    repeated int32 channels = 6;
+    string config = 7;
+}
+
+message CreateTemplateResponse {
+    int64 template_id = 1;
+}
+
+// 更新模板
+message UpdateTemplateRequest {
+    int64 id = 1;
+    string name = 2;
+    string title_template = 3;
+    string content_template = 4;
+    repeated int32 channels = 5;
+    string config = 6;
+    int32 status = 7;
+}
+
+message UpdateTemplateResponse {
+    bool success = 1;
+}
+
+// 获取模板
+message GetTemplateRequest {
+    int64 id = 1;
+}
+
+message GetTemplateResponse {
+    MessageTemplate template = 1;
+}
+
+// 模板列表
+message ListTemplatesRequest {
+    int32 type = 1;
+    int32 status = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+message ListTemplatesResponse {
+    repeated MessageTemplate templates = 1;
+    int64 total = 2;
+}

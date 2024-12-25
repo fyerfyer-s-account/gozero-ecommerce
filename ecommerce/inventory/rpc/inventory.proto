@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+package inventory;
+option go_package="./inventory";
+
+service Inventory {
+    // 库存管理
+    rpc GetStock(GetStockRequest) returns (GetStockResponse);
+    rpc UpdateStock(UpdateStockRequest) returns (UpdateStockResponse);
+    rpc BatchGetStock(BatchGetStockRequest) returns (BatchGetStockResponse);
+    
+    // 库存锁定/解锁
+    rpc LockStock(LockStockRequest) returns (LockStockResponse);
+    rpc UnlockStock(UnlockStockRequest) returns (UnlockStockResponse);
+    rpc DeductStock(DeductStockRequest) returns (DeductStockResponse);
+    
+    // 仓储管理
+    rpc CreateWarehouse(CreateWarehouseRequest) returns (CreateWarehouseResponse);
+    rpc UpdateWarehouse(UpdateWarehouseRequest) returns (UpdateWarehouseResponse);
+    rpc ListWarehouses(ListWarehousesRequest) returns (ListWarehousesResponse);
+    
+    // 入库/出库
+    rpc CreateStockIn(CreateStockInRequest) returns (CreateStockInResponse);
+    rpc CreateStockOut(CreateStockOutRequest) returns (CreateStockOutResponse);
+    rpc ListStockRecords(ListStockRecordsRequest) returns (ListStockRecordsResponse);
+}
+
+// 库存信息
+message Stock {
+    int64 id = 1;
+    int64 sku_id = 2;
+    int64 warehouse_id = 3;
+    int32 available = 4;    // 可用库存
+    int32 locked = 5;       // 锁定库存
+    int32 total = 6;        // 总库存
+    int64 created_at = 7;
+    int64 updated_at = 8;
+}
+
+// 仓库信息
+message Warehouse {
+    int64 id = 1;
+    string name = 2;
+    string address = 3;
+    string contact = 4;
+    string phone = 5;
+    int32 status = 6;       // 1:正常 2:停用
+    int64 created_at = 7;
+    int64 updated_at = 8;
+}
+
+// 库存记录
+message StockRecord {
+    int64 id = 1;
+    int64 sku_id = 2;
+    int64 warehouse_id = 3;
+    int32 type = 4;         // 1:入库 2:出库 3:锁定 4:解锁
+    int32 quantity = 5;
+    string order_no = 6;
+    string remark = 7;
+    int64 created_at = 8;
+}
+
+message GetStockRequest {
+    int64 sku_id = 1;
+    int64 warehouse_id = 2;
+}
+
+message GetStockResponse {
+    Stock stock = 1;
+}
+
+message BatchGetStockRequest {
+    repeated int64 sku_ids = 1;
+    int64 warehouse_id = 2;
+}
+
+message BatchGetStockResponse {
+    map<int64, Stock> stocks = 1;  // key: sku_id
+}
+
+message UpdateStockRequest {
+    int64 sku_id = 1;
+    int64 warehouse_id = 2;
+    int32 quantity = 3;
+    string remark = 4;
+}
+
+message UpdateStockResponse {
+    bool success = 1;
+}
+
+message LockStockRequest {
+    string order_no = 1;
+    repeated LockItem items = 2;
+}
+
+message LockItem {
+    int64 sku_id = 1;
+    int64 warehouse_id = 2;
+    int32 quantity = 3;
+}
+
+message LockStockResponse {
+    bool success = 1;
+    repeated LockFailedItem failed_items = 2;
+}
+
+message LockFailedItem {
+    int64 sku_id = 1;
+    string reason = 2;
+}
+
+message UnlockStockRequest {
+    string order_no = 1;
+}
+
+message UnlockStockResponse {
+    bool success = 1;
+}
+
+message DeductStockRequest {
+    string order_no = 1;
+}
+
+message DeductStockResponse {
+    bool success = 1;
+}
+
+message CreateWarehouseRequest {
+    string name = 1;
+    string address = 2;
+    string contact = 3;
+    string phone = 4;
+}
+
+message CreateWarehouseResponse {
+    int64 id = 1;
+}
+
+message UpdateWarehouseRequest {
+    int64 id = 1;
+    string name = 2;
+    string address = 3;
+    string contact = 4;
+    string phone = 5;
+    int32 status = 6;
+}
+
+message UpdateWarehouseResponse {
+    bool success = 1;
+}
+
+message ListWarehousesRequest {
+    int32 page = 1;
+    int32 page_size = 2;
+}
+
+message ListWarehousesResponse {
+    repeated Warehouse warehouses = 1;
+    int64 total = 2;
+}
+
+message CreateStockInRequest {
+    int64 warehouse_id = 1;
+    repeated StockInItem items = 2;
+    string remark = 3;
+}
+
+message StockInItem {
+    int64 sku_id = 1;
+    int32 quantity = 2;
+}
+
+message CreateStockInResponse {
+    bool success = 1;
+}
+
+message CreateStockOutRequest {
+    int64 warehouse_id = 1;
+    repeated StockOutItem items = 2;
+    string order_no = 3;
+    string remark = 4;
+}
+
+message StockOutItem {
+    int64 sku_id = 1;
+    int32 quantity = 2;
+}
+
+message CreateStockOutResponse {
+    bool success = 1;
+}
+
+message ListStockRecordsRequest {
+    int64 sku_id = 1;
+    int64 warehouse_id = 2;
+    int32 type = 3;
+    int32 page = 4;
+    int32 page_size = 5;
+}
+
+message ListStockRecordsResponse {
+    repeated StockRecord records = 1;
+    int64 total = 2;
+}

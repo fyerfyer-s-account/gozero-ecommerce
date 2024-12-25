@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package payment;
+option go_package="./payment";
+
+service Payment {
+    // 支付相关
+    rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse);
+    rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
+    rpc PaymentNotify(PaymentNotifyRequest) returns (PaymentNotifyResponse);
+    rpc GetPaymentStatus(GetPaymentStatusRequest) returns (GetPaymentStatusResponse);
+    
+    // 退款相关
+    rpc CreateRefund(CreateRefundRequest) returns (CreateRefundResponse);
+    rpc GetRefund(GetRefundRequest) returns (GetRefundResponse);
+    rpc RefundNotify(RefundNotifyRequest) returns (RefundNotifyResponse);
+    
+    // 支付渠道
+    rpc CreatePaymentChannel(CreatePaymentChannelRequest) returns (CreatePaymentChannelResponse);
+    rpc UpdatePaymentChannel(UpdatePaymentChannelRequest) returns (UpdatePaymentChannelResponse);
+    rpc ListPaymentChannels(ListPaymentChannelsRequest) returns (ListPaymentChannelsResponse);
+}
+
+message PaymentOrder {
+    string payment_no = 1;
+    string order_no = 2;
+    int64 user_id = 3;
+    double amount = 4;
+    int32 channel = 5;      // 1:微信 2:支付宝 3:余额
+    string channel_data = 6; // 支付渠道返回数据，JSON格式
+    int32 status = 7;       // 1:待支付 2:支付中 3:已支付 4:已退款 5:已关闭
+    string notify_url = 8;
+    string return_url = 9;
+    int64 expire_time = 10;
+    int64 pay_time = 11;
+    int64 created_at = 12;
+    int64 updated_at = 13;
+}
+
+message RefundOrder {
+    string refund_no = 1;
+    string payment_no = 2;
+    string order_no = 3;
+    int64 user_id = 4;
+    double amount = 5;
+    string reason = 6;
+    int32 status = 7;      // 1:待处理 2:处理中 3:已退款 4:退款失败
+    string notify_url = 8;
+    int64 refund_time = 9;
+    int64 created_at = 10;
+    int64 updated_at = 11;
+}
+
+message PaymentChannel {
+    int64 id = 1;
+    string name = 2;
+    int32 channel = 3;
+    string config = 4;     // JSON格式配置
+    int32 status = 5;     // 1:启用 2:禁用
+    int64 created_at = 6;
+    int64 updated_at = 7;
+}
+
+message CreatePaymentRequest {
+    string order_no = 1;
+    int64 user_id = 2;
+    double amount = 3;
+    int32 channel = 4;
+    string notify_url = 5;
+    string return_url = 6;
+}
+
+message CreatePaymentResponse {
+    string payment_no = 1;
+    string pay_url = 2;    // 支付链接或支付参数
+}
+
+message GetPaymentRequest {
+    string payment_no = 1;
+}
+
+message GetPaymentResponse {
+    PaymentOrder payment = 1;
+}
+
+message PaymentNotifyRequest {
+    int32 channel = 1;
+    string notify_data = 2;  // 原始通知数据
+}
+
+message PaymentNotifyResponse {
+    string return_msg = 1;   // 返回给支付渠道的消息
+}
+
+message GetPaymentStatusRequest {
+    string payment_no = 1;
+}
+
+message GetPaymentStatusResponse {
+    int32 status = 1;
+    string channel_data = 2;
+}
+
+message CreateRefundRequest {
+    string payment_no = 1;
+    string order_no = 2;
+    double amount = 3;
+    string reason = 4;
+    string notify_url = 5;
+}
+
+message CreateRefundResponse {
+    string refund_no = 1;
+}
+
+message GetRefundRequest {
+    string refund_no = 1;
+}
+
+message GetRefundResponse {
+    RefundOrder refund = 1;
+}
+
+message RefundNotifyRequest {
+    int32 channel = 1;
+    string notify_data = 2;
+}
+
+message RefundNotifyResponse {
+    string return_msg = 1;
+}
+
+message CreatePaymentChannelRequest {
+    string name = 1;
+    int32 channel = 2;
+    string config = 3;
+}
+
+message CreatePaymentChannelResponse {
+    int64 id = 1;
+}
+
+message UpdatePaymentChannelRequest {
+    int64 id = 1;
+    string name = 2;
+    string config = 3;
+    int32 status = 4;
+}
+
+message UpdatePaymentChannelResponse {
+    bool success = 1;
+}
+
+message ListPaymentChannelsRequest {
+    int32 status = 1;
+}
+
+message ListPaymentChannelsResponse {
+    repeated PaymentChannel channels = 1;
+}

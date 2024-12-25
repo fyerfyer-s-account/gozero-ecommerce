@@ -1,0 +1,283 @@
+syntax = "proto3";
+
+package product;
+option go_package="./product";
+
+// 商品管理服务
+service ProductService {
+    // 商品管理
+    rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+    rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+    rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+    rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+    
+    // 分类管理
+    rpc CreateCategory(CreateCategoryRequest) returns (CreateCategoryResponse);
+    rpc UpdateCategory(UpdateCategoryRequest) returns (UpdateCategoryResponse);
+    rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse);
+    rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse);
+    rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
+    
+    // SKU管理
+    rpc CreateSku(CreateSkuRequest) returns (CreateSkuResponse);
+    rpc UpdateSku(UpdateSkuRequest) returns (UpdateSkuResponse);
+    rpc DeleteSku(DeleteSkuRequest) returns (DeleteSkuResponse);
+    rpc GetSku(GetSkuRequest) returns (GetSkuResponse);
+    rpc ListSkus(ListSkusRequest) returns (ListSkusResponse);
+    
+    // 评价管理
+    rpc CreateReview(CreateReviewRequest) returns (CreateReviewResponse);
+    rpc UpdateReview(UpdateReviewRequest) returns (UpdateReviewResponse);
+    rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewResponse);
+    rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
+}
+
+// 商品相关消息
+message Product {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    int64 category_id = 4;
+    string brand = 5;
+    repeated string images = 6;
+    double price = 7;
+    int32 status = 8; // 1:上架 2:下架
+    int64 created_at = 9;
+    int64 updated_at = 10;
+}
+
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    int64 category_id = 3;
+    string brand = 4;
+    repeated string images = 5;
+    double price = 6;
+    repeated SkuAttribute sku_attributes = 7;
+}
+
+message CreateProductResponse {
+    int64 id = 1;
+}
+
+message UpdateProductRequest {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    int64 category_id = 4;
+    string brand = 5;
+    repeated string images = 6;
+    double price = 7;
+    int32 status = 8;
+}
+
+message UpdateProductResponse {
+    bool success = 1;
+}
+
+message GetProductRequest {
+    int64 id = 1;
+}
+
+message GetProductResponse {
+    Product product = 1;
+    repeated Sku skus = 2;
+}
+
+message ListProductsRequest {
+    int64 category_id = 1;
+    string keyword = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+message ListProductsResponse {
+    repeated Product products = 1;
+    int64 total = 2;
+}
+
+message DeleteProductRequest {
+    int64 id = 1;
+}
+
+message DeleteProductResponse {
+    bool success = 1;
+}
+
+// 分类相关消息
+message Category {
+    int64 id = 1;
+    string name = 2;
+    int64 parent_id = 3;
+    int32 level = 4;
+    int32 sort = 5;
+    string icon = 6;
+    int64 created_at = 7;
+    int64 updated_at = 8;
+}
+
+message CreateCategoryRequest {
+    string name = 1;
+    int64 parent_id = 2;
+    int32 sort = 3;
+    string icon = 4;
+}
+
+message CreateCategoryResponse {
+    int64 id = 1;
+}
+
+message UpdateCategoryRequest {
+    int64 id = 1;
+    string name = 2;
+    int32 sort = 3;
+    string icon = 4;
+}
+
+message UpdateCategoryResponse {
+    bool success = 1;
+}
+
+message DeleteCategoryRequest {
+    int64 id = 1;
+}
+
+message DeleteCategoryResponse {
+    bool success = 1;
+}
+
+message GetCategoryRequest {
+    int64 id = 1;
+}
+
+message GetCategoryResponse {
+    Category category = 1;
+}
+
+message ListCategoriesRequest {
+    int64 parent_id = 1;
+}
+
+message ListCategoriesResponse {
+    repeated Category categories = 1;
+}
+
+// SKU相关消息
+message SkuAttribute {
+    string key = 1;
+    string value = 2;
+}
+
+message Sku {
+    int64 id = 1;
+    int64 product_id = 2;
+    string sku_code = 3;
+    double price = 4;
+    int32 stock = 5;
+    repeated SkuAttribute attributes = 6;
+    int64 created_at = 7;
+    int64 updated_at = 8;
+}
+
+message CreateSkuRequest {
+    int64 product_id = 1;
+    string sku_code = 2;
+    double price = 3;
+    int32 stock = 4;
+    repeated SkuAttribute attributes = 5;
+}
+
+message CreateSkuResponse {
+    int64 id = 1;
+}
+
+message UpdateSkuRequest {
+    int64 id = 1;
+    double price = 2;
+    int32 stock = 3;
+}
+
+message UpdateSkuResponse {
+    bool success = 1;
+}
+
+message DeleteSkuRequest {
+    int64 id = 1;
+}
+
+message DeleteSkuResponse {
+    bool success = 1;
+}
+
+message GetSkuRequest {
+    int64 id = 1;
+}
+
+message GetSkuResponse {
+    Sku sku = 1;
+}
+
+message ListSkusRequest {
+    int64 product_id = 1;
+}
+
+message ListSkusResponse {
+    repeated Sku skus = 1;
+}
+
+// 评价相关消息
+message Review {
+    int64 id = 1;
+    int64 user_id = 2;
+    int64 product_id = 3;
+    int64 order_id = 4;
+    int32 rating = 5;
+    string content = 6;
+    repeated string images = 7;
+    int64 created_at = 8;
+    int64 updated_at = 9;
+}
+
+message CreateReviewRequest {
+    int64 user_id = 1;
+    int64 product_id = 2;
+    int64 order_id = 3;
+    int32 rating = 4;
+    string content = 5;
+    repeated string images = 6;
+}
+
+message CreateReviewResponse {
+    int64 id = 1;
+}
+
+message UpdateReviewRequest {
+    int64 id = 1;
+    int32 rating = 2;
+    string content = 3;
+    repeated string images = 4;
+}
+
+message UpdateReviewResponse {
+    bool success = 1;
+}
+
+message DeleteReviewRequest {
+    int64 id = 1;
+}
+
+message DeleteReviewResponse {
+    bool success = 1;
+}
+
+message ListReviewsRequest {
+    int64 product_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+}
+
+message ListReviewsResponse {
+    repeated Review reviews = 1;
+    int64 total = 2;
+}

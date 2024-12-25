@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package search;
+option go_package="./search";
+
+service Search {
+    // 商品搜索
+    rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse);
+    rpc GetHotKeywords(GetHotKeywordsRequest) returns (GetHotKeywordsResponse);
+    rpc GetSearchSuggestions(GetSearchSuggestionsRequest) returns (GetSearchSuggestionsResponse);
+    rpc SaveSearchHistory(SaveSearchHistoryRequest) returns (SaveSearchHistoryResponse);
+    rpc GetSearchHistory(GetSearchHistoryRequest) returns (GetSearchHistoryResponse);
+    rpc DeleteSearchHistory(DeleteSearchHistoryRequest) returns (DeleteSearchHistoryResponse);
+    
+    // 索引管理
+    rpc SyncProduct(SyncProductRequest) returns (SyncProductResponse);
+    rpc RemoveProduct(RemoveProductRequest) returns (RemoveProductResponse);
+}
+
+// 搜索商品
+message SearchProductsRequest {
+    string keyword = 1;
+    int64 category_id = 2;
+    repeated FilterOption filters = 3;
+    SortOption sort = 4;
+    int32 page = 5;
+    int32 page_size = 6;
+}
+
+message FilterOption {
+    string field = 1;
+    repeated string values = 2;
+}
+
+message SortOption {
+    string field = 1;
+    bool desc = 2;
+}
+
+message SearchProductsResponse {
+    repeated ProductInfo products = 1;
+    repeated FacetResult facets = 2;
+    int64 total = 3;
+    int32 page = 4;
+    int32 total_pages = 5;
+}
+
+message ProductInfo {
+    int64 id = 1;
+    string name = 2;
+    string brief = 3;
+    string description = 4;
+    int64 category_id = 5;
+    string category_name = 6;
+    string brand = 7;
+    repeated string images = 8;
+    double price = 9;
+    double market_price = 10;
+    int32 sales = 11;
+    double rating = 12;
+    map<string, string> attributes = 13;
+    int64 created_at = 14;
+}
+
+message FacetResult {
+    string field = 1;
+    repeated FacetValue values = 2;
+}
+
+message FacetValue {
+    string value = 1;
+    int64 count = 2;
+}
+
+// 热门关键词
+message GetHotKeywordsRequest {
+    int32 limit = 1;
+}
+
+message GetHotKeywordsResponse {
+    repeated HotKeyword keywords = 1;
+}
+
+message HotKeyword {
+    string keyword = 1;
+    int64 count = 2;
+}
+
+// 搜索建议
+message GetSearchSuggestionsRequest {
+    string keyword = 1;
+    int32 limit = 2;
+}
+
+message GetSearchSuggestionsResponse {
+    repeated string suggestions = 1;
+}
+
+// 搜索历史
+message SaveSearchHistoryRequest {
+    int64 user_id = 1;
+    string keyword = 2;
+}
+
+message SaveSearchHistoryResponse {
+    bool success = 1;
+}
+
+message GetSearchHistoryRequest {
+    int64 user_id = 1;
+    int32 limit = 2;
+}
+
+message GetSearchHistoryResponse {
+    repeated SearchHistory histories = 1;
+}
+
+message SearchHistory {
+    string keyword = 1;
+    int64 search_time = 2;
+}
+
+message DeleteSearchHistoryRequest {
+    int64 user_id = 1;
+    string keyword = 2;  // 为空则删除所有
+}
+
+message DeleteSearchHistoryResponse {
+    bool success = 1;
+}
+
+// 索引同步
+message SyncProductRequest {
+    ProductInfo product = 1;
+}
+
+message SyncProductResponse {
+    bool success = 1;
+}
+
+message RemoveProductRequest {
+    int64 product_id = 1;
+}
+
+message RemoveProductResponse {
+    bool success = 1;
+}

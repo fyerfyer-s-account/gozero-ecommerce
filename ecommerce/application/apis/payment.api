@@ -1,0 +1,94 @@
+syntax = "v1"
+
+type (
+    // 支付订单
+    PaymentOrder {
+        PaymentNo    string  `json:"paymentNo"`
+        OrderNo      string  `json:"orderNo"`
+        UserId       int64   `json:"userId"`
+        Amount       float64 `json:"amount"`
+        PaymentType  int32   `json:"paymentType"` // 1:微信 2:支付宝 3:余额
+        Status       int32   `json:"status"`      // 1:待支付 2:支付中 3:已支付 4:已退款 5:已关闭
+        PayTime      int64   `json:"payTime,optional"`
+        ExpireTime   int64   `json:"expireTime"`
+        CreatedAt    int64   `json:"createdAt"`
+    }
+
+    // 创建支付
+    CreatePaymentReq {
+        OrderNo     string  `json:"orderNo"`
+        PaymentType int32   `json:"paymentType"`
+        Amount      float64 `json:"amount"`
+        NotifyUrl   string  `json:"notifyUrl,optional"`
+        ReturnUrl   string  `json:"returnUrl,optional"`
+    }
+
+    CreatePaymentResp {
+        PaymentNo string `json:"paymentNo"`
+        PayUrl    string `json:"payUrl,optional"`    // 支付链接或支付参数
+        QrCode    string `json:"qrCode,optional"`    // 二维码链接
+    }
+
+    // 退款
+    RefundReq {
+        PaymentNo string  `json:"paymentNo"`
+        Amount    float64 `json:"amount"`
+        Reason    string  `json:"reason"`
+        NotifyUrl string  `json:"notifyUrl,optional"`
+    }
+
+    RefundResp {
+        RefundNo string  `json:"refundNo"`
+        Amount   float64 `json:"amount"`
+        Status   int32   `json:"status"` // 1:退款中 2:已退款 3:退款失败
+    }
+
+    // 支付通知
+    PaymentNotifyReq {
+        PaymentType int32  `json:"paymentType"`
+        PaymentNo   string `json:"paymentNo"`
+        Data        string `json:"data"`           // 原始通知数据
+    }
+
+    PaymentNotifyResp {
+        Code    int32  `json:"code"`    // 200表示成功
+        Message string `json:"message"`
+    }
+
+    // 退款通知
+    RefundNotifyReq {
+        PaymentType int32  `json:"paymentType"`
+        RefundNo    string `json:"refundNo"`
+        Data        string `json:"data"`         // 原始通知数据
+    }
+
+    RefundNotifyResp {
+        Code    int32  `json:"code"`   // 200表示成功
+        Message string `json:"message"`
+    }
+
+    // 查询支付状态
+    PaymentStatusReq {
+        PaymentNo string `json:"paymentNo"`
+    }
+
+    PaymentStatusResp {
+        Status    int32   `json:"status"`
+        Amount    float64 `json:"amount"`
+        PayTime   int64   `json:"payTime,optional"`
+        ErrorMsg  string  `json:"errorMsg,optional"`
+    }
+
+    // 查询退款状态
+    RefundStatusReq {
+        RefundNo string `json:"refundNo"`
+    }
+
+    RefundStatusResp {
+        Status    int32   `json:"status"`
+        Amount    float64 `json:"amount"`
+        Reason    string  `json:"reason"`
+        RefundTime int64  `json:"refundTime,optional"`
+        ErrorMsg  string  `json:"errorMsg,optional"`
+    }
+)

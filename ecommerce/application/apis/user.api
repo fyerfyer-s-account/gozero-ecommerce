@@ -1,0 +1,95 @@
+syntax = "v1"
+
+type (
+    // 认证相关
+    RegisterReq {
+        Username string `json:"username"`
+        Password string `json:"password"`
+        Phone    string `json:"phone,optional"`
+        Email    string `json:"email,optional"`
+    }
+
+    LoginReq {
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }
+
+    TokenResp {
+        AccessToken  string `json:"accessToken"`
+        RefreshToken string `json:"refreshToken"`
+        ExpiresIn   int64  `json:"expiresIn"`
+    }
+
+    // 用户信息
+    UserInfo {
+        Id          int64   `json:"id"`
+        Username    string  `json:"username"`
+        Nickname    string  `json:"nickname"`
+        Avatar      string  `json:"avatar"`
+        Phone       string  `json:"phone"`
+        Email       string  `json:"email"`
+        Gender      int32   `json:"gender"`
+        MemberLevel int32   `json:"memberLevel"`
+        Balance     float64 `json:"balance"`
+        CreatedAt   int64   `json:"createdAt"`
+    }
+
+    UpdateProfileReq {
+        Nickname string `json:"nickname,optional"`
+        Avatar   string `json:"avatar,optional"`
+        Gender   int32  `json:"gender,optional"`
+        Phone    string `json:"phone,optional"`
+        Email    string `json:"email,optional"`
+    }
+
+    // 地址相关
+    Address {
+        Id            int64  `json:"id"`
+        ReceiverName  string `json:"receiverName"`
+        ReceiverPhone string `json:"receiverPhone"`
+        Province      string `json:"province"`
+        City         string `json:"city"`
+        District     string `json:"district"`
+        DetailAddress string `json:"detailAddress"`
+        IsDefault    bool   `json:"isDefault"`
+    }
+
+    AddressReq {
+        ReceiverName   string `json:"receiverName"`
+        ReceiverPhone  string `json:"receiverPhone"`
+        Province       string `json:"province"`
+        City          string `json:"city"`
+        District      string `json:"district"`
+        DetailAddress string `json:"detailAddress"`
+        IsDefault     bool   `json:"isDefault,optional"`
+    }
+
+    // 钱包相关
+    WalletDetail {
+        Balance        float64 `json:"balance"`
+        FrozenAmount  float64 `json:"frozenAmount"`
+        TotalRecharge float64 `json:"totalRecharge"`
+        TotalSpent    float64 `json:"totalSpent"`
+    }
+
+    WalletLogReq {
+        Type     int32 `form:"type,optional"`     // 1:充值 2:消费 3:退款
+        Page     int32 `form:"page,optional,default=1"`
+        PageSize int32 `form:"pageSize,optional,default=20"`
+    }
+
+    WalletLog {
+        Id        int64   `json:"id"`
+        Type      int32   `json:"type"`
+        Amount    float64 `json:"amount"`
+        Balance   float64 `json:"balance"`
+        OrderNo   string  `json:"orderNo,optional"`
+        Remark    string  `json:"remark"`
+        CreatedAt int64   `json:"createdAt"`
+    }
+
+    RechargeReq {
+        Amount       float64 `json:"amount"`
+        PaymentType int32   `json:"paymentType"` // 1:微信 2:支付宝
+    }
+)

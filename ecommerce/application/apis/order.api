@@ -1,0 +1,108 @@
+syntax = "v1"
+
+type (
+    // 创建订单
+    CreateOrderReq {
+        AddressId    int64         `json:"addressId"`
+        CartItemIds  []int64       `json:"cartItemIds,optional"`  // 从购物车创建
+        Products     []OrderProduct `json:"products,optional"`     // 直接购买
+        CouponId     int64         `json:"couponId,optional"`
+        UsePoints    bool          `json:"usePoints,optional"`
+        PaymentType  int32         `json:"paymentType"`           // 1:微信 2:支付宝 3:余额
+        Note         string        `json:"note,optional"`
+    }
+
+    OrderProduct {
+        ProductId int64 `json:"productId"`
+        SkuId    int64 `json:"skuId"`
+        Quantity int32 `json:"quantity"`
+    }
+
+    // 订单信息
+    Order {
+        Id            int64       `json:"id"`
+        OrderNo       string      `json:"orderNo"`
+        UserId        int64       `json:"userId"`
+        Status        int32       `json:"status"`        // 1:待支付 2:待发货 3:待收货 4:已完成 5:已取消 6:售后中
+        TotalAmount   float64     `json:"totalAmount"`   // 订单总金额
+        PayAmount     float64     `json:"payAmount"`     // 实付金额
+        FreightAmount float64     `json:"freightAmount"` // 运费
+        DiscountAmount float64    `json:"discountAmount"`// 优惠金额
+        CouponAmount  float64     `json:"couponAmount"` // 优惠券抵扣
+        PointsAmount  float64     `json:"pointsAmount"` // 积分抵扣
+        Items         []OrderItem `json:"items"`
+        Address       Address     `json:"address"`
+        Payment       Payment     `json:"payment"`
+        Shipping      Shipping    `json:"shipping"`
+        CreatedAt     int64      `json:"createdAt"`
+        PayTime       int64      `json:"payTime,optional"`
+        ShipTime      int64      `json:"shipTime,optional"`
+        ReceiveTime   int64      `json:"receiveTime,optional"`
+        FinishTime    int64      `json:"finishTime,optional"`
+    }
+
+    OrderItem {
+        Id          int64   `json:"id"`
+        ProductId   int64   `json:"productId"`
+        ProductName string  `json:"productName"`
+        SkuId      int64   `json:"skuId"`
+        SkuName    string  `json:"skuName"`
+        Image      string  `json:"image"`
+        Price      float64 `json:"price"`
+        Quantity   int32   `json:"quantity"`
+        Amount     float64 `json:"amount"`
+    }
+
+    Payment {
+        PaymentNo   string  `json:"paymentNo"`
+        PaymentType int32   `json:"paymentType"`
+        Status      int32   `json:"status"`
+        Amount      float64 `json:"amount"`
+        PayTime     int64   `json:"payTime,optional"`
+    }
+
+    Shipping {
+        ShippingNo  string `json:"shippingNo,optional"`
+        Company     string `json:"company,optional"`
+        Status      int32  `json:"status"`        // 0:待发货 1:已发货 2:已签收
+        ShipTime    int64  `json:"shipTime,optional"`
+        ReceiveTime int64  `json:"receiveTime,optional"`
+    }
+
+    // 订单列表查询
+    OrderListReq {
+        Status    int32 `form:"status,optional"`
+        Page      int32 `form:"page,optional,default=1"`
+        PageSize  int32 `form:"pageSize,optional,default=20"`
+    }
+
+    OrderListResp {
+        List       []Order `json:"list"`
+        Total      int64   `json:"total"`
+        Page       int32   `json:"page"`
+        TotalPages int32   `json:"totalPages"`
+    }
+
+    // 售后相关
+    CreateRefundReq {
+        OrderId  int64    `json:"orderId"`
+        Type     int32    `json:"type"`      // 1:仅退款 2:退货退款
+        Reason   string   `json:"reason"`
+        Amount   float64  `json:"amount"`
+        Desc     string   `json:"desc,optional"`
+        Images   []string `json:"images,optional"`
+    }
+
+    RefundInfo {
+        Id        int64    `json:"id"`
+        OrderId   int64    `json:"orderId"`
+        RefundNo  string   `json:"refundNo"`
+        Type      int32    `json:"type"`
+        Status    int32    `json:"status"`    // 0:待处理 1:已同意 2:已拒绝 3:已退款
+        Amount    float64  `json:"amount"`
+        Reason    string   `json:"reason"`
+        Desc      string   `json:"desc"`
+        Images    []string `json:"images"`
+        CreatedAt int64    `json:"createdAt"`
+    }
+)

@@ -1,0 +1,92 @@
+syntax = "v1"
+
+type (
+    // 商品基础信息
+    Product {
+        Id           int64    `json:"id"`
+        Name         string   `json:"name"`
+        Brief        string   `json:"brief"`
+        Description  string   `json:"description"`
+        CategoryId   int64    `json:"categoryId"`
+        CategoryName string   `json:"categoryName"`
+        Brand        string   `json:"brand"`
+        Images       []string `json:"images"`
+        Price        float64  `json:"price"`
+        MarketPrice  float64  `json:"marketPrice"`
+        Stock        int32    `json:"stock"`
+        Sales        int32    `json:"sales"`
+        Rating       float64  `json:"rating"`
+        Status       int32    `json:"status"`
+        CreatedAt    int64    `json:"createdAt"`
+    }
+
+    // SKU信息
+    Sku {
+        Id         int64             `json:"id"`
+        ProductId  int64             `json:"productId"`
+        Name       string            `json:"name"`
+        Code       string            `json:"code"`
+        Price      float64           `json:"price"`
+        Stock      int32             `json:"stock"`
+        Attributes map[string]string `json:"attributes"`
+    }
+
+    // 商品分类
+    Category {
+        Id       int64  `json:"id"`
+        Name     string `json:"name"`
+        ParentId int64  `json:"parentId"`
+        Level    int32  `json:"level"`
+        Sort     int32  `json:"sort"`
+        Icon     string `json:"icon,optional"`
+    }
+
+    // 搜索相关
+    SearchReq {
+        Keyword     string   `form:"keyword,optional"`
+        CategoryId  int64    `form:"categoryId,optional"`
+        BrandId     int64    `form:"brandId,optional"`
+        PriceMin    float64  `form:"priceMin,optional"`
+        PriceMax    float64  `form:"priceMax,optional"`
+        Attributes  []string `form:"attributes,optional"`
+        Sort        string   `form:"sort,optional"`      // price,sales,rating
+        Order       string   `form:"order,optional"`     // asc,desc
+        Page        int32    `form:"page,optional,default=1"`
+        PageSize    int32    `form:"pageSize,optional,default=20"`
+    }
+
+    SearchResp {
+        List        []Product `json:"list"`
+        Total       int64     `json:"total"`
+        Page        int32     `json:"page"`
+        TotalPages  int32     `json:"totalPages"`
+    }
+
+    // 商品评价
+    Review {
+        Id         int64    `json:"id"`
+        ProductId  int64    `json:"productId"`
+        OrderId    int64    `json:"orderId"`
+        UserId     int64    `json:"userId"`
+        UserName   string   `json:"userName"`
+        Rating     int32    `json:"rating"`
+        Content    string   `json:"content"`
+        Images     []string `json:"images,optional"`
+        CreatedAt  int64    `json:"createdAt"`
+    }
+
+    CreateReviewReq {
+        ProductId  int64    `json:"productId"`
+        OrderId    int64    `json:"orderId"`
+        Rating     int32    `json:"rating"`
+        Content    string   `json:"content"`
+        Images     []string `json:"images,optional"`
+    }
+
+    ReviewListReq {
+        ProductId  int64 `form:"productId"`
+        Rating     int32 `form:"rating,optional"`
+        Page       int32 `form:"page,optional,default=1"`
+        PageSize   int32 `form:"pageSize,optional,default=20"`
+    }
+)

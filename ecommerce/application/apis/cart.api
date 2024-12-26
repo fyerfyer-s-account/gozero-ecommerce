@@ -1,0 +1,47 @@
+syntax = "v1"
+
+type (
+    // 购物车商品
+    CartItem {
+        Id          int64   `json:"id"`
+        ProductId   int64   `json:"productId"`
+        ProductName string  `json:"productName"`
+        SkuId      int64   `json:"skuId"`
+        SkuName    string  `json:"skuName"`
+        Image      string  `json:"image"`
+        Price      float64 `json:"price"`
+        Quantity   int32   `json:"quantity"`
+        Selected   bool    `json:"selected"`
+        Stock      int32   `json:"stock"`
+        CreatedAt  int64   `json:"createdAt"`
+    }
+
+    // 添加/更新购物车
+    CartItemReq {
+        ProductId int64 `json:"productId"`
+        SkuId    int64 `json:"skuId"`
+        Quantity int32 `json:"quantity"`
+    }
+
+    // 购物车信息
+    CartInfo {
+        Items         []CartItem `json:"items"`
+        TotalPrice    float64    `json:"totalPrice"`
+        TotalQuantity int32      `json:"totalQuantity"`
+        SelectedPrice float64    `json:"selectedPrice"`
+        SelectedCount int32      `json:"selectedCount"`
+    }
+
+    // 选中商品信息
+    SelectedItemsResp {
+        Items         []CartItem `json:"items"`
+        TotalPrice   float64    `json:"totalPrice"`
+        TotalQuantity int32      `json:"totalQuantity"`
+        ValidStock   bool       `json:"validStock"`   // 库存是否足够
+    }
+
+    // 批量操作请求
+    BatchOperateReq {
+        ItemIds []int64 `json:"itemIds"`
+    }
+)

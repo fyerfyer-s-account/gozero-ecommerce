@@ -23,7 +23,7 @@ service User {
     rpc AddAddress(AddAddressRequest) returns (AddAddressResponse);
     rpc UpdateAddress(UpdateAddressRequest) returns (UpdateAddressResponse);
     rpc DeleteAddress(DeleteAddressRequest) returns (DeleteAddressResponse);
-    rpc ListAddress(ListAddressRequest) returns (ListAddressResponse);
+    
     // 钱包操作
     rpc GetWallet(GetWalletRequest) returns (GetWalletResponse);
     rpc RechargeWallet(RechargeWalletRequest) returns (RechargeWalletResponse);
@@ -174,14 +174,6 @@ message DeleteAddressRequest {
 
 message DeleteAddressResponse {
     bool success = 1;
-}
-
-message ListAddressRequest {
-    int64 user_id = 1;
-}
-
-message ListAddressResponse {
-    repeated Address address_list = 1;
 }
 
 // 钱包操作

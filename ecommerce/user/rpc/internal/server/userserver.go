@@ -85,11 +85,6 @@ func (s *UserServer) DeleteAddress(ctx context.Context, in *user.DeleteAddressRe
 	return l.DeleteAddress(in)
 }
 
-func (s *UserServer) ListAddress(ctx context.Context, in *user.ListAddressRequest) (*user.ListAddressResponse, error) {
-	l := logic.NewListAddressLogic(ctx, s.svcCtx)
-	return l.ListAddress(in)
-}
-
 // 钱包操作
 func (s *UserServer) GetWallet(ctx context.Context, in *user.GetWalletRequest) (*user.GetWalletResponse, error) {
 	l := logic.NewGetWalletLogic(ctx, s.svcCtx)

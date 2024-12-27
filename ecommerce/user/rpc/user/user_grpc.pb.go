@@ -30,7 +30,6 @@ const (
 	User_AddAddress_FullMethodName       = "/user.User/AddAddress"
 	User_UpdateAddress_FullMethodName    = "/user.User/UpdateAddress"
 	User_DeleteAddress_FullMethodName    = "/user.User/DeleteAddress"
-	User_ListAddress_FullMethodName      = "/user.User/ListAddress"
 	User_GetWallet_FullMethodName        = "/user.User/GetWallet"
 	User_RechargeWallet_FullMethodName   = "/user.User/RechargeWallet"
 	User_WithdrawWallet_FullMethodName   = "/user.User/WithdrawWallet"
@@ -60,7 +59,6 @@ type UserClient interface {
 	AddAddress(ctx context.Context, in *AddAddressRequest, opts ...grpc.CallOption) (*AddAddressResponse, error)
 	UpdateAddress(ctx context.Context, in *UpdateAddressRequest, opts ...grpc.CallOption) (*UpdateAddressResponse, error)
 	DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error)
-	ListAddress(ctx context.Context, in *ListAddressRequest, opts ...grpc.CallOption) (*ListAddressResponse, error)
 	// 钱包操作
 	GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error)
 	RechargeWallet(ctx context.Context, in *RechargeWalletRequest, opts ...grpc.CallOption) (*RechargeWalletResponse, error)
@@ -185,16 +183,6 @@ func (c *userClient) DeleteAddress(ctx context.Context, in *DeleteAddressRequest
 	return out, nil
 }
 
-func (c *userClient) ListAddress(ctx context.Context, in *ListAddressRequest, opts ...grpc.CallOption) (*ListAddressResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListAddressResponse)
-	err := c.cc.Invoke(ctx, User_ListAddress_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userClient) GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetWalletResponse)
@@ -249,7 +237,6 @@ type UserServer interface {
 	AddAddress(context.Context, *AddAddressRequest) (*AddAddressResponse, error)
 	UpdateAddress(context.Context, *UpdateAddressRequest) (*UpdateAddressResponse, error)
 	DeleteAddress(context.Context, *DeleteAddressRequest) (*DeleteAddressResponse, error)
-	ListAddress(context.Context, *ListAddressRequest) (*ListAddressResponse, error)
 	// 钱包操作
 	GetWallet(context.Context, *GetWalletRequest) (*GetWalletResponse, error)
 	RechargeWallet(context.Context, *RechargeWalletRequest) (*RechargeWalletResponse, error)
@@ -296,9 +283,6 @@ func (UnimplementedUserServer) UpdateAddress(context.Context, *UpdateAddressRequ
 }
 func (UnimplementedUserServer) DeleteAddress(context.Context, *DeleteAddressRequest) (*DeleteAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAddress not implemented")
-}
-func (UnimplementedUserServer) ListAddress(context.Context, *ListAddressRequest) (*ListAddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListAddress not implemented")
 }
 func (UnimplementedUserServer) GetWallet(context.Context, *GetWalletRequest) (*GetWalletResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWallet not implemented")
@@ -528,24 +512,6 @@ func _User_DeleteAddress_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_ListAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAddressRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).ListAddress(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_ListAddress_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).ListAddress(ctx, req.(*ListAddressRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _User_GetWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetWalletRequest)
 	if err := dec(in); err != nil {
@@ -650,10 +616,6 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteAddress",
 			Handler:    _User_DeleteAddress_Handler,
-		},
-		{
-			MethodName: "ListAddress",
-			Handler:    _User_ListAddress_Handler,
 		},
 		{
 			MethodName: "GetWallet",

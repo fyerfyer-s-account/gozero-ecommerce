@@ -41,6 +41,19 @@ var (
 	ErrInvalidAvatar = NewCodeError(100203, "无效的头像地址")
 )
 
+// Password Errors
+var (
+	ErrOldPasswordIncorrect = NewCodeError(100701, "原密码错误")
+	ErrSamePassword         = NewCodeError(100702, "新密码不能与原密码相同")
+	ErrChangePasswordFailed = NewCodeError(100703, "修改密码失败")
+)
+
+// Reset Password Error
+var (
+	ErrResetPasswordFailed = NewCodeError(100802, "重置密码失败")
+	ErrPhoneNotFound       = NewCodeError(100803, "手机号未注册")
+)
+
 // Address Errors
 var (
 	ErrAddressNotFound            = NewCodeError(100301, "地址不存在")
@@ -58,6 +71,9 @@ var (
 	ErrInvalidPayPassword       = NewCodeError(100404, "支付密码错误")
 	ErrWalletDisabled           = NewCodeError(100405, "钱包已被冻结")
 	ErrInsufficientFrozenAmount = NewCodeError(100406, "冻结金额不足")
+	ErrRechargeWalletFailed     = NewCodeError(100407, "钱包充值失败")
+	ErrWithdrawFailed           = NewCodeError(100408, "提现失败")
+	ErrInvalidBankCard          = NewCodeError(100409, "无效的银行卡号")
 )
 
 // Validation Errors
@@ -70,7 +86,6 @@ var (
 )
 
 // Transaction Errors
-
 var (
 	ErrInvalidTransactionParams = NewCodeError(100601, "无效的交易记录查询参数")
 	ErrGetTransactionsFailed    = NewCodeError(100602, "获取交易记录失败")

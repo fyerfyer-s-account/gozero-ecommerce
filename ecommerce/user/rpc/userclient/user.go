@@ -29,8 +29,6 @@ type (
 	GetUserInfoResponse      = user.GetUserInfoResponse
 	GetWalletRequest         = user.GetWalletRequest
 	GetWalletResponse        = user.GetWalletResponse
-	ListAddressRequest       = user.ListAddressRequest
-	ListAddressResponse      = user.ListAddressResponse
 	LoginRequest             = user.LoginRequest
 	LoginResponse            = user.LoginResponse
 	RechargeWalletRequest    = user.RechargeWalletRequest
@@ -67,7 +65,6 @@ type (
 		AddAddress(ctx context.Context, in *AddAddressRequest, opts ...grpc.CallOption) (*AddAddressResponse, error)
 		UpdateAddress(ctx context.Context, in *UpdateAddressRequest, opts ...grpc.CallOption) (*UpdateAddressResponse, error)
 		DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error)
-		ListAddress(ctx context.Context, in *ListAddressRequest, opts ...grpc.CallOption) (*ListAddressResponse, error)
 		// 钱包操作
 		GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error)
 		RechargeWallet(ctx context.Context, in *RechargeWalletRequest, opts ...grpc.CallOption) (*RechargeWalletResponse, error)
@@ -145,11 +142,6 @@ func (m *defaultUser) UpdateAddress(ctx context.Context, in *UpdateAddressReques
 func (m *defaultUser) DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.DeleteAddress(ctx, in, opts...)
-}
-
-func (m *defaultUser) ListAddress(ctx context.Context, in *ListAddressRequest, opts ...grpc.CallOption) (*ListAddressResponse, error) {
-	client := user.NewUserClient(m.cli.Conn())
-	return client.ListAddress(ctx, in, opts...)
 }
 
 // 钱包操作

@@ -11,6 +11,8 @@ service User {
     rpc Login(LoginRequest) returns (LoginResponse);
     // 获取用户信息
     rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse);
+    rpc GetUserAddresses(GetUserAddressesRequest) returns (GetUserAddressesResponse);
+    rpc GetTransactions(GetTransactionsRequest) returns (GetTransactionsResponse);
     // 更新用户信息
     rpc UpdateUserInfo(UpdateUserInfoRequest) returns (UpdateUserInfoResponse);
     // 修改密码
@@ -23,7 +25,7 @@ service User {
     rpc DeleteAddress(DeleteAddressRequest) returns (DeleteAddressResponse);
     rpc ListAddress(ListAddressRequest) returns (ListAddressResponse);
     // 钱包操作
-    rpc GetWalletBalance(GetWalletBalanceRequest) returns (GetWalletBalanceResponse);
+    rpc GetWallet(GetWalletRequest) returns (GetWalletResponse);
     rpc RechargeWallet(RechargeWalletRequest) returns (RechargeWalletResponse);
     rpc WithdrawWallet(WithdrawWalletRequest) returns (WithdrawWalletResponse);
 }
@@ -38,7 +40,6 @@ message RegisterRequest {
 
 message RegisterResponse {
     int64 user_id = 1;
-    string token = 2;
 }
 
 // 登录请求
@@ -48,9 +49,9 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    int64 user_id = 1;
-    string token = 2;
-    UserInfo user_info = 3;
+    string access_token = 1;
+    string refresh_token = 2;
+    int64 expires_in = 3;
 }
 
 // 用户信息
@@ -61,7 +62,7 @@ message UserInfo {
     string avatar = 4;
     string phone = 5;
     string email = 6;
-    int32 gender = 7;
+    string gender = 7;
     int32 member_level = 8;
     double wallet_balance = 9;
     int64 created_at = 10;
@@ -128,6 +129,14 @@ message Address {
     int64 updated_at = 11;
 }
 
+message GetUserAddressesRequest {
+    int64 user_id = 1;
+}
+
+message GetUserAddressesResponse {
+    repeated Address addresses = 1;
+}
+
 message AddAddressRequest {
     int64 user_id = 1;
     string receiver_name = 2;
@@ -176,12 +185,14 @@ message ListAddressResponse {
 }
 
 // 钱包操作
-message GetWalletBalanceRequest {
+message GetWalletRequest {
     int64 user_id = 1;
 }
 
-message GetWalletBalanceResponse {
+message GetWalletResponse {
     double balance = 1;
+    int64 status = 2;
+    double freeze_amount = 3;
 }
 
 message RechargeWalletRequest {
@@ -204,4 +215,30 @@ message WithdrawWalletRequest {
 message WithdrawWalletResponse {
     string order_id = 1;
     double balance = 2;
+}
+
+message Transaction {
+    int64 id = 1;
+    int64 user_id = 2;
+    string order_id = 3;
+    double amount = 4;
+    int64 type = 5;       // 1:充值 2:消费 3:退款
+    int64 status = 6;     // 1:成功 2:失败 3:处理中
+    string remark = 7;    // 交易备注
+    int64 created_at = 8;
+    int64 updated_at = 9;
+}
+
+message GetTransactionsRequest {
+    int64 user_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+    int32 type = 4;       // 可选，交易类型过滤
+}
+
+message GetTransactionsResponse {
+    repeated Transaction transactions = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 total_pages = 4;
 }

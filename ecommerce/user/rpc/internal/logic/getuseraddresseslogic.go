@@ -9,23 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetWalletBalanceLogic struct {
+type GetUserAddressesLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewGetWalletBalanceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetWalletBalanceLogic {
-	return &GetWalletBalanceLogic{
+func NewGetUserAddressesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserAddressesLogic {
+	return &GetUserAddressesLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-// 钱包操作
-func (l *GetWalletBalanceLogic) GetWalletBalance(in *user.GetWalletBalanceRequest) (*user.GetWalletBalanceResponse, error) {
+func (l *GetUserAddressesLogic) GetUserAddresses(in *user.GetUserAddressesRequest) (*user.GetUserAddressesResponse, error) {
 	// todo: add your logic here and delete this line
 
-	return &user.GetWalletBalanceResponse{}, nil
+	return &user.GetUserAddressesResponse{}, nil
 }

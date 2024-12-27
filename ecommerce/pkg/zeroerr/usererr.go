@@ -47,6 +47,7 @@ var (
 	ErrAddressLimit               = NewCodeError(100302, "地址数量超出限制")
 	ErrInvalidAddress             = NewCodeError(100303, "无效的地址信息")
 	ErrDefaultAddressNotDeletable = NewCodeError(100304, "默认地址不能删除")
+	ErrDuplicateDefaultAddress    = NewCodeError(100305, "只能有一个默认地址")
 )
 
 // Wallet Errors
@@ -66,4 +67,13 @@ var (
 	ErrInvalidUsername   = NewCodeError(100503, "无效的用户名")
 	ErrPasswordTooWeak   = NewCodeError(100504, "密码强度不足")
 	ErrInvalidVerifyCode = NewCodeError(100505, "验证码错误")
+)
+
+// Transaction Errors
+
+var (
+	ErrInvalidTransactionParams = NewCodeError(100601, "无效的交易记录查询参数")
+	ErrGetTransactionsFailed    = NewCodeError(100602, "获取交易记录失败")
+	ErrTransactionNotFound      = NewCodeError(100603, "交易记录不存在")
+	ErrInvalidTransactionType   = NewCodeError(100604, "无效的交易类型")
 )

@@ -10,7 +10,7 @@ CREATE TABLE `users` (
     `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
     `nickname` varchar(32) DEFAULT NULL COMMENT '昵称',
     `avatar` varchar(255) DEFAULT NULL COMMENT '头像URL',
-    `gender` tinyint DEFAULT '0' COMMENT '性别 0:未知 1:男 2:女',
+    `gender` varchar(10) NOT NULL DEFAULT 'unset' COMMENT '性别',
     `member_level` tinyint DEFAULT '0' COMMENT '会员等级',
     `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态 0:禁用 1:启用',
     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

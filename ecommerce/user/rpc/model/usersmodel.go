@@ -12,7 +12,7 @@ type (
 	// and implement the added methods in customUsersModel.
 	UsersModel interface {
 		usersModel
-		withSession(session sqlx.Session) UsersModel
+		WithSession(session sqlx.Session) UsersModel
 		FindOneByPhoneOrEmail(ctx context.Context, account string) (*Users, error)
 		UpdatePassword(ctx context.Context, id uint64, password string) error
 		UpdateStatus(ctx context.Context, id uint64, status int32) error
@@ -24,6 +24,12 @@ type (
 		*defaultUsersModel
 	}
 )
+
+func NewUsersModel(conn sqlx.SqlConn) UsersModel {
+	return &customUsersModel{
+		defaultUsersModel: newUsersModel(conn),
+	}
+}
 
 func (m *customUsersModel) FindOneByPhoneOrEmail(ctx context.Context, account string) (*Users, error) {
 	var user Users
@@ -59,21 +65,11 @@ func (m *customUsersModel) Trans(ctx context.Context, fn func(context context.Co
 	})
 }
 
-func NewUsersModel(conn sqlx.SqlConn, session sqlx.Session) UsersModel {
-	var m *defaultUsersModel
-	if session != nil {
-		m = &defaultUsersModel{
-			conn:  sqlx.NewSqlConnFromSession(session),
-			table: "`users`",
-		}
-	} else {
-		m = newUsersModel(conn)
-	}
+func (m *customUsersModel) WithSession(session sqlx.Session) UsersModel {
 	return &customUsersModel{
-		defaultUsersModel: m,
+		defaultUsersModel: &defaultUsersModel{
+			conn:  sqlx.NewSqlConnFromSession(session),
+			table: m.table,
+		},
 	}
-}
-
-func (m *customUsersModel) withSession(session sqlx.Session) UsersModel {
-	return NewUsersModel(m.conn, session)
 }

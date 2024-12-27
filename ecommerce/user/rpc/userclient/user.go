@@ -21,10 +21,14 @@ type (
 	ChangePasswordResponse   = user.ChangePasswordResponse
 	DeleteAddressRequest     = user.DeleteAddressRequest
 	DeleteAddressResponse    = user.DeleteAddressResponse
+	GetTransactionsRequest   = user.GetTransactionsRequest
+	GetTransactionsResponse  = user.GetTransactionsResponse
+	GetUserAddressesRequest  = user.GetUserAddressesRequest
+	GetUserAddressesResponse = user.GetUserAddressesResponse
 	GetUserInfoRequest       = user.GetUserInfoRequest
 	GetUserInfoResponse      = user.GetUserInfoResponse
-	GetWalletBalanceRequest  = user.GetWalletBalanceRequest
-	GetWalletBalanceResponse = user.GetWalletBalanceResponse
+	GetWalletRequest         = user.GetWalletRequest
+	GetWalletResponse        = user.GetWalletResponse
 	ListAddressRequest       = user.ListAddressRequest
 	ListAddressResponse      = user.ListAddressResponse
 	LoginRequest             = user.LoginRequest
@@ -35,6 +39,7 @@ type (
 	RegisterResponse         = user.RegisterResponse
 	ResetPasswordRequest     = user.ResetPasswordRequest
 	ResetPasswordResponse    = user.ResetPasswordResponse
+	Transaction              = user.Transaction
 	UpdateAddressRequest     = user.UpdateAddressRequest
 	UpdateAddressResponse    = user.UpdateAddressResponse
 	UpdateUserInfoRequest    = user.UpdateUserInfoRequest
@@ -50,6 +55,8 @@ type (
 		Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 		// 获取用户信息
 		GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
+		GetUserAddresses(ctx context.Context, in *GetUserAddressesRequest, opts ...grpc.CallOption) (*GetUserAddressesResponse, error)
+		GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error)
 		// 更新用户信息
 		UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error)
 		// 修改密码
@@ -62,7 +69,7 @@ type (
 		DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error)
 		ListAddress(ctx context.Context, in *ListAddressRequest, opts ...grpc.CallOption) (*ListAddressResponse, error)
 		// 钱包操作
-		GetWalletBalance(ctx context.Context, in *GetWalletBalanceRequest, opts ...grpc.CallOption) (*GetWalletBalanceResponse, error)
+		GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error)
 		RechargeWallet(ctx context.Context, in *RechargeWalletRequest, opts ...grpc.CallOption) (*RechargeWalletResponse, error)
 		WithdrawWallet(ctx context.Context, in *WithdrawWalletRequest, opts ...grpc.CallOption) (*WithdrawWalletResponse, error)
 	}
@@ -94,6 +101,16 @@ func (m *defaultUser) Login(ctx context.Context, in *LoginRequest, opts ...grpc.
 func (m *defaultUser) GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.GetUserInfo(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetUserAddresses(ctx context.Context, in *GetUserAddressesRequest, opts ...grpc.CallOption) (*GetUserAddressesResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetUserAddresses(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetTransactions(ctx, in, opts...)
 }
 
 // 更新用户信息
@@ -136,9 +153,9 @@ func (m *defaultUser) ListAddress(ctx context.Context, in *ListAddressRequest, o
 }
 
 // 钱包操作
-func (m *defaultUser) GetWalletBalance(ctx context.Context, in *GetWalletBalanceRequest, opts ...grpc.CallOption) (*GetWalletBalanceResponse, error) {
+func (m *defaultUser) GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.GetWalletBalance(ctx, in, opts...)
+	return client.GetWallet(ctx, in, opts...)
 }
 
 func (m *defaultUser) RechargeWallet(ctx context.Context, in *RechargeWalletRequest, opts ...grpc.CallOption) (*RechargeWalletResponse, error) {

@@ -22,6 +22,8 @@ const (
 	User_Register_FullMethodName         = "/user.User/Register"
 	User_Login_FullMethodName            = "/user.User/Login"
 	User_GetUserInfo_FullMethodName      = "/user.User/GetUserInfo"
+	User_GetUserAddresses_FullMethodName = "/user.User/GetUserAddresses"
+	User_GetTransactions_FullMethodName  = "/user.User/GetTransactions"
 	User_UpdateUserInfo_FullMethodName   = "/user.User/UpdateUserInfo"
 	User_ChangePassword_FullMethodName   = "/user.User/ChangePassword"
 	User_ResetPassword_FullMethodName    = "/user.User/ResetPassword"
@@ -29,7 +31,7 @@ const (
 	User_UpdateAddress_FullMethodName    = "/user.User/UpdateAddress"
 	User_DeleteAddress_FullMethodName    = "/user.User/DeleteAddress"
 	User_ListAddress_FullMethodName      = "/user.User/ListAddress"
-	User_GetWalletBalance_FullMethodName = "/user.User/GetWalletBalance"
+	User_GetWallet_FullMethodName        = "/user.User/GetWallet"
 	User_RechargeWallet_FullMethodName   = "/user.User/RechargeWallet"
 	User_WithdrawWallet_FullMethodName   = "/user.User/WithdrawWallet"
 )
@@ -46,6 +48,8 @@ type UserClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// 获取用户信息
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
+	GetUserAddresses(ctx context.Context, in *GetUserAddressesRequest, opts ...grpc.CallOption) (*GetUserAddressesResponse, error)
+	GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error)
 	// 更新用户信息
 	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error)
 	// 修改密码
@@ -58,7 +62,7 @@ type UserClient interface {
 	DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error)
 	ListAddress(ctx context.Context, in *ListAddressRequest, opts ...grpc.CallOption) (*ListAddressResponse, error)
 	// 钱包操作
-	GetWalletBalance(ctx context.Context, in *GetWalletBalanceRequest, opts ...grpc.CallOption) (*GetWalletBalanceResponse, error)
+	GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error)
 	RechargeWallet(ctx context.Context, in *RechargeWalletRequest, opts ...grpc.CallOption) (*RechargeWalletResponse, error)
 	WithdrawWallet(ctx context.Context, in *WithdrawWalletRequest, opts ...grpc.CallOption) (*WithdrawWalletResponse, error)
 }
@@ -95,6 +99,26 @@ func (c *userClient) GetUserInfo(ctx context.Context, in *GetUserInfoRequest, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUserInfoResponse)
 	err := c.cc.Invoke(ctx, User_GetUserInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserAddresses(ctx context.Context, in *GetUserAddressesRequest, opts ...grpc.CallOption) (*GetUserAddressesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserAddressesResponse)
+	err := c.cc.Invoke(ctx, User_GetUserAddresses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTransactionsResponse)
+	err := c.cc.Invoke(ctx, User_GetTransactions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -171,10 +195,10 @@ func (c *userClient) ListAddress(ctx context.Context, in *ListAddressRequest, op
 	return out, nil
 }
 
-func (c *userClient) GetWalletBalance(ctx context.Context, in *GetWalletBalanceRequest, opts ...grpc.CallOption) (*GetWalletBalanceResponse, error) {
+func (c *userClient) GetWallet(ctx context.Context, in *GetWalletRequest, opts ...grpc.CallOption) (*GetWalletResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetWalletBalanceResponse)
-	err := c.cc.Invoke(ctx, User_GetWalletBalance_FullMethodName, in, out, cOpts...)
+	out := new(GetWalletResponse)
+	err := c.cc.Invoke(ctx, User_GetWallet_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -213,6 +237,8 @@ type UserServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// 获取用户信息
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error)
+	GetUserAddresses(context.Context, *GetUserAddressesRequest) (*GetUserAddressesResponse, error)
+	GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error)
 	// 更新用户信息
 	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error)
 	// 修改密码
@@ -225,7 +251,7 @@ type UserServer interface {
 	DeleteAddress(context.Context, *DeleteAddressRequest) (*DeleteAddressResponse, error)
 	ListAddress(context.Context, *ListAddressRequest) (*ListAddressResponse, error)
 	// 钱包操作
-	GetWalletBalance(context.Context, *GetWalletBalanceRequest) (*GetWalletBalanceResponse, error)
+	GetWallet(context.Context, *GetWalletRequest) (*GetWalletResponse, error)
 	RechargeWallet(context.Context, *RechargeWalletRequest) (*RechargeWalletResponse, error)
 	WithdrawWallet(context.Context, *WithdrawWalletRequest) (*WithdrawWalletResponse, error)
 	mustEmbedUnimplementedUserServer()
@@ -246,6 +272,12 @@ func (UnimplementedUserServer) Login(context.Context, *LoginRequest) (*LoginResp
 }
 func (UnimplementedUserServer) GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedUserServer) GetUserAddresses(context.Context, *GetUserAddressesRequest) (*GetUserAddressesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserAddresses not implemented")
+}
+func (UnimplementedUserServer) GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTransactions not implemented")
 }
 func (UnimplementedUserServer) UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserInfo not implemented")
@@ -268,8 +300,8 @@ func (UnimplementedUserServer) DeleteAddress(context.Context, *DeleteAddressRequ
 func (UnimplementedUserServer) ListAddress(context.Context, *ListAddressRequest) (*ListAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAddress not implemented")
 }
-func (UnimplementedUserServer) GetWalletBalance(context.Context, *GetWalletBalanceRequest) (*GetWalletBalanceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetWalletBalance not implemented")
+func (UnimplementedUserServer) GetWallet(context.Context, *GetWalletRequest) (*GetWalletResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWallet not implemented")
 }
 func (UnimplementedUserServer) RechargeWallet(context.Context, *RechargeWalletRequest) (*RechargeWalletResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RechargeWallet not implemented")
@@ -348,6 +380,42 @@ func _User_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).GetUserInfo(ctx, req.(*GetUserInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserAddresses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserAddressesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserAddresses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserAddresses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserAddresses(ctx, req.(*GetUserAddressesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTransactionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetTransactions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetTransactions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetTransactions(ctx, req.(*GetTransactionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -478,20 +546,20 @@ func _User_ListAddress_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetWalletBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetWalletBalanceRequest)
+func _User_GetWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWalletRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetWalletBalance(ctx, in)
+		return srv.(UserServer).GetWallet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_GetWalletBalance_FullMethodName,
+		FullMethod: User_GetWallet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetWalletBalance(ctx, req.(*GetWalletBalanceRequest))
+		return srv.(UserServer).GetWallet(ctx, req.(*GetWalletRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -552,6 +620,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetUserInfo_Handler,
 		},
 		{
+			MethodName: "GetUserAddresses",
+			Handler:    _User_GetUserAddresses_Handler,
+		},
+		{
+			MethodName: "GetTransactions",
+			Handler:    _User_GetTransactions_Handler,
+		},
+		{
 			MethodName: "UpdateUserInfo",
 			Handler:    _User_UpdateUserInfo_Handler,
 		},
@@ -580,8 +656,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_ListAddress_Handler,
 		},
 		{
-			MethodName: "GetWalletBalance",
-			Handler:    _User_GetWalletBalance_Handler,
+			MethodName: "GetWallet",
+			Handler:    _User_GetWallet_Handler,
 		},
 		{
 			MethodName: "RechargeWallet",

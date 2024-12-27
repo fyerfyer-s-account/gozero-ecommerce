@@ -41,6 +41,16 @@ func (s *UserServer) GetUserInfo(ctx context.Context, in *user.GetUserInfoReques
 	return l.GetUserInfo(in)
 }
 
+func (s *UserServer) GetUserAddresses(ctx context.Context, in *user.GetUserAddressesRequest) (*user.GetUserAddressesResponse, error) {
+	l := logic.NewGetUserAddressesLogic(ctx, s.svcCtx)
+	return l.GetUserAddresses(in)
+}
+
+func (s *UserServer) GetTransactions(ctx context.Context, in *user.GetTransactionsRequest) (*user.GetTransactionsResponse, error) {
+	l := logic.NewGetTransactionsLogic(ctx, s.svcCtx)
+	return l.GetTransactions(in)
+}
+
 // 更新用户信息
 func (s *UserServer) UpdateUserInfo(ctx context.Context, in *user.UpdateUserInfoRequest) (*user.UpdateUserInfoResponse, error) {
 	l := logic.NewUpdateUserInfoLogic(ctx, s.svcCtx)
@@ -81,9 +91,9 @@ func (s *UserServer) ListAddress(ctx context.Context, in *user.ListAddressReques
 }
 
 // 钱包操作
-func (s *UserServer) GetWalletBalance(ctx context.Context, in *user.GetWalletBalanceRequest) (*user.GetWalletBalanceResponse, error) {
-	l := logic.NewGetWalletBalanceLogic(ctx, s.svcCtx)
-	return l.GetWalletBalance(in)
+func (s *UserServer) GetWallet(ctx context.Context, in *user.GetWalletRequest) (*user.GetWalletResponse, error) {
+	l := logic.NewGetWalletLogic(ctx, s.svcCtx)
+	return l.GetWallet(in)
 }
 
 func (s *UserServer) RechargeWallet(ctx context.Context, in *user.RechargeWalletRequest) (*user.RechargeWalletResponse, error) {

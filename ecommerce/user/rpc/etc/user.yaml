@@ -1,6 +1,54 @@
 Name: user.rpc
 ListenOn: 0.0.0.0:8080
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_user?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+CacheRedis:
+  - Host: 127.0.0.1:6379
+    Pass: 
+    Type: node
+
+Salt: fyerfyerhhh    # 密码加密盐值
+
+JwtAuth:
+  AccessSecret: your-jwt-secret-here
+  AccessExpire: 7200                    
+  RefreshSecret: your-refresh-secret    
+  RefreshExpire: 604800                
+  RefreshRedis:                         # 存储refreshtoken的redis
+    Host: 127.0.0.1:6379
+    Type: node
+    Pass: 
+    KeyPrefix: "refresh:"              
+
+PayTokenExpire: 1800          # 支付token过期时间(秒)
+PayTokenSecret: fyerfyerhhh   # 支付token密钥
+
+MinPasswordLength: 6        # 最小密码长度
+MaxAddressCount: 20        # 最大地址数量
+InitialPoints: 100         # 新用户初始积分
+
+Log:
+  ServiceName: user-rpc
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9080
+  Path: /metrics
+
+Telemetry:
+  Name: user.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: user.rpc

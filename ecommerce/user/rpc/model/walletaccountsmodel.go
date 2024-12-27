@@ -12,7 +12,7 @@ var _ WalletAccountsModel = (*customWalletAccountsModel)(nil)
 type (
 	WalletAccountsModel interface {
 		walletAccountsModel
-		withSession(session sqlx.Session) WalletAccountsModel
+		WithSession(session sqlx.Session) WalletAccountsModel
 		UpdateBalance(ctx context.Context, userId uint64, amount float64) error
 		FreezeAmount(ctx context.Context, userId uint64, amount float64) error
 		UnfreezeAmount(ctx context.Context, userId uint64, amount float64) error
@@ -91,7 +91,7 @@ func (m *customWalletAccountsModel) Trans(ctx context.Context, fn func(context c
 	})
 }
 
-func (m *customWalletAccountsModel) withSession(session sqlx.Session) WalletAccountsModel {
+func (m *customWalletAccountsModel) WithSession(session sqlx.Session) WalletAccountsModel {
 	return &customWalletAccountsModel{
 		defaultWalletAccountsModel: &defaultWalletAccountsModel{
 			conn:  sqlx.NewSqlConnFromSession(session),

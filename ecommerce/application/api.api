@@ -11,7 +11,7 @@ import "apis/payment.api"
 )
 service mall-api {
 	@handler Register
-	post /api/auth/register (RegisterReq) returns (TokenResp)
+	post /api/auth/register (RegisterReq) returns (RegisterResp)
 
 	@handler Login
 	post /api/auth/login (LoginReq) returns (TokenResp)
@@ -31,6 +31,12 @@ service mall-api {
 	@handler AddAddress
 	post /api/user/addresses (AddressReq) returns (Address)
 
+	@handler ChangePassword
+	put /api/user/password/change (ChangePasswordReq)
+
+	@handler ResetPassword
+	post /api/user/password/reset (ResetPasswordReq)
+
 	@handler UpdateAddress
 	put /api/user/addresses/:id (AddressReq)
 
@@ -45,6 +51,12 @@ service mall-api {
 
 	@handler GetWalletLogs
 	get /api/user/wallet/logs (WalletLogReq) returns ([]WalletLog)
+
+	@handler GetWalletTransactions
+	get /api/user/wallet/transactions (TransactionListReq) returns (TransactionListResp)
+
+	@handler RechargeWallet
+	post /api/user/wallet/recharge (RechargeReq)
 }
 
 @server (

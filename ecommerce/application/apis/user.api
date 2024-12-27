@@ -9,6 +9,10 @@ type (
         Email    string `json:"email,optional"`
     }
 
+    RegisterResp {
+        UserId int64 `json:"userId"`
+    }
+
     LoginReq {
         Username string `json:"username"`
         Password string `json:"password"`
@@ -66,10 +70,9 @@ type (
 
     // 钱包相关
     WalletDetail {
-        Balance        float64 `json:"balance"`
+        Balance       float64 `json:"balance"`
+        Status        int64   `json:"status"`
         FrozenAmount  float64 `json:"frozenAmount"`
-        TotalRecharge float64 `json:"totalRecharge"`
-        TotalSpent    float64 `json:"totalSpent"`
     }
 
     WalletLogReq {
@@ -91,5 +94,43 @@ type (
     RechargeReq {
         Amount       float64 `json:"amount"`
         PaymentType int32   `json:"paymentType"` // 1:微信 2:支付宝
+    }
+
+    // 交易相关
+    Transaction {
+        Id        int64   `json:"id"`
+        UserId    int64   `json:"userId"`
+        OrderId   string  `json:"orderId"`
+        Amount    float64 `json:"amount"`
+        Type      int64   `json:"type"`
+        Status    int64   `json:"status"`
+        Remark    string  `json:"remark"`
+        CreatedAt int64   `json:"createdAt"`
+        UpdatedAt int64   `json:"updatedAt"`
+    }
+
+    TransactionListReq {
+        Page     int32 `form:"page,default=1"`
+        PageSize int32 `form:"pageSize,default=20"`
+        Type     int32 `form:"type,optional"`
+    }
+
+    TransactionListResp {
+        List       []Transaction `json:"list"`
+        Total      int64        `json:"total"`
+        Page       int32        `json:"page"`
+        TotalPages int32        `json:"totalPages"`
+    }
+
+    ChangePasswordReq {
+        UserId     int64  `json:"userId"`
+        OldPassword string `json:"oldPassword"`
+        NewPassword string `json:"newPassword"`
+    }
+
+    ResetPasswordReq {
+        Phone    string `json:"phone"`
+        Code     string `json:"code"`
+        Password string `json:"password"`
     }
 )

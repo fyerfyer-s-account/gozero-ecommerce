@@ -11,7 +11,7 @@ var _ WalletTransactionsModel = (*customWalletTransactionsModel)(nil)
 type (
 	WalletTransactionsModel interface {
 		walletTransactionsModel
-		withSession(session sqlx.Session) WalletTransactionsModel
+		WithSession(session sqlx.Session) WalletTransactionsModel
 		FindByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*WalletTransactions, error)
 		FindByType(ctx context.Context, userId uint64, transType int64) ([]*WalletTransactions, error)
 		GetTransactionStats(ctx context.Context, userId uint64) (*TransactionStats, error)
@@ -81,7 +81,7 @@ func (m *customWalletTransactionsModel) Trans(ctx context.Context, fn func(conte
 	})
 }
 
-func (m *customWalletTransactionsModel) withSession(session sqlx.Session) WalletTransactionsModel {
+func (m *customWalletTransactionsModel) WithSession(session sqlx.Session) WalletTransactionsModel {
 	return &customWalletTransactionsModel{
 		defaultWalletTransactionsModel: &defaultWalletTransactionsModel{
 			conn:  sqlx.NewSqlConnFromSession(session),

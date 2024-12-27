@@ -65,6 +65,12 @@ type Category struct {
 	Icon     string `json:"icon,optional"`
 }
 
+type ChangePasswordReq struct {
+	UserId      int64  `json:"userId"`
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
 type CreateOrderReq struct {
 	AddressId   int64          `json:"addressId"`
 	CartItemIds []int64        `json:"cartItemIds,optional"` // 从购物车创建
@@ -285,6 +291,16 @@ type RegisterReq struct {
 	Email    string `json:"email,optional"`
 }
 
+type RegisterResp struct {
+	UserId int64 `json:"userId"`
+}
+
+type ResetPasswordReq struct {
+	Phone    string `json:"phone"`
+	Code     string `json:"code"`
+	Password string `json:"password"`
+}
+
 type Review struct {
 	Id        int64    `json:"id"`
 	ProductId int64    `json:"productId"`
@@ -355,6 +371,31 @@ type TokenResp struct {
 	ExpiresIn    int64  `json:"expiresIn"`
 }
 
+type Transaction struct {
+	Id        int64   `json:"id"`
+	UserId    int64   `json:"userId"`
+	OrderId   string  `json:"orderId"`
+	Amount    float64 `json:"amount"`
+	Type      int64   `json:"type"`
+	Status    int64   `json:"status"`
+	Remark    string  `json:"remark"`
+	CreatedAt int64   `json:"createdAt"`
+	UpdatedAt int64   `json:"updatedAt"`
+}
+
+type TransactionListReq struct {
+	Page     int32 `form:"page,default=1"`
+	PageSize int32 `form:"pageSize,default=20"`
+	Type     int32 `form:"type,optional"`
+}
+
+type TransactionListResp struct {
+	List       []Transaction `json:"list"`
+	Total      int64         `json:"total"`
+	Page       int32         `json:"page"`
+	TotalPages int32         `json:"totalPages"`
+}
+
 type UpdateProfileReq struct {
 	Nickname string `json:"nickname,optional"`
 	Avatar   string `json:"avatar,optional"`
@@ -377,10 +418,9 @@ type UserInfo struct {
 }
 
 type WalletDetail struct {
-	Balance       float64 `json:"balance"`
-	FrozenAmount  float64 `json:"frozenAmount"`
-	TotalRecharge float64 `json:"totalRecharge"`
-	TotalSpent    float64 `json:"totalSpent"`
+	Balance      float64 `json:"balance"`
+	Status       int64   `json:"status"`
+	FrozenAmount float64 `json:"frozenAmount"`
 }
 
 type WalletLog struct {

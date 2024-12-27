@@ -199,6 +199,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: user.DeleteAddressHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPut,
+				Path:    "/api/user/password/change",
+				Handler: user.ChangePasswordHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/user/password/reset",
+				Handler: user.ResetPasswordHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/api/user/profile",
 				Handler: user.GetProfileHandler(serverCtx),
@@ -217,6 +227,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/api/user/wallet/logs",
 				Handler: user.GetWalletLogsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/user/wallet/recharge",
+				Handler: user.RechargeWalletHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/user/wallet/transactions",
+				Handler: user.GetWalletTransactionsHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

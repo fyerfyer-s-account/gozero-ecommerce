@@ -6,7 +6,6 @@ package handler
 import (
 	"net/http"
 
-	auth "github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/handler/auth"
 	cart "github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/handler/cart"
 	order "github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/handler/order"
 	payment "github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/handler/payment"
@@ -21,14 +20,9 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodPost,
-				Path:    "/api/auth/login",
-				Handler: auth.LoginHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/api/auth/register",
-				Handler: auth.RegisterHandler(serverCtx),
+				Method:  http.MethodGet,
+				Path:    "/health",
+				Handler: HealthCheckHandler(serverCtx),
 			},
 		},
 	)
@@ -180,6 +174,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/api/user/login",
+				Handler: user.LoginHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/user/register",
+				Handler: user.RegisterHandler(serverCtx),
+			},
+		},
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
 				Path:    "/api/user/addresses",
 				Handler: user.AddAddressHandler(serverCtx),
 			},
@@ -222,11 +231,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/api/user/wallet",
 				Handler: user.GetWalletHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/api/user/wallet/logs",
-				Handler: user.GetWalletLogsHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

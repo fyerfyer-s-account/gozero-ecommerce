@@ -1,0 +1,57 @@
+{"@timestamp":"2024-12-29T01:28:17.785Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T01:58:45.185Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T02:24:34.028Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/register - [::1]:40894 - curl/7.68.0","duration":"47.5ms","level":"info","span":"533186f362f1cda5","trace":"9359935e34911ff7e94430f81a53ee7f"}
+{"@timestamp":"2024-12-29T02:29:24.515Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T02:34:16.861Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T02:35:29.428Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:45014 - curl/7.68.0","duration":"0.1ms","level":"info","span":"479f5b4eeeeef156","trace":"4912b4d345bac92ea1f12d618c4a8544"}
+{"@timestamp":"2024-12-29T02:41:39.831Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:35976 - curl/7.68.0","duration":"0.1ms","level":"info","span":"7d982917e8e3306d","trace":"648049b1e0ea4b20e0ef12e3d5a8f3ba"}
+{"@timestamp":"2024-12-29T02:44:08.128Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T02:44:13.074Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T02:44:16.710Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:44154 - curl/7.68.0","duration":"0.1ms","level":"info","span":"9950cabde121908e","trace":"d0e64e564aecbcbc9b17a6373402f2f0"}
+{"@timestamp":"2024-12-29T02:46:25.828Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T02:46:30.002Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T02:57:48.407Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T02:57:52.969Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T02:57:56.558Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:58156 - curl/7.68.0","duration":"0.1ms","level":"info","span":"9488c45958409073","trace":"6d713f056e553a8fa05d249046ad24e1"}
+{"@timestamp":"2024-12-29T02:59:24.937Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T02:59:29.047Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:05:23.438Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:05:27.694Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:05:35.561Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:46658 - curl/7.68.0","duration":"0.1ms","level":"info","span":"893f12cfa5976468","trace":"7a1bf07603f1fb925c33371b2731e173"}
+{"@timestamp":"2024-12-29T03:07:12.139Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:07:16.550Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:07:33.144Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:43624 - curl/7.68.0","duration":"0.1ms","level":"info","span":"cc1956e87c90b92b","trace":"affc3532214df9e2c261b3897dba6f1a"}
+{"@timestamp":"2024-12-29T03:11:04.974Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:11:08.850Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:11:13.462Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/register - [::1]:36328 - curl/7.68.0","duration":"6.6ms","level":"info","span":"a05792ba780f388d","trace":"fba12289b2765abaad634e98d4b4c2cc"}
+{"@timestamp":"2024-12-29T03:11:18.370Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:60626 - curl/7.68.0","duration":"0.1ms","level":"info","span":"f19644cc3bbeee81","trace":"cb096c26d2bb766b381151ce4e16f2b8"}
+{"@timestamp":"2024-12-29T03:12:00.368Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:37400 - curl/7.68.0","duration":"0.1ms","level":"info","span":"389554735a92efe3","trace":"a76785e012fd1b5d6a0f294b33b9a476"}
+{"@timestamp":"2024-12-29T03:17:43.040Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:17:51.332Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:23:32.452Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:23:36.755Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:24:44.326Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/register - [::1]:47232 - curl/7.68.0","duration":"11.8ms","level":"info","span":"f557c40efe7d8d04","trace":"39ed6f6a9d6b50b353a0928720cd50d4"}
+{"@timestamp":"2024-12-29T03:30:33.248Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:30:39.546Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T03:31:02.357Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:42954 - curl/7.68.0","duration":"0.1ms","level":"info","span":"e9306845d140f667","trace":"1ca78b9aa61b3301f4aea9e9496cb1a8"}
+{"@timestamp":"2024-12-29T03:52:02.297Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T03:52:07.385Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T04:58:23.673Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T04:58:36.519Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T04:58:45.664Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - GET /health - [::1]:58588 - curl/7.68.0","duration":"0.1ms","level":"info","span":"585cf52d6c1ffaf3","trace":"1aedac74711635105b3bdb0728c5786c"}
+{"@timestamp":"2024-12-29T05:00:04.567Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T05:00:08.658Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T05:16:18.160Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T05:16:22.227Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T05:16:30.272Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/login - [::1]:45528 - curl/7.68.0","duration":"6.0ms","level":"info","span":"7f0e49a991452606","trace":"8c8139b7b8445b0537778193ea56b061"}
+{"@timestamp":"2024-12-29T05:18:29.965Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/login - 127.0.0.1:41584 - curl/7.68.0","duration":"2.9ms","level":"info","span":"03377fd21f1b06da","trace":"19357030158f28eeda2d8e12a766c117"}
+{"@timestamp":"2024-12-29T05:18:30.020Z","caller":"handler/loghandler.go:147","content":"[HTTP] 404 - GET /api/user/info - 127.0.0.1:41590 - curl/7.68.0","duration":"0.0ms","level":"info","span":"5f653786bcc23c31","trace":"fda332543021be9073ce7d4e21844c34"}
+{"@timestamp":"2024-12-29T05:18:30.044Z","caller":"handler/loghandler.go:147","content":"[HTTP] 400 - POST /api/user/addresses - 127.0.0.1:41606 - curl/7.68.0","duration":"0.1ms","level":"info","span":"91bbcba5b91cd6f0","trace":"8e685f1464f13f7a34c6a6e8871db990"}
+{"@timestamp":"2024-12-29T05:18:30.120Z","caller":"handler/loghandler.go:147","content":"[HTTP] 400 - POST /api/user/wallet/recharge - 127.0.0.1:41630 - curl/7.68.0","duration":"0.1ms","level":"info","span":"c3f80b87993927d7","trace":"ada1650ba50569aa909e8b72ea277068"}
+{"@timestamp":"2024-12-29T05:21:27.080Z","caller":"proc/shutdown.go:58","content":"Got signal 2, shutting down...","level":"info"}
+{"@timestamp":"2024-12-29T05:21:31.079Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2024-12-29T05:21:38.540Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/login - 127.0.0.1:41290 - curl/7.68.0","duration":"4.3ms","level":"info","span":"d13009b0c56757e9","trace":"e9afa9ee284e45bd13b171b1f851f1d6"}
+{"@timestamp":"2024-12-29T05:21:38.581Z","caller":"handler/loghandler.go:147","content":"[HTTP] 404 - GET /api/user/info - 127.0.0.1:41306 - curl/7.68.0","duration":"0.0ms","level":"info","span":"f8dfdd72779c8851","trace":"b125542059eb4371b8da7fe70fe0b08e"}
+{"@timestamp":"2024-12-29T05:21:38.604Z","caller":"handler/loghandler.go:147","content":"[HTTP] 400 - POST /api/user/addresses - 127.0.0.1:41334 - curl/7.68.0","duration":"0.1ms","level":"info","span":"424c1eb6e0169b12","trace":"47dd6aae328b15539e2e97628b02f5b9"}
+{"@timestamp":"2024-12-29T05:21:38.680Z","caller":"handler/loghandler.go:147","content":"[HTTP] 400 - POST /api/user/wallet/recharge - 127.0.0.1:41368 - curl/7.68.0","duration":"0.1ms","level":"info","span":"b289511db5bdd1a0","trace":"48a4e1268c485685bf58ed177cffe70b"}
+{"@timestamp":"2024-12-29T05:27:11.638Z","caller":"handler/loghandler.go:147","content":"[HTTP] 200 - POST /api/auth/login - [::1]:33206 - curl/7.68.0","duration":"7.2ms","level":"info","span":"80de0912b53b6f17","trace":"11c6b81dbc6ddc2d1cdadd8ca16edd03"}

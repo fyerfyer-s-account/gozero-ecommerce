@@ -6,15 +6,24 @@ import "apis/cart.api"
 import "apis/order.api"
 import "apis/payment.api"
 
+type Response {
+	Message string `json:"message"`
+}
+
+service mall-api {
+	@handler HealthCheck
+	get /health returns (Response)
+}
+
 @server (
-	group: auth
+	group: user
 )
 service mall-api {
 	@handler Register
-	post /api/auth/register (RegisterReq) returns (RegisterResp)
+	post /api/user/register (RegisterReq) returns (RegisterResp)
 
 	@handler Login
-	post /api/auth/login (LoginReq) returns (TokenResp)
+	post /api/user/login (LoginReq) returns (TokenResp)
 }
 
 @server (
@@ -41,7 +50,7 @@ service mall-api {
 	put /api/user/addresses/:id (AddressReq)
 
 	@handler DeleteAddress
-	delete /api/user/addresses/:id
+	delete /api/user/addresses/:id (DeleteAddressReq)
 
 	@handler ListAddresses
 	get /api/user/addresses returns ([]Address)
@@ -49,9 +58,8 @@ service mall-api {
 	@handler GetWallet
 	get /api/user/wallet returns (WalletDetail)
 
-	@handler GetWalletLogs
-	get /api/user/wallet/logs (WalletLogReq) returns ([]WalletLog)
-
+	// @handler GetWalletLogs
+	// get /api/user/wallet/logs (WalletLogReq) returns ([]WalletLog)
 	@handler GetWalletTransactions
 	get /api/user/wallet/transactions (TransactionListReq) returns (TransactionListResp)
 

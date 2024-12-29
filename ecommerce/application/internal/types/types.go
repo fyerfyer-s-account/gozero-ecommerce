@@ -15,6 +15,7 @@ type Address struct {
 }
 
 type AddressReq struct {
+	AddressId     int64  `path:"id"`
 	ReceiverName  string `json:"receiverName"`
 	ReceiverPhone string `json:"receiverPhone"`
 	Province      string `json:"province"`
@@ -110,6 +111,10 @@ type CreateReviewReq struct {
 	Rating    int32    `json:"rating"`
 	Content   string   `json:"content"`
 	Images    []string `json:"images,optional"`
+}
+
+type DeleteAddressReq struct {
+	Id int64 `path:"id"`
 }
 
 type LoginReq struct {
@@ -301,6 +306,10 @@ type ResetPasswordReq struct {
 	Password string `json:"password"`
 }
 
+type Response struct {
+	Message string `json:"message"`
+}
+
 type Review struct {
 	Id        int64    `json:"id"`
 	ProductId int64    `json:"productId"`
@@ -399,7 +408,7 @@ type TransactionListResp struct {
 type UpdateProfileReq struct {
 	Nickname string `json:"nickname,optional"`
 	Avatar   string `json:"avatar,optional"`
-	Gender   int32  `json:"gender,optional"`
+	Gender   string `json:"gender,optional"`
 	Phone    string `json:"phone,optional"`
 	Email    string `json:"email,optional"`
 }
@@ -411,7 +420,7 @@ type UserInfo struct {
 	Avatar      string  `json:"avatar"`
 	Phone       string  `json:"phone"`
 	Email       string  `json:"email"`
-	Gender      int32   `json:"gender"`
+	Gender      string  `json:"gender"`
 	MemberLevel int32   `json:"memberLevel"`
 	Balance     float64 `json:"balance"`
 	CreatedAt   int64   `json:"createdAt"`
@@ -421,20 +430,4 @@ type WalletDetail struct {
 	Balance      float64 `json:"balance"`
 	Status       int64   `json:"status"`
 	FrozenAmount float64 `json:"frozenAmount"`
-}
-
-type WalletLog struct {
-	Id        int64   `json:"id"`
-	Type      int32   `json:"type"`
-	Amount    float64 `json:"amount"`
-	Balance   float64 `json:"balance"`
-	OrderNo   string  `json:"orderNo,optional"`
-	Remark    string  `json:"remark"`
-	CreatedAt int64   `json:"createdAt"`
-}
-
-type WalletLogReq struct {
-	Type     int32 `form:"type,optional"` // 1:充值 2:消费 3:退款
-	Page     int32 `form:"page,optional,default=1"`
-	PageSize int32 `form:"pageSize,optional,default=20"`
 }

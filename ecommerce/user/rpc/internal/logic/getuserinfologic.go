@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"log"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/internal/svc"
@@ -27,19 +28,34 @@ func NewGetUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 
 // 获取用户信息
 func (l *GetUserInfoLogic) GetUserInfo(in *user.GetUserInfoRequest) (*user.GetUserInfoResponse, error) {
+	log.Println("GetUserInfo called")
+	log.Printf("Received request for user ID: %d", in.UserId)
+
 	// 1. Get user basic info
+	log.Println("Fetching user basic information")
 	userInfo, err := l.svcCtx.UsersModel.FindOne(l.ctx, uint64(in.UserId))
 	if err != nil {
+		log.Printf("Error fetching user info: %v", err)
 		return nil, zeroerr.ErrUserNotFound
 	}
+	log.Printf("User info found for user ID: %d", in.UserId)
 
 	// 2. Get wallet info
+	log.Println("Fetching wallet information")
 	wallet, err := l.svcCtx.WalletAccountsModel.FindOne(l.ctx, uint64(in.UserId))
 	if err != nil && err != model.ErrNotFound {
+		log.Printf("Error fetching wallet info: %v", err)
 		return nil, err
 	}
+	if err == model.ErrNotFound {
+		log.Printf("No wallet found for user ID: %d", in.UserId)
+	} else {
+		log.Printf("Wallet info found for user ID: %d, balance: %.2f", in.UserId, wallet.Balance)
+	}
 
-	return &user.GetUserInfoResponse{
+	// Prepare response
+	log.Println("Preparing response data")
+	response := &user.GetUserInfoResponse{
 		UserInfo: &user.UserInfo{
 			UserId:        int64(userInfo.Id),
 			Username:      userInfo.Username,
@@ -52,5 +68,8 @@ func (l *GetUserInfoLogic) GetUserInfo(in *user.GetUserInfoRequest) (*user.GetUs
 			CreatedAt:     userInfo.CreatedAt.Unix(),
 			UpdatedAt:     userInfo.UpdatedAt.Unix(),
 		},
-	}, nil
+	}
+
+	log.Println("Returning user info response")
+	return response, nil
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,21 @@ func NewGetWalletLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetWall
 }
 
 func (l *GetWalletLogic) GetWallet() (resp *types.WalletDetail, err error) {
-	// todo: add your logic here and delete this line
+	// todo: add your logi// Get userId from JWT context
+	userId := l.ctx.Value("userId").(int64)
 
-	return
+	// Call user RPC
+	wallet, err := l.svcCtx.UserRpc.GetWallet(l.ctx, &user.GetWalletRequest{
+		UserId: userId,
+	})
+	if err != nil {
+		logx.Errorf("get wallet error: %v", err)
+		return nil, err
+	}
+
+	return &types.WalletDetail{
+		Balance:      wallet.Balance,
+		Status:       wallet.Status,
+		FrozenAmount: wallet.FreezeAmount,
+	}, nil
 }

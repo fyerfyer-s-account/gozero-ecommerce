@@ -50,8 +50,8 @@ type (
 		Gender      string         `db:"gender"`
 		MemberLevel int64          `db:"member_level"` // ä¼šå‘˜ç­‰çº§
 		Status      int64          `db:"status"`       // çŠ¶æ€ 0:ç¦ç”¨ 1:å¯ç”¨
-		CreatedAt   time.Time      `db:"created_at"`   // åˆ›å»ºæ—¶é—´
-		UpdatedAt   time.Time      `db:"updated_at"`   // æ›´æ–°æ—¶é—´
+		CreatedAt   time.Time      `db:"created_at"`
+		UpdatedAt   time.Time      `db:"updated_at"`
 	}
 )
 

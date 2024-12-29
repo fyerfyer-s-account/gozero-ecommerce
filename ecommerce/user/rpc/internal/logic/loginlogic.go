@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/cryptx"
@@ -32,32 +33,44 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 // 用户登录
 func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
+	log.Println("Login called")
+	log.Printf("Received login request for username: %s", in.Username)
+
 	// 1. Validate input
 	if len(in.Username) == 0 || len(in.Password) == 0 {
+		log.Println("Validation failed: Invalid username or password length")
 		return nil, zeroerr.ErrInvalidUsername
 	}
 
 	// 2. Find user
+	log.Printf("Looking up user by username or email: %s", in.Username)
 	userInfo, err := l.svcCtx.UsersModel.FindOneByPhoneOrEmail(l.ctx, in.Username)
 	if err != nil {
 		if err == model.ErrNotFound {
+			log.Println("User not found")
 			return nil, zeroerr.ErrInvalidAccount
 		}
+		log.Printf("Error finding user: %v", err)
 		return nil, err
 	}
 
 	// 3. Check account status
+	log.Printf("Checking account status for user ID: %d", userInfo.Id)
 	if userInfo.Status != 1 {
+		log.Printf("Account disabled for user ID: %d", userInfo.Id)
 		return nil, zeroerr.ErrAccountDisabled
 	}
 
 	// 4. Verify password
+	log.Println("Verifying password")
 	if cryptx.HashPassword(in.Password, l.svcCtx.Config.Salt) != userInfo.Password {
+		log.Println("Invalid password")
 		return nil, zeroerr.ErrInvalidPassword
 	}
 
 	// Generate tokens
 	now := time.Now().Unix()
+	log.Println("Generating access token")
 	accessToken, err := jwtx.GetToken(
 		l.svcCtx.Config.JwtAuth.AccessSecret,
 		now,
@@ -65,9 +78,11 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		int64(userInfo.Id),
 	)
 	if err != nil {
-		return nil, err
+		log.Printf("Error generating access token: %v", err)
+		return nil, zeroerr.ErrGenerateTokenFailed
 	}
 
+	log.Println("Generating refresh token")
 	refreshToken, err := jwtx.GetToken(
 		l.svcCtx.Config.JwtAuth.RefreshSecret,
 		now,
@@ -75,22 +90,26 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		int64(userInfo.Id),
 	)
 	if err != nil {
-		return nil, err
+		log.Printf("Error generating refresh token: %v", err)
+		return nil, zeroerr.ErrGenerateTokenFailed
 	}
 
 	// Store refresh token in Redis
+	log.Printf("Storing refresh token in Redis for user ID: %d", userInfo.Id)
 	err = l.svcCtx.RefreshRedis.Setex(
 		fmt.Sprintf("%s%d", l.svcCtx.Config.JwtAuth.RefreshRedis.KeyPrefix, userInfo.Id),
 		refreshToken,
 		int(l.svcCtx.Config.JwtAuth.RefreshExpire),
 	)
 	if err != nil {
-		return nil, err
+		log.Printf("Error storing refresh token in Redis: %v", err)
+		return nil, zeroerr.ErrStoreTokenFailed
 	}
 
 	// Record login history (async)
 	go l.recordLoginHistory(userInfo.Id)
 
+	log.Printf("Login successful for user ID: %d", userInfo.Id)
 	return &user.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -100,6 +119,7 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 
 func (l *LoginLogic) recordLoginHistory(userId uint64) {
 	// Create context with timeout for async operation
+	log.Printf("Start recording login history for user ID: %d", userId)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
@@ -118,20 +138,27 @@ func (l *LoginLogic) recordLoginHistory(userId uint64) {
 		CreatedAt: time.Now(),
 	}
 
+	log.Printf("Inserting login history record for user ID: %d", userId)
 	_, err := l.svcCtx.LoginRecordsModel.Insert(ctx, record)
 	if err != nil {
-		l.Logger.Errorf("record login history error: userId: %d, err: %v", userId, err)
+		log.Printf("Error recording login history for user ID: %d, error: %v", userId, err)
 	}
 }
 
 func getClientIP() string {
-	return ""
+	log.Println("Fetching client IP")
+	// Placeholder for actual implementation
+	return "127.0.0.1"
 }
 
 func getLocation() string {
-	return ""
+	log.Println("Fetching login location")
+	// Placeholder for actual implementation
+	return "Unknown Location"
 }
 
 func getDeviceType() string {
-	return ""
+	log.Println("Fetching device type")
+	// Placeholder for actual implementation
+	return "Unknown Device"
 }

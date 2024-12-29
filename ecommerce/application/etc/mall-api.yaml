@@ -1,3 +1,91 @@
 Name: mall-api
 Host: 0.0.0.0
-Port: 8888
+Port: 9000
+
+Log:
+  ServiceName: mall-api
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+# JWT Authentication
+Auth:
+  AccessSecret: your-jwt-secret-here
+  AccessExpire: 7200      # 2 hours
+  RefreshSecret: your-refresh-secret
+  RefreshExpire: 604800   # 7 days
+
+# Redis
+Redis:
+  Host: 172.17.0.3:6379
+  Type: node
+  Pass: 
+  Key: mall-api
+
+# RPC Service Endpoints
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+
+ProductRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: product.rpc
+
+CartRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: cart.rpc
+
+OrderRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: order.rpc
+
+PaymentRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: payment.rpc
+
+InventoryRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: inventory.rpc
+
+MarketingRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: marketing.rpc
+
+SearchRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: search.rpc
+
+MessageRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: message.rpc
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9081
+  Path: /metrics
+
+Telemetry:
+  Name: mall-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

@@ -2,6 +2,8 @@ package model
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -32,13 +34,17 @@ func NewUsersModel(conn sqlx.SqlConn) UsersModel {
 }
 
 func (m *customUsersModel) FindOneByPhoneOrEmail(ctx context.Context, account string) (*Users, error) {
-	var user Users
-	query := `select ` + usersRows + ` from ` + m.table + ` where phone = ? or email = ? limit 1`
-	err := m.conn.QueryRowCtx(ctx, &user, query, account, account)
-	if err != nil {
+	query := fmt.Sprintf("select %s from %s where `username` = ? or `email` = ? limit 1", usersRows, m.table)
+	var resp Users
+	err := m.conn.QueryRowCtx(ctx, &resp, query, account, account)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
 		return nil, err
 	}
-	return &user, nil
 }
 
 func (m *customUsersModel) UpdatePassword(ctx context.Context, id uint64, password string) error {

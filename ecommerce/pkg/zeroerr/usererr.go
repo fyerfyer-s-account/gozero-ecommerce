@@ -19,11 +19,20 @@ func NewCodeError(code int, msg string) error {
 // User Common Errors
 var (
 	ErrUserNotFound      = NewCodeError(100001, "用户不存在")
-	ErrDuplicateUsername = NewCodeError(100002, "用户名已存在")
-	ErrDuplicatePhone    = NewCodeError(100003, "手机号已存在")
-	ErrDuplicateEmail    = NewCodeError(100004, "邮箱已存在")
-	ErrInvalidPassword   = NewCodeError(100005, "密码错误")
-	ErrInvalidToken      = NewCodeError(100006, "无效的Token")
+	ErrUserExists        = NewCodeError(100002, "用户已存在")
+	ErrDuplicateUsername = NewCodeError(100003, "用户名已存在")
+	ErrDuplicatePhone    = NewCodeError(100004, "手机号已存在")
+	ErrDuplicateEmail    = NewCodeError(100005, "邮箱已存在")
+	ErrInvalidPassword   = NewCodeError(100006, "密码错误")
+	ErrInvalidToken      = NewCodeError(100007, "无效的Token")
+)
+
+// Registration Errors
+var (
+	ErrUsernameTooShort = NewCodeError(100105, "用户名长度不足")
+	ErrPasswordTooShort = NewCodeError(100106, "密码长度不足")
+	ErrInitWalletFailed = NewCodeError(100107, "初始化钱包失败")
+	ErrInitPointsFailed = NewCodeError(100108, "初始化积分失败")
 )
 
 // Authentication Errors
@@ -32,6 +41,9 @@ var (
 	ErrAccountDisabled = NewCodeError(100102, "账号已被禁用")
 	ErrLoginFailed     = NewCodeError(100103, "登录失败")
 	ErrRegisterFailed  = NewCodeError(100104, "注册失败")
+	// JWT Errors
+	ErrGenerateTokenFailed = NewCodeError(100201, "生成令牌失败")
+	ErrStoreTokenFailed    = NewCodeError(100202, "存储令牌失败")
 )
 
 // User Profile Errors

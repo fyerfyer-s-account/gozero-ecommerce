@@ -14,7 +14,8 @@ type (
 		WithSession(session sqlx.Session) WalletTransactionsModel
 		FindByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*WalletTransactions, error)
 		FindByType(ctx context.Context, userId uint64, transType int64) ([]*WalletTransactions, error)
-		GetTransactionStats(ctx context.Context, userId uint64) (*TransactionStats, error)
+		GetTransactionStats(ctx context.Context, tranId uint64) (*TransactionStats, error)
+		UpdateState(ctx context.Context, status int64, tranId uint64) (int64, error)
 		DeleteByUserId(ctx context.Context, userId uint64) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
 	}
@@ -57,6 +58,15 @@ func (m *customWalletTransactionsModel) FindByType(ctx context.Context, userId u
 		return nil, err
 	}
 	return resp, nil
+}
+
+func (m *customWalletTransactionsModel) UpdateState(ctx context.Context, status int64, tranId uint64) (int64, error) {
+	query := fmt.Sprintf("update %s set `status` = ? where `id` = ?", m.table)
+	res, err := m.conn.ExecCtx(ctx, query, status, tranId)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
 }
 
 func (m *customWalletTransactionsModel) GetTransactionStats(ctx context.Context, userId uint64) (*TransactionStats, error) {

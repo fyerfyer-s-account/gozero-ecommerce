@@ -71,3 +71,4 @@
 {"@timestamp":"2024-12-29T10:21:36.330Z","caller":"handler/loghandler.go:147","content":"[HTTP] 401 - PUT /api/user/profile - [::1]:50118 - Go-http-client/1.1","duration":"0.1ms","level":"info","span":"9ac7eba10a7203ae","trace":"556f3a0b1a93421d6a525da9d54f9047"}
 {"@timestamp":"2024-12-29T10:21:36.330Z","caller":"handler/loghandler.go:147","content":"[HTTP] 401 - POST /api/user/addresses - [::1]:50118 - Go-http-client/1.1","duration":"0.1ms","level":"info","span":"228127014cdcb709","trace":"0344df52e5e4450ffc5f6d5fecbbb00e"}
 {"@timestamp":"2024-12-29T10:21:36.331Z","caller":"handler/loghandler.go:147","content":"[HTTP] 401 - PUT /api/user/password/change - [::1]:50118 - Go-http-client/1.1","duration":"0.1ms","level":"info","span":"36e7e215aa2641df","trace":"115f10a81d177ce7278aeee9b9dc3670"}
+{"@timestamp":"2024-12-30T02:51:58.622Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}

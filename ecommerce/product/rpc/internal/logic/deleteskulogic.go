@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
 
@@ -24,7 +25,25 @@ func NewDeleteSkuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteS
 }
 
 func (l *DeleteSkuLogic) DeleteSku(in *product.DeleteSkuRequest) (*product.DeleteSkuResponse, error) {
-	// todo: add your logic here and delete this line
+	// Validate input
+	if in.Id <= 0 {
+		return nil, zeroerr.ErrInvalidParam
+	}
 
-	return &product.DeleteSkuResponse{}, nil
+	// Check SKU exists
+	_, err := l.svcCtx.SkusModel.FindOne(l.ctx, uint64(in.Id))
+	if err != nil {
+		return nil, zeroerr.ErrSkuNotFound
+	}
+
+	// Delete SKU
+	err = l.svcCtx.SkusModel.Delete(l.ctx, uint64(in.Id))
+	if err != nil {
+		logx.Errorf("Failed to delete SKU %d: %v", in.Id, err)
+		return nil, zeroerr.ErrSkuDeleteFailed
+	}
+
+	return &product.DeleteSkuResponse{
+		Success: true,
+	}, nil
 }

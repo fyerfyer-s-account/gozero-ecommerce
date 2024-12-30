@@ -2,10 +2,10 @@ Name: user.rpc
 ListenOn: 0.0.0.0:8080
 
 Mysql:
-  DataSource: root:pa55word@tcp(mall_mysql:3306)/mall_user?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_user?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
 CacheRedis:
-  - Host: mall_redis:6379
+  - Host: 172.17.0.3:6379
     Pass: 
     Type: node
 
@@ -17,7 +17,7 @@ JwtAuth:
   RefreshSecret: your-refresh-secret    
   RefreshExpire: 604800                
   RefreshRedis:                         # 存储refreshtoken的redis
-    Host: mall_redis:6379
+    Host: 172.17.0.3:6379
     Type: node
     Pass: 
     KeyPrefix: "refresh:"              
@@ -50,5 +50,5 @@ Telemetry:
 
 Etcd:
   Hosts:
-    - mall_etcd:2379
+    - 127.0.0.1:2379
   Key: user.rpc

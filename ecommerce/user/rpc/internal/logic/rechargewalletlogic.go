@@ -73,10 +73,7 @@ func (l *RechargeWalletLogic) RechargeWallet(in *user.RechargeWalletRequest) (*u
 
 		// Update transaction status
 		transId, _ := transResult.LastInsertId()
-		err = l.svcCtx.WalletTransactionsModel.WithSession(session).Update(ctx, &model.WalletTransactions{
-			Id:     uint64(transId),
-			Status: 1, // Success
-		})
+		_, err = l.svcCtx.WalletTransactionsModel.WithSession(session).UpdateState(ctx, int64(1), uint64(transId))
 		return err
 	})
 

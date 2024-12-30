@@ -42,9 +42,10 @@ message Product {
     string brand = 5;
     repeated string images = 6;
     double price = 7;
-    int32 status = 8; // 1:上架 2:下架
-    int64 created_at = 9;
-    int64 updated_at = 10;
+    int64 sales = 8;
+    int64 status = 9; // 1:上架 2:下架
+    int64 created_at = 10;
+    int64 updated_at = 11;
 }
 
 message CreateProductRequest {
@@ -110,8 +111,8 @@ message Category {
     int64 id = 1;
     string name = 2;
     int64 parent_id = 3;
-    int32 level = 4;
-    int32 sort = 5;
+    int64 level = 4;
+    int64 sort = 5;
     string icon = 6;
     int64 created_at = 7;
     int64 updated_at = 8;
@@ -120,7 +121,7 @@ message Category {
 message CreateCategoryRequest {
     string name = 1;
     int64 parent_id = 2;
-    int32 sort = 3;
+    int64 sort = 3;
     string icon = 4;
 }
 
@@ -131,7 +132,7 @@ message CreateCategoryResponse {
 message UpdateCategoryRequest {
     int64 id = 1;
     string name = 2;
-    int32 sort = 3;
+    int64 sort = 3;
     string icon = 4;
 }
 
@@ -153,6 +154,7 @@ message GetCategoryRequest {
 
 message GetCategoryResponse {
     Category category = 1;
+    repeated Category children = 2;
 }
 
 message ListCategoriesRequest {
@@ -174,7 +176,7 @@ message Sku {
     int64 product_id = 2;
     string sku_code = 3;
     double price = 4;
-    int32 stock = 5;
+    int64 stock = 5;
     repeated SkuAttribute attributes = 6;
     int64 created_at = 7;
     int64 updated_at = 8;
@@ -184,7 +186,7 @@ message CreateSkuRequest {
     int64 product_id = 1;
     string sku_code = 2;
     double price = 3;
-    int32 stock = 4;
+    int64 stock = 4;
     repeated SkuAttribute attributes = 5;
 }
 
@@ -195,7 +197,7 @@ message CreateSkuResponse {
 message UpdateSkuRequest {
     int64 id = 1;
     double price = 2;
-    int32 stock = 3;
+    int64 stock = 3;
 }
 
 message UpdateSkuResponse {
@@ -233,10 +235,11 @@ message Review {
     int64 product_id = 3;
     int64 order_id = 4;
     int32 rating = 5;
-    string content = 6;
-    repeated string images = 7;
-    int64 created_at = 8;
-    int64 updated_at = 9;
+    int64 status = 6;
+    string content = 7;
+    repeated string images = 8;
+    int64 created_at = 9;
+    int64 updated_at = 10;
 }
 
 message CreateReviewRequest {

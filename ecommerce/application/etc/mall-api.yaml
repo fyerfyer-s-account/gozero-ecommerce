@@ -19,7 +19,7 @@ Auth:
 
 # Redis
 Redis:
-  Host: 172.17.0.3:6379
+  Host: mall_redis:6379
   Type: node
   Pass: 
   Key: mall-api
@@ -28,7 +28,7 @@ Redis:
 UserRpc:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - mall_etcd:2379
     Key: user.rpc
 
 # ProductRpc:

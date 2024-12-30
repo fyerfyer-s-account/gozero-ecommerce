@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
 
@@ -24,7 +25,28 @@ func NewListCategoriesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Li
 }
 
 func (l *ListCategoriesLogic) ListCategories(in *product.ListCategoriesRequest) (*product.ListCategoriesResponse, error) {
-	// todo: add your logic here and delete this line
+	// Get categories by parent ID
+	categories, err := l.svcCtx.CategoriesModel.FindByParentId(l.ctx, uint64(in.ParentId))
+	if err != nil {
+		logx.Errorf("Failed to get categories: %v", err)
+		return nil, zeroerr.ErrCategoryNotFound
+	}
 
-	return &product.ListCategoriesResponse{}, nil
+	// Convert to proto message
+	var pbCategories []*product.Category
+	for _, category := range categories {
+		pbCategory := &product.Category{
+			Id:       int64(category.Id),
+			Name:     category.Name,
+			ParentId: int64(category.ParentId),
+			Level:    category.Level,
+			Sort:     category.Sort,
+			Icon:     category.Icon.String,
+		}
+		pbCategories = append(pbCategories, pbCategory)
+	}
+
+	return &product.ListCategoriesResponse{
+		Categories: pbCategories,
+	}, nil
 }

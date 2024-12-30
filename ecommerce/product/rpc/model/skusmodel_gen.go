@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -21,6 +23,9 @@ var (
 	skusRows                = strings.Join(skusFieldNames, ",")
 	skusRowsExpectAutoSet   = strings.Join(stringx.Remove(skusFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	skusRowsWithPlaceHolder = strings.Join(stringx.Remove(skusFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+
+	cacheMallProductSkusIdPrefix      = "cache:mallProduct:skus:id:"
+	cacheMallProductSkusSkuCodePrefix = "cache:mallProduct:skus:skuCode:"
 )
 
 type (
@@ -33,7 +38,7 @@ type (
 	}
 
 	defaultSkusModel struct {
-		conn  sqlx.SqlConn
+		sqlc.CachedConn
 		table string
 	}
 
@@ -50,27 +55,39 @@ type (
 	}
 )
 
-func newSkusModel(conn sqlx.SqlConn) *defaultSkusModel {
+func newSkusModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultSkusModel {
 	return &defaultSkusModel{
-		conn:  conn,
-		table: "`skus`",
+		CachedConn: sqlc.NewConn(conn, c, opts...),
+		table:      "`skus`",
 	}
 }
 
 func (m *defaultSkusModel) Delete(ctx context.Context, id uint64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
+	data, err := m.FindOne(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
+	mallProductSkusSkuCodeKey := fmt.Sprintf("%s%v", cacheMallProductSkusSkuCodePrefix, data.SkuCode)
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+		return conn.ExecCtx(ctx, query, id)
+	}, mallProductSkusIdKey, mallProductSkusSkuCodeKey)
 	return err
 }
 
 func (m *defaultSkusModel) FindOne(ctx context.Context, id uint64) (*Skus, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", skusRows, m.table)
+	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
 	var resp Skus
-	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	err := m.QueryRowCtx(ctx, &resp, mallProductSkusIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
+		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", skusRows, m.table)
+		return conn.QueryRowCtx(ctx, v, query, id)
+	})
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlx.ErrNotFound:
+	case sqlc.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -78,13 +95,19 @@ func (m *defaultSkusModel) FindOne(ctx context.Context, id uint64) (*Skus, error
 }
 
 func (m *defaultSkusModel) FindOneBySkuCode(ctx context.Context, skuCode string) (*Skus, error) {
+	mallProductSkusSkuCodeKey := fmt.Sprintf("%s%v", cacheMallProductSkusSkuCodePrefix, skuCode)
 	var resp Skus
-	query := fmt.Sprintf("select %s from %s where `sku_code` = ? limit 1", skusRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, skuCode)
+	err := m.QueryRowIndexCtx(ctx, &resp, mallProductSkusSkuCodeKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `sku_code` = ? limit 1", skusRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, skuCode); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlx.ErrNotFound:
+	case sqlc.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -92,15 +115,37 @@ func (m *defaultSkusModel) FindOneBySkuCode(ctx context.Context, skuCode string)
 }
 
 func (m *defaultSkusModel) Insert(ctx context.Context, data *Skus) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, skusRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ProductId, data.SkuCode, data.Attributes, data.Price, data.Stock, data.Sales)
+	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, data.Id)
+	mallProductSkusSkuCodeKey := fmt.Sprintf("%s%v", cacheMallProductSkusSkuCodePrefix, data.SkuCode)
+	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, skusRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.ProductId, data.SkuCode, data.Attributes, data.Price, data.Stock, data.Sales)
+	}, mallProductSkusIdKey, mallProductSkusSkuCodeKey)
 	return ret, err
 }
 
 func (m *defaultSkusModel) Update(ctx context.Context, newData *Skus) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, skusRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.ProductId, newData.SkuCode, newData.Attributes, newData.Price, newData.Stock, newData.Sales, newData.Id)
+	data, err := m.FindOne(ctx, newData.Id)
+	if err != nil {
+		return err
+	}
+
+	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, data.Id)
+	mallProductSkusSkuCodeKey := fmt.Sprintf("%s%v", cacheMallProductSkusSkuCodePrefix, data.SkuCode)
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, skusRowsWithPlaceHolder)
+		return conn.ExecCtx(ctx, query, newData.ProductId, newData.SkuCode, newData.Attributes, newData.Price, newData.Stock, newData.Sales, newData.Id)
+	}, mallProductSkusIdKey, mallProductSkusSkuCodeKey)
 	return err
+}
+
+func (m *defaultSkusModel) formatPrimary(primary any) string {
+	return fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, primary)
+}
+
+func (m *defaultSkusModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", skusRows, m.table)
+	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultSkusModel) tableName() string {

@@ -41,7 +41,9 @@ func (l *UpdateAddressLogic) UpdateAddress(in *user.UpdateAddressRequest) (*user
 	// 3. Update address with transaction
 	err = l.svcCtx.UserAddressesModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		// Update address info
-		err := l.svcCtx.UserAddressesModel.WithSession(session).Update(ctx, &model.UserAddresses{
+		addressModel := l.svcCtx.UserAddressesModel.WithSession(session)
+
+		err := addressModel.Update(ctx, &model.UserAddresses{
 			Id:            uint64(in.AddressId),
 			ReceiverName:  in.ReceiverName,
 			ReceiverPhone: in.ReceiverPhone,

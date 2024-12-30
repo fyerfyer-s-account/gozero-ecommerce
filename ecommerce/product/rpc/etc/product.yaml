@@ -1,6 +1,42 @@
 Name: product.rpc
 ListenOn: 0.0.0.0:8081
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_product?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+# Product specific settings
+MaxCategoryLevel: 3        # Maximum category nesting level
+MaxSkusPerProduct: 100     # Maximum SKUs per product
+MaxImagesPerProduct: 10    # Maximum images per product
+MaxReviewImages: 5         # Maximum images per review
+MinReviewLength: 5         # Minimum review content length
+MaxReviewLength: 500      # Maximum review content length
+
+Log:
+  ServiceName: product-rpc
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9081
+  Path: /metrics
+
+Telemetry:
+  Name: product.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: product.rpc

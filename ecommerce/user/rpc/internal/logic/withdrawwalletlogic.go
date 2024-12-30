@@ -65,10 +65,7 @@ func (l *WithdrawWalletLogic) WithdrawWallet(in *user.WithdrawWalletRequest) (*u
 
 		// Update transaction status
 		transId, _ := transResult.LastInsertId()
-		err = l.svcCtx.WalletTransactionsModel.WithSession(session).Update(ctx, &model.WalletTransactions{
-			Id:     uint64(transId),
-			Status: 1, // Success
-		})
+		_, err = l.svcCtx.WalletTransactionsModel.WithSession(session).UpdateState(ctx, 1, uint64(transId))
 		return err
 	})
 

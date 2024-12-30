@@ -22,13 +22,13 @@ type Config struct {
 		Key  string
 	}
 
-	UserRpc      zrpc.RpcClientConf
-	ProductRpc   zrpc.RpcClientConf
-	CartRpc      zrpc.RpcClientConf
-	OrderRpc     zrpc.RpcClientConf
-	PaymentRpc   zrpc.RpcClientConf
-	InventoryRpc zrpc.RpcClientConf
-	MarketingRpc zrpc.RpcClientConf
-	SearchRpc    zrpc.RpcClientConf
-	MessageRpc   zrpc.RpcClientConf
+	UserRpc zrpc.RpcClientConf
+	// ProductRpc   zrpc.RpcClientConf
+	// CartRpc      zrpc.RpcClientConf
+	// OrderRpc     zrpc.RpcClientConf
+	// PaymentRpc   zrpc.RpcClientConf
+	// InventoryRpc zrpc.RpcClientConf
+	// MarketingRpc zrpc.RpcClientConf
+	// SearchRpc    zrpc.RpcClientConf
+	// MessageRpc   zrpc.RpcClientConf
 }

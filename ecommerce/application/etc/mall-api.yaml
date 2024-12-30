@@ -31,53 +31,53 @@ UserRpc:
       - 127.0.0.1:2379
     Key: user.rpc
 
-ProductRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: product.rpc
+# ProductRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: product.rpc
 
-CartRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: cart.rpc
+# CartRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: cart.rpc
 
-OrderRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: order.rpc
+# OrderRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: order.rpc
 
-PaymentRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: payment.rpc
+# PaymentRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: payment.rpc
 
-InventoryRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: inventory.rpc
+# InventoryRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: inventory.rpc
 
-MarketingRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: marketing.rpc
+# MarketingRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: marketing.rpc
 
-SearchRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: search.rpc
+# SearchRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: search.rpc
 
-MessageRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: message.rpc
+# MessageRpc:
+#   Etcd:
+#     Hosts:
+#       - 127.0.0.1:2379
+#     Key: message.rpc
 
 Prometheus:
   Host: 0.0.0.0

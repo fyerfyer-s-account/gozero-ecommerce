@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mall_mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pa55word
+      MYSQL_DATABASE: mall_user
+    ports:
+      - "3307:3306"  # Changed to 3307 to avoid conflicts
+    volumes:
+      - ./sql/user.sql:/docker-entrypoint-initdb.d/user.sql
+    networks:
+      mall_network:
+        ipv4_address: 172.20.0.2
+
+  redis:
+    image: redis:6.2
+    container_name: mall_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      mall_network:
+        ipv4_address: 172.20.0.3
+
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: mall_etcd
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+    ports:
+      - "2379:2379"
+    networks:
+      mall_network:
+        ipv4_address: 172.20.0.4
+
+  test:
+    build:
+      context: ../../  # Build context from root directory
+      dockerfile: ecommerce/user/Dockerfile.test
+    volumes:
+      - ../../:/go/src/app  # Mount entire project
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+    networks:
+      - mall_network
+    environment:
+      - TZ=Asia/Shanghai
+      # Configure test environment variables if needed
+      - GOZERO_TEST_MODE=1
+
+
+networks:
+  mall_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

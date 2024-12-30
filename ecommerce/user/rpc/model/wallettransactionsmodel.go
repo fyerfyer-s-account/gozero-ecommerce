@@ -15,6 +15,7 @@ type (
 		FindByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*WalletTransactions, error)
 		FindByType(ctx context.Context, userId uint64, transType int64) ([]*WalletTransactions, error)
 		GetTransactionStats(ctx context.Context, userId uint64) (*TransactionStats, error)
+		DeleteByUserId(ctx context.Context, userId uint64) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
 	}
 
@@ -88,4 +89,10 @@ func (m *customWalletTransactionsModel) WithSession(session sqlx.Session) Wallet
 			table: m.table,
 		},
 	}
+}
+
+func (m *customWalletTransactionsModel) DeleteByUserId(ctx context.Context, userId uint64) error {
+	query := fmt.Sprintf("delete from %s where `user_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, userId)
+	return err
 }

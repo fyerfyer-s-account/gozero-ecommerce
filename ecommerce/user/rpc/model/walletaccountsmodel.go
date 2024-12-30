@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
+
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -17,6 +19,7 @@ type (
 		FreezeAmount(ctx context.Context, userId uint64, amount float64) error
 		UnfreezeAmount(ctx context.Context, userId uint64, amount float64) error
 		UpdatePayPassword(ctx context.Context, userId uint64, password string) error
+		DeleteByUserId(ctx context.Context, userId uint64) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
 	}
 
@@ -98,4 +101,10 @@ func (m *customWalletAccountsModel) WithSession(session sqlx.Session) WalletAcco
 			table: m.table,
 		},
 	}
+}
+
+func (m *customWalletAccountsModel) DeleteByUserId(ctx context.Context, userId uint64) error {
+	query := fmt.Sprintf("delete from %s where `user_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, userId)
+	return err
 }

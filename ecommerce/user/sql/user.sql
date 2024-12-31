@@ -13,6 +13,7 @@ CREATE TABLE `users` (
     `gender` varchar(10) NOT NULL DEFAULT 'unset' COMMENT '性别',
     `member_level` tinyint DEFAULT '0' COMMENT '会员等级',
     `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态 0:禁用 1:启用',
+    `is_admin` boolean NOT NULL DEFAULT '0' COMMENT '是否管理员',
     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

@@ -27,10 +27,15 @@ type (
 	}
 )
 
+// NewUsersModel returns a model for the database table.
 func NewUsersModel(conn sqlx.SqlConn) UsersModel {
 	return &customUsersModel{
 		defaultUsersModel: newUsersModel(conn),
 	}
+}
+
+func (m *customUsersModel) WithSession(session sqlx.Session) UsersModel {
+	return NewUsersModel(sqlx.NewSqlConnFromSession(session))
 }
 
 func (m *customUsersModel) FindOneByPhoneOrEmail(ctx context.Context, account string) (*Users, error) {
@@ -69,13 +74,4 @@ func (m *customUsersModel) Trans(ctx context.Context, fn func(context context.Co
 	return m.conn.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		return fn(ctx, session)
 	})
-}
-
-func (m *customUsersModel) WithSession(session sqlx.Session) UsersModel {
-	return &customUsersModel{
-		defaultUsersModel: &defaultUsersModel{
-			conn:  sqlx.NewSqlConnFromSession(session),
-			table: m.table,
-		},
-	}
 }

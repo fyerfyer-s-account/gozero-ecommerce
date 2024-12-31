@@ -68,6 +68,12 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		return nil, zeroerr.ErrInvalidPassword
 	}
 
+	// Check if user is admin
+	role := jwtx.RoleUser
+	if userInfo.IsAdmin == 1 {
+		role = jwtx.RoleAdmin
+	}
+
 	// Generate tokens
 	now := time.Now().Unix()
 	log.Println("Generating access token")
@@ -76,6 +82,7 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		now,
 		l.svcCtx.Config.JwtAuth.AccessExpire,
 		int64(userInfo.Id),
+		role,
 	)
 	if err != nil {
 		log.Printf("Error generating access token: %v", err)
@@ -88,6 +95,7 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		now,
 		l.svcCtx.Config.JwtAuth.RefreshExpire,
 		int64(userInfo.Id),
+		role,
 	)
 	if err != nil {
 		log.Printf("Error generating refresh token: %v", err)

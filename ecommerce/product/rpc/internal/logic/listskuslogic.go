@@ -30,9 +30,6 @@ func (l *ListSkusLogic) ListSkus(in *product.ListSkusRequest) (*product.ListSkus
 		return nil, zeroerr.ErrInvalidParam
 	}
 
-	if in.PageSize <= 0 {
-		in.PageSize = 10
-	}
 	if in.Page <= 0 {
 		in.Page = 1
 	}
@@ -49,7 +46,7 @@ func (l *ListSkusLogic) ListSkus(in *product.ListSkusRequest) (*product.ListSkus
 		l.ctx,
 		uint64(in.ProductId),
 		int(in.Page),
-		int(in.PageSize),
+		l.svcCtx.Config.PageSize,
 	)
 	if err != nil {
 		logx.Errorf("Failed to get SKUs: %v", err)

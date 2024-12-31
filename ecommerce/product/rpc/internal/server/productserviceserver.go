@@ -34,6 +34,21 @@ func (s *ProductServiceServer) UpdateProduct(ctx context.Context, in *product.Up
 	return l.UpdateProduct(in)
 }
 
+func (s *ProductServiceServer) UpdateProductStatus(ctx context.Context, in *product.UpdateProductStatusRequest) (*product.UpdateProductStatusResponse, error) {
+	l := logic.NewUpdateProductStatusLogic(ctx, s.svcCtx)
+	return l.UpdateProductStatus(in)
+}
+
+func (s *ProductServiceServer) UpdateProductSales(ctx context.Context, in *product.UpdateProductSalesRequest) (*product.UpdateProductSalesResponse, error) {
+	l := logic.NewUpdateProductSalesLogic(ctx, s.svcCtx)
+	return l.UpdateProductSales(in)
+}
+
+func (s *ProductServiceServer) UpdateProductPrice(ctx context.Context, in *product.UpdateProductPriceRequest) (*product.UpdateProductPriceResponse, error) {
+	l := logic.NewUpdateProductPriceLogic(ctx, s.svcCtx)
+	return l.UpdateProductPrice(in)
+}
+
 func (s *ProductServiceServer) GetProduct(ctx context.Context, in *product.GetProductRequest) (*product.GetProductResponse, error) {
 	l := logic.NewGetProductLogic(ctx, s.svcCtx)
 	return l.GetProduct(in)
@@ -81,9 +96,19 @@ func (s *ProductServiceServer) CreateSku(ctx context.Context, in *product.Create
 	return l.CreateSku(in)
 }
 
-func (s *ProductServiceServer) UpdateSku(ctx context.Context, in *product.UpdateSkuRequest) (*product.UpdateSkuResponse, error) {
-	l := logic.NewUpdateSkuLogic(ctx, s.svcCtx)
-	return l.UpdateSku(in)
+func (s *ProductServiceServer) UpdateSkuStock(ctx context.Context, in *product.UpdateSkuStockRequest) (*product.UpdateSkuStockResponse, error) {
+	l := logic.NewUpdateSkuStockLogic(ctx, s.svcCtx)
+	return l.UpdateSkuStock(in)
+}
+
+func (s *ProductServiceServer) UpdateSkuPrice(ctx context.Context, in *product.UpdateSkuPriceRequest) (*product.UpdateSkuPriceResponse, error) {
+	l := logic.NewUpdateSkuPriceLogic(ctx, s.svcCtx)
+	return l.UpdateSkuPrice(in)
+}
+
+func (s *ProductServiceServer) UpdateSkuSales(ctx context.Context, in *product.UpdateSkuSalesRequest) (*product.UpdateSkuSalesResponse, error) {
+	l := logic.NewUpdateSkuSalesLogic(ctx, s.svcCtx)
+	return l.UpdateSkuSales(in)
 }
 
 func (s *ProductServiceServer) DeleteSku(ctx context.Context, in *product.DeleteSkuRequest) (*product.DeleteSkuResponse, error) {

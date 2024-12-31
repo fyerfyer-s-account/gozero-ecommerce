@@ -21,4 +21,5 @@ type Config struct {
 	MaxReviewImages     int `json:",default=5"`
 	MinReviewLength     int `json:",default=5"`
 	MaxReviewLength     int `json:",default=500"`
+	PageSize            int `json:",default=10"`
 }

@@ -8,7 +8,7 @@ import (
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/messageservice"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/orderservice"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/paymentclient"
-	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/productservice"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/productservice"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/search/rpc/searchclient"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/userclient"
 	"github.com/zeromicro/go-zero/core/stores/redis"
@@ -17,13 +17,14 @@ import (
 )
 
 type ServiceContext struct {
-	Config config.Config
-	Auth   rest.Middleware
+	Config    config.Config
+	Auth      rest.Middleware
+	AdminAuth rest.Middleware
 
 	Redis *redis.Redis
 
-	UserRpc userclient.User
-	// ProductRpc   productservice.ProductService
+	UserRpc    userclient.User
+	ProductRpc productservice.ProductService
 	// CartRpc      cartclient.Cart
 	// OrderRpc     orderservice.OrderService
 	// PaymentRpc   paymentclient.Payment
@@ -44,8 +45,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config: c,
 		Redis:  rdb,
 
-		UserRpc: userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
-		// ProductRpc:   productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
+		UserRpc:    userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
+		ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
 		// CartRpc:      cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
 		// OrderRpc:     orderservice.NewOrderService(zrpc.MustNewClient(c.OrderRpc)),
 		// PaymentRpc:   paymentclient.NewPayment(zrpc.MustNewClient(c.PaymentRpc)),

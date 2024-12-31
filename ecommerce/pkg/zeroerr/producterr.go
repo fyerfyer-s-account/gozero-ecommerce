@@ -4,6 +4,7 @@ package zeroerr
 var (
 	ErrInvalidParam = NewCodeError(101001, "无效的参数")
 	ErrNotFound     = NewCodeError(101002, "资源不存在")
+	ErrNoPermission = NewCodeError(101003, "无权限操作")
 )
 
 // Product Errors
@@ -15,6 +16,8 @@ var (
 	ErrProductDeleteFailed = NewCodeError(102005, "删除商品失败")
 	ErrInvalidProductPrice = NewCodeError(102006, "无效的商品价格")
 	ErrInvalidProductStock = NewCodeError(102007, "无效的商品库存")
+	ErrProductHasOrders    = NewCodeError(102008, "商品存在关联订单")
+	ErrProductHasReviews   = NewCodeError(102009, "商品存在评论")
 )
 
 // Category Errors

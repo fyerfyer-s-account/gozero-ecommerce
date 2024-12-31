@@ -116,7 +116,6 @@ func TestListProductsLogic_ListProducts(t *testing.T) {
 			req: &product.ListProductsRequest{
 				CategoryId: category1Id,
 				Page:       1,
-				PageSize:   10,
 			},
 			wantCount: 2,
 			wantErr:   false,
@@ -126,7 +125,6 @@ func TestListProductsLogic_ListProducts(t *testing.T) {
 			req: &product.ListProductsRequest{
 				CategoryId: category2Id,
 				Page:       1,
-				PageSize:   10,
 			},
 			wantCount: 1,
 			wantErr:   false,
@@ -136,7 +134,6 @@ func TestListProductsLogic_ListProducts(t *testing.T) {
 			req: &product.ListProductsRequest{
 				Keyword:  "Apple",
 				Page:     1,
-				PageSize: 10,
 			},
 			wantCount: 2,
 			wantErr:   false,
@@ -145,7 +142,6 @@ func TestListProductsLogic_ListProducts(t *testing.T) {
 			name: "General search",
 			req: &product.ListProductsRequest{
 				Page:     1,
-				PageSize: 10,
 			},
 			wantCount: 3,
 			wantErr:   false,
@@ -154,7 +150,6 @@ func TestListProductsLogic_ListProducts(t *testing.T) {
 			name: "Test pagination",
 			req: &product.ListProductsRequest{
 				Page:     1,
-				PageSize: 2,
 			},
 			wantCount: 2,
 			wantErr:   false,

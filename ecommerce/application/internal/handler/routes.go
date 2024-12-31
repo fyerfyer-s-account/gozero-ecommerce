@@ -149,11 +149,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/api/products",
-				Handler: product.SearchProductsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
 				Path:    "/api/products/:id",
 				Handler: product.GetProductHandler(serverCtx),
 			},
@@ -167,7 +162,91 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/api/products/:id/skus",
 				Handler: product.GetProductSkusHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/api/products/reviews/:id",
+				Handler: product.UpdateReviewHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/products/search",
+				Handler: product.SearchProductsHandler(serverCtx),
+			},
 		},
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AdminAuth},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/admin/categories",
+					Handler: product.CreateCategoryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/categories/:id",
+					Handler: product.UpdateCategoryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/api/admin/categories/:id",
+					Handler: product.DeleteCategoryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/admin/products",
+					Handler: product.CreateProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/products/:id",
+					Handler: product.UpdateProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/api/admin/products/:id",
+					Handler: product.DeleteProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/products/:id/price",
+					Handler: product.UpdateProductPriceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/products/:id/status",
+					Handler: product.UpdateProductStatusHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/admin/products/:productId/skus",
+					Handler: product.CreateSkuHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/products/skus/:id/price",
+					Handler: product.UpdateSkuPriceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/products/skus/:id/stock",
+					Handler: product.UpdateSkuStockHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/api/admin/reviews/:id",
+					Handler: product.DeleteReviewHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/reviews/:id/status",
+					Handler: product.ChangeReviewStatusHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 
 	server.AddRoutes(

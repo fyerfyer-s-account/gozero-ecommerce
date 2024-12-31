@@ -30,9 +30,6 @@ func (l *ListReviewsLogic) ListReviews(in *product.ListReviewsRequest) (*product
 		return nil, zeroerr.ErrInvalidParam
 	}
 
-	if in.PageSize <= 0 {
-		in.PageSize = 10
-	}
 	if in.Page <= 0 {
 		in.Page = 1
 	}
@@ -49,7 +46,7 @@ func (l *ListReviewsLogic) ListReviews(in *product.ListReviewsRequest) (*product
 		l.ctx,
 		uint64(in.ProductId),
 		int(in.Page),
-		int(in.PageSize),
+		l.svcCtx.Config.PageSize,
 	)
 	if err != nil {
 		logx.Errorf("Failed to get reviews: %v", err)

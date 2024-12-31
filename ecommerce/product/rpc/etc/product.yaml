@@ -16,6 +16,7 @@ MaxImagesPerProduct: 10    # Maximum images per product
 MaxReviewImages: 5         # Maximum images per review
 MinReviewLength: 5         # Minimum review content length
 MaxReviewLength: 500      # Maximum review content length
+PageSize: 10               # Default page size
 
 Log:
   ServiceName: product-rpc

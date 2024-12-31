@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"testing"
 
@@ -22,86 +21,83 @@ func TestUpdateProductLogic_UpdateProduct(t *testing.T) {
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
-	// Create test category
-	category := &model.Categories{
-		Name:  "Test Category",
-		Level: 1,
-		Sort:  1,
-	}
-	result, err := ctx.CategoriesModel.Insert(context.Background(), category)
-	assert.NoError(t, err)
-	categoryId, err := result.LastInsertId()
-	assert.NoError(t, err)
-
 	// Create test product
-	images := []string{"test1.jpg", "test2.jpg"}
-	imagesJSON, _ := json.Marshal(images)
-
-	p := &model.Products{
+	testProduct := &model.Products{
 		Name:        "Test Product",
 		Description: sql.NullString{String: "Test Description", Valid: true},
-		CategoryId:  uint64(categoryId),
+		CategoryId:  1,
 		Brand:       sql.NullString{String: "Test Brand", Valid: true},
-		Images:      sql.NullString{String: string(imagesJSON), Valid: true},
 		Price:       99.99,
 		Status:      1,
 	}
-
-	result, err = ctx.ProductsModel.Insert(context.Background(), p)
+	result, err := ctx.ProductsModel.Insert(context.Background(), testProduct)
 	assert.NoError(t, err)
 	productId, err := result.LastInsertId()
 	assert.NoError(t, err)
 
 	defer func() {
 		_ = ctx.ProductsModel.Delete(context.Background(), uint64(productId))
-		_ = ctx.CategoriesModel.Delete(context.Background(), uint64(categoryId))
 	}()
 
 	tests := []struct {
 		name    string
 		req     *product.UpdateProductRequest
 		wantErr error
+		verify  func(*testing.T, *model.Products)
 	}{
 		{
-			name: "Valid update",
+			name: "Update single field",
 			req: &product.UpdateProductRequest{
-				Id:          productId,
-				Name:        "Updated Product",
-				Description: "Updated Description",
-				CategoryId:  categoryId,
-				Brand:       "Updated Brand",
-				Images:      []string{"new1.jpg", "new2.jpg"},
-				Price:       199.99,
-				Status:      1,
+				Id:   productId,
+				Name: "Updated Product",
 			},
 			wantErr: nil,
+			verify: func(t *testing.T, p *model.Products) {
+				assert.Equal(t, "Updated Product", p.Name)
+			},
+		},
+		{
+			name: "Update multiple fields",
+			req: &product.UpdateProductRequest{
+				Id:          productId,
+				Description: "Updated Description",
+				Price:       199.99,
+				Brand:       "Updated Brand",
+			},
+			wantErr: nil,
+			verify: func(t *testing.T, p *model.Products) {
+				assert.Equal(t, "Updated Description", p.Description.String)
+				assert.True(t, p.Description.Valid)
+				assert.Equal(t, "Updated Brand", p.Brand.String)
+				assert.True(t, p.Brand.Valid)
+				assert.Equal(t, 199.99, p.Price)
+			},
 		},
 		{
 			name: "Invalid ID",
 			req: &product.UpdateProductRequest{
-				Id:    0,
-				Name:  "Test",
-				Price: 99.99,
+				Id:   0,
+				Name: "Test",
 			},
 			wantErr: zeroerr.ErrInvalidParam,
+			verify:  nil,
 		},
 		{
-			name: "Invalid price",
+			name: "Empty update",
 			req: &product.UpdateProductRequest{
-				Id:    productId,
-				Name:  "Test",
-				Price: 0,
+				Id: productId,
 			},
 			wantErr: zeroerr.ErrInvalidParam,
+			verify:  nil,
 		},
 		{
 			name: "Non-existent product",
 			req: &product.UpdateProductRequest{
-				Id:    99999,
-				Name:  "Test",
-				Price: 99.99,
+				Id:   99999,
+				Name: "Test",
 			},
-			wantErr: zeroerr.ErrProductNotFound,
+			wantErr: zeroerr.ErrProductNotFound, // Changed from model.ErrNotFound
+			verify:  nil,
 		},
 	}
 
@@ -119,18 +115,12 @@ func TestUpdateProductLogic_UpdateProduct(t *testing.T) {
 				assert.NotNil(t, resp)
 				assert.True(t, resp.Success)
 
-				// Verify changes
-				updated, err := ctx.ProductsModel.FindOne(context.Background(), uint64(productId))
-				assert.NoError(t, err)
-				assert.Equal(t, tt.req.Name, updated.Name)
-				assert.Equal(t, tt.req.Description, updated.Description.String)
-				assert.Equal(t, tt.req.Brand, updated.Brand.String)
-				assert.Equal(t, tt.req.Price, updated.Price)
-
-				var updatedImages []string
-				err = json.Unmarshal([]byte(updated.Images.String), &updatedImages)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.req.Images, updatedImages)
+				if tt.verify != nil {
+					// Verify updates
+					updated, err := ctx.ProductsModel.FindOne(context.Background(), uint64(productId))
+					assert.NoError(t, err)
+					tt.verify(t, updated)
+				}
 			}
 		})
 	}

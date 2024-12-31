@@ -19,7 +19,7 @@ type (
 		Count(ctx context.Context, productId uint64) (int64, error)
 		UpdateStock(ctx context.Context, id uint64, increment int64) error
 		UpdateSales(ctx context.Context, id uint64, increment int64) error
-		UpdatePriceAndStock(ctx context.Context, id uint64, price float64, stock int64) error
+		UpdatePrice(ctx context.Context, id uint64, price float64) error
 		BatchInsert(ctx context.Context, data []*Skus) error
 		DeleteByProductId(ctx context.Context, productId uint64) error
 	}
@@ -74,19 +74,12 @@ func (m *customSkusModel) UpdateSales(ctx context.Context, id uint64, increment 
 	return err
 }
 
-func (m *customSkusModel) UpdatePriceAndStock(ctx context.Context, id uint64, price float64, stock int64) error {
-	sku, err := m.FindOne(ctx, id)
-	if err != nil {
-		return err
-	}
-
+func (m *customSkusModel) UpdatePrice(ctx context.Context, id uint64, price float64) error {
 	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
-	mallProductSkusSkuCodeKey := fmt.Sprintf("%s%v", cacheMallProductSkusSkuCodePrefix, sku.SkuCode)
-
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `price` = ?, `stock` = ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, price, stock, id)
-	}, mallProductSkusIdKey, mallProductSkusSkuCodeKey)
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("update %s set `price` = ? where `id` = ?", m.table)
+		return conn.ExecCtx(ctx, query, price, id)
+	}, mallProductSkusIdKey)
 	return err
 }
 

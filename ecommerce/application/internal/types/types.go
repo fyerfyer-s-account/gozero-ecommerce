@@ -72,6 +72,22 @@ type ChangePasswordReq struct {
 	NewPassword string `json:"newPassword"`
 }
 
+type ChangeReviewStatusReq struct {
+	Id     int64 `path:"id"`
+	Status int32 `json:"status"`
+}
+
+type CreateCategoryReq struct {
+	Name     string `json:"name"`
+	ParentId int64  `json:"parentId"`
+	Sort     int32  `json:"sort"`
+	Icon     string `json:"icon,optional"`
+}
+
+type CreateCategoryResp struct {
+	Id int64 `json:"id"`
+}
+
 type CreateOrderReq struct {
 	AddressId   int64          `json:"addressId"`
 	CartItemIds []int64        `json:"cartItemIds,optional"` // 从购物车创建
@@ -96,6 +112,20 @@ type CreatePaymentResp struct {
 	QrCode    string `json:"qrCode,optional"` // 二维码链接
 }
 
+type CreateProductReq struct {
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	CategoryId  int64             `json:"categoryId"`
+	Brand       string            `json:"brand"`
+	Images      []string          `json:"images"`
+	Price       float64           `json:"price"`
+	Attributes  []SkuAttributeReq `json:"skuAttributes"`
+}
+
+type CreateProductResp struct {
+	Id int64 `json:"id"`
+}
+
 type CreateRefundReq struct {
 	OrderId int64    `json:"orderId"`
 	Type    int32    `json:"type"` // 1:仅退款 2:退货退款
@@ -113,7 +143,39 @@ type CreateReviewReq struct {
 	Images    []string `json:"images,optional"`
 }
 
+type CreateSkuReq struct {
+	ProductId  int64             `path:"productId"`
+	SkuCode    string            `json:"skuCode"`
+	Price      float64           `json:"price"`
+	Stock      int64             `json:"stock"`
+	Attributes []SkuAttributeReq `json:"attributes"`
+}
+
+type CreateSkuResp struct {
+	Id int64 `json:"id"`
+}
+
 type DeleteAddressReq struct {
+	Id int64 `path:"id"`
+}
+
+type DeleteCategoryReq struct {
+	Id int64 `json:"id"`
+}
+
+type DeleteProductReq struct {
+	Id int64 `path:"id"`
+}
+
+type DeleteReviewReq struct {
+	Id int64 `json:"id"`
+}
+
+type GetProductReq struct {
+	Id int64 `path:"id"`
+}
+
+type GetProductSkusReq struct {
 	Id int64 `path:"id"`
 }
 
@@ -326,7 +388,6 @@ type ReviewListReq struct {
 	ProductId int64 `form:"productId"`
 	Rating    int32 `form:"rating,optional"`
 	Page      int32 `form:"page,optional,default=1"`
-	PageSize  int32 `form:"pageSize,optional,default=20"`
 }
 
 type SearchReq struct {
@@ -339,7 +400,6 @@ type SearchReq struct {
 	Sort       string   `form:"sort,optional"`  // price,sales,rating
 	Order      string   `form:"order,optional"` // asc,desc
 	Page       int32    `form:"page,optional,default=1"`
-	PageSize   int32    `form:"pageSize,optional,default=20"`
 }
 
 type SearchResp struct {
@@ -374,6 +434,11 @@ type Sku struct {
 	Attributes map[string]string `json:"attributes"`
 }
 
+type SkuAttributeReq struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type TokenResp struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -405,12 +470,56 @@ type TransactionListResp struct {
 	TotalPages int32         `json:"totalPages"`
 }
 
+type UpdateCategoryReq struct {
+	Id   int64  `path:"id"`
+	Name string `json:"name,optional"`
+	Sort int32  `json:"sort,optional"`
+	Icon string `json:"icon,optional"`
+}
+
+type UpdateProductPriceReq struct {
+	Id    int64   `path:"id"`
+	Price float64 `json:"price"`
+}
+
+type UpdateProductReq struct {
+	Id          int64    `path:"id"`
+	Name        string   `json:"name,optional"`
+	Description string   `json:"description,optional"`
+	CategoryId  int64    `json:"categoryId,optional"`
+	Brand       string   `json:"brand,optional"`
+	Images      []string `json:"images,optional"`
+	Price       float64  `json:"price,optional"`
+}
+
+type UpdateProductStatusReq struct {
+	Id     int64 `path:"id"`
+	Status int32 `json:"status"` // 1:上架 2:下架
+}
+
 type UpdateProfileReq struct {
 	Nickname string `json:"nickname,optional"`
 	Avatar   string `json:"avatar,optional"`
 	Gender   string `json:"gender,optional"`
 	Phone    string `json:"phone,optional"`
 	Email    string `json:"email,optional"`
+}
+
+type UpdateReviewReq struct {
+	Id      int64    `path:"id"`
+	Rating  int32    `json:"rating,optional"`
+	Content string   `json:"content,optional"`
+	Images  []string `json:"images,optional"`
+}
+
+type UpdateSkuPriceReq struct {
+	Id    int64   `path:"id"`
+	Price float64 `json:"price"`
+}
+
+type UpdateSkuStockReq struct {
+	Id    int64 `path:"id"`
+	Stock int64 `json:"stock"`
 }
 
 type UserInfo struct {

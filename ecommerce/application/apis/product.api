@@ -20,6 +20,14 @@ type (
         CreatedAt    int64    `json:"createdAt"`
     }
 
+    GetProductReq {
+        Id int64 `path:"id"`
+    }
+
+    GetProductSkusReq {
+        Id   int64 `path:"id"`
+    }
+
     // SKU信息
     Sku {
         Id         int64             `json:"id"`
@@ -52,7 +60,6 @@ type (
         Sort        string   `form:"sort,optional"`      // price,sales,rating
         Order       string   `form:"order,optional"`     // asc,desc
         Page        int32    `form:"page,optional,default=1"`
-        PageSize    int32    `form:"pageSize,optional,default=20"`
     }
 
     SearchResp {
@@ -60,6 +67,16 @@ type (
         Total       int64     `json:"total"`
         Page        int32     `json:"page"`
         TotalPages  int32     `json:"totalPages"`
+    }
+
+    UpdateProductStatusReq {
+        Id     int64 `path:"id"`
+        Status int32 `json:"status"` // 1:上架 2:下架
+    }
+    
+    UpdateSkuStockReq {
+        Id    int64 `path:"id"`
+        Stock int64 `json:"stock"`
     }
 
     // 商品评价
@@ -87,6 +104,98 @@ type (
         ProductId  int64 `form:"productId"`
         Rating     int32 `form:"rating,optional"`
         Page       int32 `form:"page,optional,default=1"`
-        PageSize   int32 `form:"pageSize,optional,default=20"`
+    }
+
+    CreateProductReq {
+        Name        string   `json:"name"`
+        Description string   `json:"description"`
+        CategoryId  int64    `json:"categoryId"`
+        Brand       string   `json:"brand"`
+        Images      []string `json:"images"`
+        Price       float64  `json:"price"`
+        Attributes  []SkuAttributeReq `json:"skuAttributes"`
+    }
+
+    CreateProductResp {
+        Id int64 `json:"id"`
+    }
+
+    UpdateProductReq {
+        Id          int64    `path:"id"`
+        Name        string   `json:"name,optional"`
+        Description string   `json:"description,optional"`
+        CategoryId  int64    `json:"categoryId,optional"`
+        Brand       string   `json:"brand,optional"`
+        Images      []string `json:"images,optional"`
+        Price       float64  `json:"price,optional"`
+    }
+
+    UpdateProductPriceReq {
+        Id    int64   `path:"id"`
+        Price float64 `json:"price"`
+    }
+
+    DeleteProductReq {
+        Id int64 `path:"id"`
+    }
+
+    CreateCategoryReq {
+        Name     string `json:"name"`
+        ParentId int64  `json:"parentId"`
+        Sort     int32  `json:"sort"`
+        Icon     string `json:"icon,optional"`
+    }
+
+    CreateCategoryResp {
+        Id int64 `json:"id"`
+    }
+
+    UpdateCategoryReq {
+        Id   int64  `path:"id"`
+        Name string `json:"name,optional"`
+        Sort int32  `json:"sort,optional"`
+        Icon string `json:"icon,optional"`
+    }
+
+    DeleteCategoryReq {
+        Id int64 `json:"id"`
+    }
+
+    SkuAttributeReq {
+        Key   string `json:"key"`
+        Value string `json:"value"`
+    }
+
+    CreateSkuReq {
+        ProductId  int64            `path:"productId"`
+        SkuCode   string           `json:"skuCode"`
+        Price     float64          `json:"price"`
+        Stock     int64            `json:"stock"`
+        Attributes []SkuAttributeReq `json:"attributes"`
+    }
+
+    CreateSkuResp {
+        Id int64 `json:"id"`
+    }
+
+    UpdateSkuPriceReq {
+        Id    int64   `path:"id"`
+        Price float64 `json:"price"`
+    }
+
+    ChangeReviewStatusReq {
+        Id     int64 `path:"id"`
+        Status int32 `json:"status"`
+    }
+
+    DeleteReviewReq {
+        Id int64 `json:"id"`
+    }
+
+    UpdateReviewReq {
+        Id      int64    `path:"id"`
+        Rating  int32    `json:"rating,optional"`
+        Content string   `json:"content,optional"`
+        Images  []string `json:"images,optional"`
     }
 )

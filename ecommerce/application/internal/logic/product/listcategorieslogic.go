@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/types"
+	product "github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,25 @@ func NewListCategoriesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Li
 	}
 }
 
-func (l *ListCategoriesLogic) ListCategories() (resp []types.Category, err error) {
-	// todo: add your logic here and delete this line
+func (l *ListCategoriesLogic) ListCategories() ([]types.Category, error) {
+	resp, err := l.svcCtx.ProductRpc.ListCategories(l.ctx, &product.ListCategoriesRequest{
+		ParentId: 0, // Get root categories by default
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	categories := make([]types.Category, 0, len(resp.Categories))
+	for _, c := range resp.Categories {
+		categories = append(categories, types.Category{
+			Id:       c.Id,
+			Name:     c.Name,
+			ParentId: c.ParentId,
+			Level:    int32(c.Level),
+			Sort:     int32(c.Sort),
+			Icon:     c.Icon,
+		})
+	}
+
+	return categories, nil
 }

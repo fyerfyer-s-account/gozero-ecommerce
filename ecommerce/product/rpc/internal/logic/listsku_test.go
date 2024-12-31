@@ -74,7 +74,7 @@ func TestListSkusLogic_ListSkus(t *testing.T) {
 	tests := []struct {
 		name      string
 		req       *product.ListSkusRequest
-		wantCount int64
+		wantCount int
 		wantErr   bool
 	}{
 		{
@@ -82,7 +82,6 @@ func TestListSkusLogic_ListSkus(t *testing.T) {
 			req: &product.ListSkusRequest{
 				ProductId: productId,
 				Page:      1,
-				PageSize:  10,
 			},
 			wantCount: 2,
 			wantErr:   false,
@@ -91,10 +90,9 @@ func TestListSkusLogic_ListSkus(t *testing.T) {
 			name: "Test pagination",
 			req: &product.ListSkusRequest{
 				ProductId: productId,
-				Page:      1,
-				PageSize:  1,
+				Page:      2,
 			},
-			wantCount: 1,
+			wantCount: 0,
 			wantErr:   false,
 		},
 		{
@@ -102,7 +100,6 @@ func TestListSkusLogic_ListSkus(t *testing.T) {
 			req: &product.ListSkusRequest{
 				ProductId: 0,
 				Page:      1,
-				PageSize:  10,
 			},
 			wantCount: 0,
 			wantErr:   true,

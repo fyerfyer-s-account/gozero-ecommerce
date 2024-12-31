@@ -27,9 +27,6 @@ func NewListProductsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 }
 
 func (l *ListProductsLogic) ListProducts(in *product.ListProductsRequest) (*product.ListProductsResponse, error) {
-	if in.PageSize <= 0 {
-		in.PageSize = 10
-	}
 	if in.Page <= 0 {
 		in.Page = 1
 	}
@@ -46,11 +43,11 @@ func (l *ListProductsLogic) ListProducts(in *product.ListProductsRequest) (*prod
 
 	// Get products with filters
 	if in.CategoryId > 0 {
-		products, err = l.svcCtx.ProductsModel.FindManyByCategoryId(l.ctx, uint64(in.CategoryId), int(in.Page), int(in.PageSize))
+		products, err = l.svcCtx.ProductsModel.FindManyByCategoryId(l.ctx, uint64(in.CategoryId), int(in.Page), l.svcCtx.Config.PageSize)
 	} else if in.Keyword != "" {
-		products, err = l.svcCtx.ProductsModel.SearchByKeyword(l.ctx, in.Keyword, int(in.Page), int(in.PageSize))
+		products, err = l.svcCtx.ProductsModel.SearchByKeyword(l.ctx, in.Keyword, int(in.Page), l.svcCtx.Config.PageSize)
 	} else {
-		products, err = l.svcCtx.ProductsModel.GeneralSearch(l.ctx, int(in.Page), int(in.PageSize))
+		products, err = l.svcCtx.ProductsModel.GeneralSearch(l.ctx, int(in.Page), l.svcCtx.Config.PageSize)
 	}
 
 	if err != nil {

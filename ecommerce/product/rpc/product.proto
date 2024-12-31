@@ -8,6 +8,9 @@ service ProductService {
     // 商品管理
     rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
     rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+    rpc UpdateProductStatus(UpdateProductStatusRequest) returns (UpdateProductStatusResponse);
+    rpc UpdateProductSales(UpdateProductSalesRequest) returns (UpdateProductSalesResponse);
+    rpc UpdateProductPrice(UpdateProductPriceRequest) returns (UpdateProductPriceResponse);
     rpc GetProduct(GetProductRequest) returns (GetProductResponse);
     rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
     rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
@@ -21,7 +24,9 @@ service ProductService {
     
     // SKU管理
     rpc CreateSku(CreateSkuRequest) returns (CreateSkuResponse);
-    rpc UpdateSku(UpdateSkuRequest) returns (UpdateSkuResponse);
+    rpc UpdateSkuStock(UpdateSkuStockRequest) returns (UpdateSkuStockResponse);
+    rpc UpdateSkuPrice(UpdateSkuPriceRequest) returns (UpdateSkuPriceResponse);
+    rpc UpdateSkuSales(UpdateSkuSalesRequest) returns (UpdateSkuSalesResponse);
     rpc DeleteSku(DeleteSkuRequest) returns (DeleteSkuResponse);
     rpc GetSku(GetSkuRequest) returns (GetSkuResponse);
     rpc ListSkus(ListSkusRequest) returns (ListSkusResponse);
@@ -71,10 +76,36 @@ message UpdateProductRequest {
     string brand = 5;
     repeated string images = 6;
     double price = 7;
-    int32 status = 8;
 }
 
 message UpdateProductResponse {
+    bool success = 1;
+}
+
+message UpdateProductStatusRequest {
+    int64 id = 1;
+    int64 status = 2;
+}
+
+message UpdateProductStatusResponse {
+    bool success = 1;
+}
+
+message UpdateProductSalesRequest {
+    int64 id = 1;
+    int64 increment = 2;
+}
+
+message UpdateProductSalesResponse {
+    bool success = 1;
+}
+
+message UpdateProductPriceRequest {
+    int64 id = 1;
+    double price = 2;
+}
+
+message UpdateProductPriceResponse {
     bool success = 1;
 }
 
@@ -91,7 +122,6 @@ message ListProductsRequest {
     int64 category_id = 1;
     string keyword = 2;
     int32 page = 3;
-    int32 page_size = 4;
 }
 
 message ListProductsResponse {
@@ -196,13 +226,30 @@ message CreateSkuResponse {
     int64 id = 1;
 }
 
-message UpdateSkuRequest {
+message UpdateSkuStockRequest {
     int64 id = 1;
-    double price = 2;
-    int64 stock = 3;
+    int64 increment = 2;
 }
 
-message UpdateSkuResponse {
+message UpdateSkuStockResponse {
+    bool success = 1;
+}
+
+message UpdateSkuPriceRequest {
+    int64 id = 1;
+    double price = 2;
+}
+
+message UpdateSkuSalesRequest {
+    int64 id = 1;
+    int64 increment = 2;
+}
+
+message UpdateSkuSalesResponse {
+    bool success = 1;
+}
+
+message UpdateSkuPriceResponse {
     bool success = 1;
 }
 
@@ -225,7 +272,6 @@ message GetSkuResponse {
 message ListSkusRequest {
     int64 product_id = 1;
     int32 page = 2;
-    int32 page_size = 3;
 }
 
 message ListSkusResponse {
@@ -291,7 +337,6 @@ message DeleteReviewResponse {
 message ListReviewsRequest {
     int64 product_id = 1;
     int32 page = 2;
-    int32 page_size = 3;
 }
 
 message ListReviewsResponse {

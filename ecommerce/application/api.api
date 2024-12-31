@@ -72,19 +72,68 @@ service mall-api {
 )
 service mall-api {
 	@handler SearchProducts
-	get /api/products (SearchReq) returns (SearchResp)
+	get /api/products/search (SearchReq) returns (SearchResp)
 
 	@handler GetProduct
-	get /api/products/:id returns (Product)
+	get /api/products/:id (GetProductReq) returns (Product)
 
 	@handler GetProductSkus
-	get /api/products/:id/skus returns ([]Sku)
+	get /api/products/:id/skus (GetProductSkusReq) returns ([]Sku)
 
 	@handler ListCategories
 	get /api/categories returns ([]Category)
 
 	@handler GetProductReviews
 	get /api/products/:id/reviews (ReviewListReq) returns ([]Review)
+
+	@handler UpdateReview
+	put /api/products/reviews/:id (UpdateReviewReq)
+}
+
+@server (
+	jwt:        Auth
+	group:      product
+	middleware: AdminAuth // administrator authentication
+)
+service mall-api {
+	@handler CreateProduct
+	post /api/admin/products (CreateProductReq) returns (CreateProductResp)
+
+	@handler UpdateProduct
+	put /api/admin/products/:id (UpdateProductReq)
+
+	@handler UpdateProductStatus
+	put /api/admin/products/:id/status (UpdateProductStatusReq)
+
+	@handler UpdateProductPrice
+	put /api/admin/products/:id/price (UpdateProductPriceReq)
+
+	@handler DeleteProduct
+	delete /api/admin/products/:id (DeleteProductReq)
+
+	@handler CreateCategory
+	post /api/admin/categories (CreateCategoryReq) returns (CreateCategoryResp)
+
+	@handler UpdateCategory
+	put /api/admin/categories/:id (UpdateCategoryReq)
+
+	@handler DeleteCategory
+	delete /api/admin/categories/:id (DeleteCategoryReq)
+
+	@handler CreateSku
+	post /api/admin/products/:productId/skus (CreateSkuReq) returns (CreateSkuResp)
+
+	@handler UpdateSkuStock
+	put /api/admin/products/skus/:id/stock (UpdateSkuStockReq)
+
+	@handler UpdateSkuPrice
+	put /api/admin/products/skus/:id/price (UpdateSkuPriceReq)
+
+	@handler ChangeReviewStatus
+	put /api/admin/reviews/:id/status (ChangeReviewStatusReq)
+
+	@handler DeleteReview
+	delete /api/admin/reviews/:id (DeleteReviewReq)
 }
 
 @server (

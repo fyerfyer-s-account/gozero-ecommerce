@@ -15,6 +15,14 @@ type Config struct {
 		RefreshExpire int64
 	}
 
+	PageSize int
+
+	AdminAuth struct {
+		AccessSecret string
+		AccessExpire int64
+		RoleKey      string // 用于在JWT claims中存储角色信息的key
+	}
+
 	Redis struct {
 		Host string
 		Type string
@@ -22,8 +30,8 @@ type Config struct {
 		Key  string
 	}
 
-	UserRpc zrpc.RpcClientConf
-	// ProductRpc   zrpc.RpcClientConf
+	UserRpc    zrpc.RpcClientConf
+	ProductRpc zrpc.RpcClientConf
 	// CartRpc      zrpc.RpcClientConf
 	// OrderRpc     zrpc.RpcClientConf
 	// PaymentRpc   zrpc.RpcClientConf

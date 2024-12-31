@@ -19,26 +19,31 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProductService_CreateProduct_FullMethodName      = "/product.ProductService/CreateProduct"
-	ProductService_UpdateProduct_FullMethodName      = "/product.ProductService/UpdateProduct"
-	ProductService_GetProduct_FullMethodName         = "/product.ProductService/GetProduct"
-	ProductService_ListProducts_FullMethodName       = "/product.ProductService/ListProducts"
-	ProductService_DeleteProduct_FullMethodName      = "/product.ProductService/DeleteProduct"
-	ProductService_CreateCategory_FullMethodName     = "/product.ProductService/CreateCategory"
-	ProductService_UpdateCategory_FullMethodName     = "/product.ProductService/UpdateCategory"
-	ProductService_DeleteCategory_FullMethodName     = "/product.ProductService/DeleteCategory"
-	ProductService_GetCategory_FullMethodName        = "/product.ProductService/GetCategory"
-	ProductService_ListCategories_FullMethodName     = "/product.ProductService/ListCategories"
-	ProductService_CreateSku_FullMethodName          = "/product.ProductService/CreateSku"
-	ProductService_UpdateSku_FullMethodName          = "/product.ProductService/UpdateSku"
-	ProductService_DeleteSku_FullMethodName          = "/product.ProductService/DeleteSku"
-	ProductService_GetSku_FullMethodName             = "/product.ProductService/GetSku"
-	ProductService_ListSkus_FullMethodName           = "/product.ProductService/ListSkus"
-	ProductService_CreateReview_FullMethodName       = "/product.ProductService/CreateReview"
-	ProductService_UpdateReview_FullMethodName       = "/product.ProductService/UpdateReview"
-	ProductService_ChangeReviewStatus_FullMethodName = "/product.ProductService/ChangeReviewStatus"
-	ProductService_DeleteReview_FullMethodName       = "/product.ProductService/DeleteReview"
-	ProductService_ListReviews_FullMethodName        = "/product.ProductService/ListReviews"
+	ProductService_CreateProduct_FullMethodName       = "/product.ProductService/CreateProduct"
+	ProductService_UpdateProduct_FullMethodName       = "/product.ProductService/UpdateProduct"
+	ProductService_UpdateProductStatus_FullMethodName = "/product.ProductService/UpdateProductStatus"
+	ProductService_UpdateProductSales_FullMethodName  = "/product.ProductService/UpdateProductSales"
+	ProductService_UpdateProductPrice_FullMethodName  = "/product.ProductService/UpdateProductPrice"
+	ProductService_GetProduct_FullMethodName          = "/product.ProductService/GetProduct"
+	ProductService_ListProducts_FullMethodName        = "/product.ProductService/ListProducts"
+	ProductService_DeleteProduct_FullMethodName       = "/product.ProductService/DeleteProduct"
+	ProductService_CreateCategory_FullMethodName      = "/product.ProductService/CreateCategory"
+	ProductService_UpdateCategory_FullMethodName      = "/product.ProductService/UpdateCategory"
+	ProductService_DeleteCategory_FullMethodName      = "/product.ProductService/DeleteCategory"
+	ProductService_GetCategory_FullMethodName         = "/product.ProductService/GetCategory"
+	ProductService_ListCategories_FullMethodName      = "/product.ProductService/ListCategories"
+	ProductService_CreateSku_FullMethodName           = "/product.ProductService/CreateSku"
+	ProductService_UpdateSkuStock_FullMethodName      = "/product.ProductService/UpdateSkuStock"
+	ProductService_UpdateSkuPrice_FullMethodName      = "/product.ProductService/UpdateSkuPrice"
+	ProductService_UpdateSkuSales_FullMethodName      = "/product.ProductService/UpdateSkuSales"
+	ProductService_DeleteSku_FullMethodName           = "/product.ProductService/DeleteSku"
+	ProductService_GetSku_FullMethodName              = "/product.ProductService/GetSku"
+	ProductService_ListSkus_FullMethodName            = "/product.ProductService/ListSkus"
+	ProductService_CreateReview_FullMethodName        = "/product.ProductService/CreateReview"
+	ProductService_UpdateReview_FullMethodName        = "/product.ProductService/UpdateReview"
+	ProductService_ChangeReviewStatus_FullMethodName  = "/product.ProductService/ChangeReviewStatus"
+	ProductService_DeleteReview_FullMethodName        = "/product.ProductService/DeleteReview"
+	ProductService_ListReviews_FullMethodName         = "/product.ProductService/ListReviews"
 )
 
 // ProductServiceClient is the client API for ProductService service.
@@ -50,6 +55,9 @@ type ProductServiceClient interface {
 	// 商品管理
 	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error)
 	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*UpdateProductResponse, error)
+	UpdateProductStatus(ctx context.Context, in *UpdateProductStatusRequest, opts ...grpc.CallOption) (*UpdateProductStatusResponse, error)
+	UpdateProductSales(ctx context.Context, in *UpdateProductSalesRequest, opts ...grpc.CallOption) (*UpdateProductSalesResponse, error)
+	UpdateProductPrice(ctx context.Context, in *UpdateProductPriceRequest, opts ...grpc.CallOption) (*UpdateProductPriceResponse, error)
 	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error)
 	ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
@@ -61,7 +69,9 @@ type ProductServiceClient interface {
 	ListCategories(ctx context.Context, in *ListCategoriesRequest, opts ...grpc.CallOption) (*ListCategoriesResponse, error)
 	// SKU管理
 	CreateSku(ctx context.Context, in *CreateSkuRequest, opts ...grpc.CallOption) (*CreateSkuResponse, error)
-	UpdateSku(ctx context.Context, in *UpdateSkuRequest, opts ...grpc.CallOption) (*UpdateSkuResponse, error)
+	UpdateSkuStock(ctx context.Context, in *UpdateSkuStockRequest, opts ...grpc.CallOption) (*UpdateSkuStockResponse, error)
+	UpdateSkuPrice(ctx context.Context, in *UpdateSkuPriceRequest, opts ...grpc.CallOption) (*UpdateSkuPriceResponse, error)
+	UpdateSkuSales(ctx context.Context, in *UpdateSkuSalesRequest, opts ...grpc.CallOption) (*UpdateSkuSalesResponse, error)
 	DeleteSku(ctx context.Context, in *DeleteSkuRequest, opts ...grpc.CallOption) (*DeleteSkuResponse, error)
 	GetSku(ctx context.Context, in *GetSkuRequest, opts ...grpc.CallOption) (*GetSkuResponse, error)
 	ListSkus(ctx context.Context, in *ListSkusRequest, opts ...grpc.CallOption) (*ListSkusResponse, error)
@@ -95,6 +105,36 @@ func (c *productServiceClient) UpdateProduct(ctx context.Context, in *UpdateProd
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateProductResponse)
 	err := c.cc.Invoke(ctx, ProductService_UpdateProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateProductStatus(ctx context.Context, in *UpdateProductStatusRequest, opts ...grpc.CallOption) (*UpdateProductStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProductStatusResponse)
+	err := c.cc.Invoke(ctx, ProductService_UpdateProductStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateProductSales(ctx context.Context, in *UpdateProductSalesRequest, opts ...grpc.CallOption) (*UpdateProductSalesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProductSalesResponse)
+	err := c.cc.Invoke(ctx, ProductService_UpdateProductSales_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateProductPrice(ctx context.Context, in *UpdateProductPriceRequest, opts ...grpc.CallOption) (*UpdateProductPriceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProductPriceResponse)
+	err := c.cc.Invoke(ctx, ProductService_UpdateProductPrice_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -191,10 +231,30 @@ func (c *productServiceClient) CreateSku(ctx context.Context, in *CreateSkuReque
 	return out, nil
 }
 
-func (c *productServiceClient) UpdateSku(ctx context.Context, in *UpdateSkuRequest, opts ...grpc.CallOption) (*UpdateSkuResponse, error) {
+func (c *productServiceClient) UpdateSkuStock(ctx context.Context, in *UpdateSkuStockRequest, opts ...grpc.CallOption) (*UpdateSkuStockResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateSkuResponse)
-	err := c.cc.Invoke(ctx, ProductService_UpdateSku_FullMethodName, in, out, cOpts...)
+	out := new(UpdateSkuStockResponse)
+	err := c.cc.Invoke(ctx, ProductService_UpdateSkuStock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateSkuPrice(ctx context.Context, in *UpdateSkuPriceRequest, opts ...grpc.CallOption) (*UpdateSkuPriceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSkuPriceResponse)
+	err := c.cc.Invoke(ctx, ProductService_UpdateSkuPrice_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateSkuSales(ctx context.Context, in *UpdateSkuSalesRequest, opts ...grpc.CallOption) (*UpdateSkuSalesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSkuSalesResponse)
+	err := c.cc.Invoke(ctx, ProductService_UpdateSkuSales_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -290,6 +350,9 @@ type ProductServiceServer interface {
 	// 商品管理
 	CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error)
 	UpdateProduct(context.Context, *UpdateProductRequest) (*UpdateProductResponse, error)
+	UpdateProductStatus(context.Context, *UpdateProductStatusRequest) (*UpdateProductStatusResponse, error)
+	UpdateProductSales(context.Context, *UpdateProductSalesRequest) (*UpdateProductSalesResponse, error)
+	UpdateProductPrice(context.Context, *UpdateProductPriceRequest) (*UpdateProductPriceResponse, error)
 	GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error)
 	ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error)
 	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
@@ -301,7 +364,9 @@ type ProductServiceServer interface {
 	ListCategories(context.Context, *ListCategoriesRequest) (*ListCategoriesResponse, error)
 	// SKU管理
 	CreateSku(context.Context, *CreateSkuRequest) (*CreateSkuResponse, error)
-	UpdateSku(context.Context, *UpdateSkuRequest) (*UpdateSkuResponse, error)
+	UpdateSkuStock(context.Context, *UpdateSkuStockRequest) (*UpdateSkuStockResponse, error)
+	UpdateSkuPrice(context.Context, *UpdateSkuPriceRequest) (*UpdateSkuPriceResponse, error)
+	UpdateSkuSales(context.Context, *UpdateSkuSalesRequest) (*UpdateSkuSalesResponse, error)
 	DeleteSku(context.Context, *DeleteSkuRequest) (*DeleteSkuResponse, error)
 	GetSku(context.Context, *GetSkuRequest) (*GetSkuResponse, error)
 	ListSkus(context.Context, *ListSkusRequest) (*ListSkusResponse, error)
@@ -326,6 +391,15 @@ func (UnimplementedProductServiceServer) CreateProduct(context.Context, *CreateP
 }
 func (UnimplementedProductServiceServer) UpdateProduct(context.Context, *UpdateProductRequest) (*UpdateProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateProductStatus(context.Context, *UpdateProductStatusRequest) (*UpdateProductStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProductStatus not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateProductSales(context.Context, *UpdateProductSalesRequest) (*UpdateProductSalesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProductSales not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateProductPrice(context.Context, *UpdateProductPriceRequest) (*UpdateProductPriceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProductPrice not implemented")
 }
 func (UnimplementedProductServiceServer) GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
@@ -354,8 +428,14 @@ func (UnimplementedProductServiceServer) ListCategories(context.Context, *ListCa
 func (UnimplementedProductServiceServer) CreateSku(context.Context, *CreateSkuRequest) (*CreateSkuResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSku not implemented")
 }
-func (UnimplementedProductServiceServer) UpdateSku(context.Context, *UpdateSkuRequest) (*UpdateSkuResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateSku not implemented")
+func (UnimplementedProductServiceServer) UpdateSkuStock(context.Context, *UpdateSkuStockRequest) (*UpdateSkuStockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSkuStock not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateSkuPrice(context.Context, *UpdateSkuPriceRequest) (*UpdateSkuPriceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSkuPrice not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateSkuSales(context.Context, *UpdateSkuSalesRequest) (*UpdateSkuSalesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSkuSales not implemented")
 }
 func (UnimplementedProductServiceServer) DeleteSku(context.Context, *DeleteSkuRequest) (*DeleteSkuResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSku not implemented")
@@ -434,6 +514,60 @@ func _ProductService_UpdateProduct_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProductServiceServer).UpdateProduct(ctx, req.(*UpdateProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateProductStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProductStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateProductStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_UpdateProductStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateProductStatus(ctx, req.(*UpdateProductStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateProductSales_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProductSalesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateProductSales(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_UpdateProductSales_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateProductSales(ctx, req.(*UpdateProductSalesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateProductPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProductPriceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateProductPrice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_UpdateProductPrice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateProductPrice(ctx, req.(*UpdateProductPriceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -600,20 +734,56 @@ func _ProductService_CreateSku_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ProductService_UpdateSku_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateSkuRequest)
+func _ProductService_UpdateSkuStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSkuStockRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProductServiceServer).UpdateSku(ctx, in)
+		return srv.(ProductServiceServer).UpdateSkuStock(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ProductService_UpdateSku_FullMethodName,
+		FullMethod: ProductService_UpdateSkuStock_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductServiceServer).UpdateSku(ctx, req.(*UpdateSkuRequest))
+		return srv.(ProductServiceServer).UpdateSkuStock(ctx, req.(*UpdateSkuStockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateSkuPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSkuPriceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateSkuPrice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_UpdateSkuPrice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateSkuPrice(ctx, req.(*UpdateSkuPriceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateSkuSales_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSkuSalesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateSkuSales(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_UpdateSkuSales_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateSkuSales(ctx, req.(*UpdateSkuSalesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -778,6 +948,18 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ProductService_UpdateProduct_Handler,
 		},
 		{
+			MethodName: "UpdateProductStatus",
+			Handler:    _ProductService_UpdateProductStatus_Handler,
+		},
+		{
+			MethodName: "UpdateProductSales",
+			Handler:    _ProductService_UpdateProductSales_Handler,
+		},
+		{
+			MethodName: "UpdateProductPrice",
+			Handler:    _ProductService_UpdateProductPrice_Handler,
+		},
+		{
 			MethodName: "GetProduct",
 			Handler:    _ProductService_GetProduct_Handler,
 		},
@@ -814,8 +996,16 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ProductService_CreateSku_Handler,
 		},
 		{
-			MethodName: "UpdateSku",
-			Handler:    _ProductService_UpdateSku_Handler,
+			MethodName: "UpdateSkuStock",
+			Handler:    _ProductService_UpdateSkuStock_Handler,
+		},
+		{
+			MethodName: "UpdateSkuPrice",
+			Handler:    _ProductService_UpdateSkuPrice_Handler,
+		},
+		{
+			MethodName: "UpdateSkuSales",
+			Handler:    _ProductService_UpdateSkuSales_Handler,
 		},
 		{
 			MethodName: "DeleteSku",

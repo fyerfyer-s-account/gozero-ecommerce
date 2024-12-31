@@ -10,6 +10,7 @@ import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type UpdateProductLogic struct {
@@ -27,43 +28,54 @@ func NewUpdateProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateProductLogic) UpdateProduct(in *product.UpdateProductRequest) (*product.UpdateProductResponse, error) {
-    // Validate input
-    if in.Id <= 0 || in.Name == "" || in.Price <= 0 {
-        return nil, zeroerr.ErrInvalidParam
-    }
+	if in.Id <= 0 {
+		return nil, zeroerr.ErrInvalidParam
+	}
 
-    // Check product exists
-    existing, err := l.svcCtx.ProductsModel.FindOne(l.ctx, uint64(in.Id))
-    if err != nil {
-        return nil, zeroerr.ErrProductNotFound
-    }
+	// Build updates map first to validate if there are any updates
+	updates := make(map[string]interface{})
+	if in.Name != "" {
+		updates["name"] = in.Name
+	}
+	if in.Description != "" {
+		updates["description"] = sql.NullString{String: in.Description, Valid: true}
+	}
+	if in.CategoryId > 0 {
+		updates["category_id"] = in.CategoryId
+	}
+	if in.Brand != "" {
+		updates["brand"] = sql.NullString{String: in.Brand, Valid: true}
+	}
+	if len(in.Images) > 0 {
+		imagesJSON, err := json.Marshal(in.Images)
+		if err != nil {
+			return nil, err
+		}
+		updates["images"] = string(imagesJSON)
+	}
+	if in.Price > 0 {
+		updates["price"] = in.Price
+	}
 
-    // Convert images to JSON
-    var imagesJSON string
-    if len(in.Images) > 0 {
-        imagesBytes, err := json.Marshal(in.Images)
-        if err != nil {
-            return nil, zeroerr.ErrInvalidParam
-        }
-        imagesJSON = string(imagesBytes)
-    }
+	if len(updates) == 0 {
+		return nil, zeroerr.ErrInvalidParam
+	}
 
-    // Update product
-    existing.Name = in.Name
-    existing.Description = sql.NullString{String: in.Description, Valid: in.Description != ""}
-    existing.CategoryId = uint64(in.CategoryId)
-    existing.Brand = sql.NullString{String: in.Brand, Valid: in.Brand != ""}
-    existing.Images = sql.NullString{String: imagesJSON, Valid: len(in.Images) > 0}
-    existing.Price = in.Price
-    existing.Status = int64(in.Status)
+	// Check if product exists
+	_, err := l.svcCtx.ProductsModel.FindOne(l.ctx, uint64(in.Id))
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, zeroerr.ErrProductNotFound
+		}
+		return nil, err
+	}
 
-    err = l.svcCtx.ProductsModel.Update(l.ctx, existing)
-    if err != nil {
-        logx.Errorf("Failed to update product: %v", err)
-        return nil, zeroerr.ErrProductUpdateFailed
-    }
+	err = l.svcCtx.ProductsModel.UpdatePartial(l.ctx, uint64(in.Id), updates)
+	if err != nil {
+		return nil, err
+	}
 
-    return &product.UpdateProductResponse{
-        Success: true,
-    }, nil
+	return &product.UpdateProductResponse{
+		Success: true,
+	}, nil
 }

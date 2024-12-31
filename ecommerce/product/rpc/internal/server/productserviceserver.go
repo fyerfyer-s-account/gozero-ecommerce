@@ -112,6 +112,11 @@ func (s *ProductServiceServer) UpdateReview(ctx context.Context, in *product.Upd
 	return l.UpdateReview(in)
 }
 
+func (s *ProductServiceServer) ChangeReviewStatus(ctx context.Context, in *product.ChangeReviewStatusRequest) (*product.ChangeReviewStatusResponse, error) {
+	l := logic.NewChangeReviewStatusLogic(ctx, s.svcCtx)
+	return l.ChangeReviewStatus(in)
+}
+
 func (s *ProductServiceServer) DeleteReview(ctx context.Context, in *product.DeleteReviewRequest) (*product.DeleteReviewResponse, error) {
 	l := logic.NewDeleteReviewLogic(ctx, s.svcCtx)
 	return l.DeleteReview(in)

@@ -14,49 +14,51 @@ import (
 )
 
 type (
-	Category               = product.Category
-	CreateCategoryRequest  = product.CreateCategoryRequest
-	CreateCategoryResponse = product.CreateCategoryResponse
-	CreateProductRequest   = product.CreateProductRequest
-	CreateProductResponse  = product.CreateProductResponse
-	CreateReviewRequest    = product.CreateReviewRequest
-	CreateReviewResponse   = product.CreateReviewResponse
-	CreateSkuRequest       = product.CreateSkuRequest
-	CreateSkuResponse      = product.CreateSkuResponse
-	DeleteCategoryRequest  = product.DeleteCategoryRequest
-	DeleteCategoryResponse = product.DeleteCategoryResponse
-	DeleteProductRequest   = product.DeleteProductRequest
-	DeleteProductResponse  = product.DeleteProductResponse
-	DeleteReviewRequest    = product.DeleteReviewRequest
-	DeleteReviewResponse   = product.DeleteReviewResponse
-	DeleteSkuRequest       = product.DeleteSkuRequest
-	DeleteSkuResponse      = product.DeleteSkuResponse
-	GetCategoryRequest     = product.GetCategoryRequest
-	GetCategoryResponse    = product.GetCategoryResponse
-	GetProductRequest      = product.GetProductRequest
-	GetProductResponse     = product.GetProductResponse
-	GetSkuRequest          = product.GetSkuRequest
-	GetSkuResponse         = product.GetSkuResponse
-	ListCategoriesRequest  = product.ListCategoriesRequest
-	ListCategoriesResponse = product.ListCategoriesResponse
-	ListProductsRequest    = product.ListProductsRequest
-	ListProductsResponse   = product.ListProductsResponse
-	ListReviewsRequest     = product.ListReviewsRequest
-	ListReviewsResponse    = product.ListReviewsResponse
-	ListSkusRequest        = product.ListSkusRequest
-	ListSkusResponse       = product.ListSkusResponse
-	Product                = product.Product
-	Review                 = product.Review
-	Sku                    = product.Sku
-	SkuAttribute           = product.SkuAttribute
-	UpdateCategoryRequest  = product.UpdateCategoryRequest
-	UpdateCategoryResponse = product.UpdateCategoryResponse
-	UpdateProductRequest   = product.UpdateProductRequest
-	UpdateProductResponse  = product.UpdateProductResponse
-	UpdateReviewRequest    = product.UpdateReviewRequest
-	UpdateReviewResponse   = product.UpdateReviewResponse
-	UpdateSkuRequest       = product.UpdateSkuRequest
-	UpdateSkuResponse      = product.UpdateSkuResponse
+	Category                   = product.Category
+	ChangeReviewStatusRequest  = product.ChangeReviewStatusRequest
+	ChangeReviewStatusResponse = product.ChangeReviewStatusResponse
+	CreateCategoryRequest      = product.CreateCategoryRequest
+	CreateCategoryResponse     = product.CreateCategoryResponse
+	CreateProductRequest       = product.CreateProductRequest
+	CreateProductResponse      = product.CreateProductResponse
+	CreateReviewRequest        = product.CreateReviewRequest
+	CreateReviewResponse       = product.CreateReviewResponse
+	CreateSkuRequest           = product.CreateSkuRequest
+	CreateSkuResponse          = product.CreateSkuResponse
+	DeleteCategoryRequest      = product.DeleteCategoryRequest
+	DeleteCategoryResponse     = product.DeleteCategoryResponse
+	DeleteProductRequest       = product.DeleteProductRequest
+	DeleteProductResponse      = product.DeleteProductResponse
+	DeleteReviewRequest        = product.DeleteReviewRequest
+	DeleteReviewResponse       = product.DeleteReviewResponse
+	DeleteSkuRequest           = product.DeleteSkuRequest
+	DeleteSkuResponse          = product.DeleteSkuResponse
+	GetCategoryRequest         = product.GetCategoryRequest
+	GetCategoryResponse        = product.GetCategoryResponse
+	GetProductRequest          = product.GetProductRequest
+	GetProductResponse         = product.GetProductResponse
+	GetSkuRequest              = product.GetSkuRequest
+	GetSkuResponse             = product.GetSkuResponse
+	ListCategoriesRequest      = product.ListCategoriesRequest
+	ListCategoriesResponse     = product.ListCategoriesResponse
+	ListProductsRequest        = product.ListProductsRequest
+	ListProductsResponse       = product.ListProductsResponse
+	ListReviewsRequest         = product.ListReviewsRequest
+	ListReviewsResponse        = product.ListReviewsResponse
+	ListSkusRequest            = product.ListSkusRequest
+	ListSkusResponse           = product.ListSkusResponse
+	Product                    = product.Product
+	Review                     = product.Review
+	Sku                        = product.Sku
+	SkuAttribute               = product.SkuAttribute
+	UpdateCategoryRequest      = product.UpdateCategoryRequest
+	UpdateCategoryResponse     = product.UpdateCategoryResponse
+	UpdateProductRequest       = product.UpdateProductRequest
+	UpdateProductResponse      = product.UpdateProductResponse
+	UpdateReviewRequest        = product.UpdateReviewRequest
+	UpdateReviewResponse       = product.UpdateReviewResponse
+	UpdateSkuRequest           = product.UpdateSkuRequest
+	UpdateSkuResponse          = product.UpdateSkuResponse
 
 	ProductService interface {
 		// 商品管理
@@ -80,6 +82,7 @@ type (
 		// 评价管理
 		CreateReview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewResponse, error)
 		UpdateReview(ctx context.Context, in *UpdateReviewRequest, opts ...grpc.CallOption) (*UpdateReviewResponse, error)
+		ChangeReviewStatus(ctx context.Context, in *ChangeReviewStatusRequest, opts ...grpc.CallOption) (*ChangeReviewStatusResponse, error)
 		DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*DeleteReviewResponse, error)
 		ListReviews(ctx context.Context, in *ListReviewsRequest, opts ...grpc.CallOption) (*ListReviewsResponse, error)
 	}
@@ -182,6 +185,11 @@ func (m *defaultProductService) CreateReview(ctx context.Context, in *CreateRevi
 func (m *defaultProductService) UpdateReview(ctx context.Context, in *UpdateReviewRequest, opts ...grpc.CallOption) (*UpdateReviewResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.UpdateReview(ctx, in, opts...)
+}
+
+func (m *defaultProductService) ChangeReviewStatus(ctx context.Context, in *ChangeReviewStatusRequest, opts ...grpc.CallOption) (*ChangeReviewStatusResponse, error) {
+	client := product.NewProductServiceClient(m.cli.Conn())
+	return client.ChangeReviewStatus(ctx, in, opts...)
 }
 
 func (m *defaultProductService) DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*DeleteReviewResponse, error) {

@@ -29,6 +29,7 @@ service ProductService {
     // 评价管理
     rpc CreateReview(CreateReviewRequest) returns (CreateReviewResponse);
     rpc UpdateReview(UpdateReviewRequest) returns (UpdateReviewResponse);
+    rpc ChangeReviewStatus(ChangeReviewStatusRequest) returns (ChangeReviewStatusResponse);
     rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewResponse);
     rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
 }
@@ -177,9 +178,10 @@ message Sku {
     string sku_code = 3;
     double price = 4;
     int64 stock = 5;
-    repeated SkuAttribute attributes = 6;
-    int64 created_at = 7;
-    int64 updated_at = 8;
+    int64 sales = 6;
+    repeated SkuAttribute attributes = 7;
+    int64 created_at = 8;
+    int64 updated_at = 9;
 }
 
 message CreateSkuRequest {
@@ -222,10 +224,13 @@ message GetSkuResponse {
 
 message ListSkusRequest {
     int64 product_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
 }
 
 message ListSkusResponse {
-    repeated Sku skus = 1;
+    int64 total = 1;
+    repeated Sku skus = 2;
 }
 
 // 评价相关消息
@@ -263,6 +268,15 @@ message UpdateReviewRequest {
 }
 
 message UpdateReviewResponse {
+    bool success = 1;
+}
+
+message ChangeReviewStatusRequest {
+    int64 id = 1;
+    int64 status = 2;
+}
+
+message ChangeReviewStatusResponse {
     bool success = 1;
 }
 

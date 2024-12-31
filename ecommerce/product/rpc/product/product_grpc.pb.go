@@ -19,25 +19,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProductService_CreateProduct_FullMethodName  = "/product.ProductService/CreateProduct"
-	ProductService_UpdateProduct_FullMethodName  = "/product.ProductService/UpdateProduct"
-	ProductService_GetProduct_FullMethodName     = "/product.ProductService/GetProduct"
-	ProductService_ListProducts_FullMethodName   = "/product.ProductService/ListProducts"
-	ProductService_DeleteProduct_FullMethodName  = "/product.ProductService/DeleteProduct"
-	ProductService_CreateCategory_FullMethodName = "/product.ProductService/CreateCategory"
-	ProductService_UpdateCategory_FullMethodName = "/product.ProductService/UpdateCategory"
-	ProductService_DeleteCategory_FullMethodName = "/product.ProductService/DeleteCategory"
-	ProductService_GetCategory_FullMethodName    = "/product.ProductService/GetCategory"
-	ProductService_ListCategories_FullMethodName = "/product.ProductService/ListCategories"
-	ProductService_CreateSku_FullMethodName      = "/product.ProductService/CreateSku"
-	ProductService_UpdateSku_FullMethodName      = "/product.ProductService/UpdateSku"
-	ProductService_DeleteSku_FullMethodName      = "/product.ProductService/DeleteSku"
-	ProductService_GetSku_FullMethodName         = "/product.ProductService/GetSku"
-	ProductService_ListSkus_FullMethodName       = "/product.ProductService/ListSkus"
-	ProductService_CreateReview_FullMethodName   = "/product.ProductService/CreateReview"
-	ProductService_UpdateReview_FullMethodName   = "/product.ProductService/UpdateReview"
-	ProductService_DeleteReview_FullMethodName   = "/product.ProductService/DeleteReview"
-	ProductService_ListReviews_FullMethodName    = "/product.ProductService/ListReviews"
+	ProductService_CreateProduct_FullMethodName      = "/product.ProductService/CreateProduct"
+	ProductService_UpdateProduct_FullMethodName      = "/product.ProductService/UpdateProduct"
+	ProductService_GetProduct_FullMethodName         = "/product.ProductService/GetProduct"
+	ProductService_ListProducts_FullMethodName       = "/product.ProductService/ListProducts"
+	ProductService_DeleteProduct_FullMethodName      = "/product.ProductService/DeleteProduct"
+	ProductService_CreateCategory_FullMethodName     = "/product.ProductService/CreateCategory"
+	ProductService_UpdateCategory_FullMethodName     = "/product.ProductService/UpdateCategory"
+	ProductService_DeleteCategory_FullMethodName     = "/product.ProductService/DeleteCategory"
+	ProductService_GetCategory_FullMethodName        = "/product.ProductService/GetCategory"
+	ProductService_ListCategories_FullMethodName     = "/product.ProductService/ListCategories"
+	ProductService_CreateSku_FullMethodName          = "/product.ProductService/CreateSku"
+	ProductService_UpdateSku_FullMethodName          = "/product.ProductService/UpdateSku"
+	ProductService_DeleteSku_FullMethodName          = "/product.ProductService/DeleteSku"
+	ProductService_GetSku_FullMethodName             = "/product.ProductService/GetSku"
+	ProductService_ListSkus_FullMethodName           = "/product.ProductService/ListSkus"
+	ProductService_CreateReview_FullMethodName       = "/product.ProductService/CreateReview"
+	ProductService_UpdateReview_FullMethodName       = "/product.ProductService/UpdateReview"
+	ProductService_ChangeReviewStatus_FullMethodName = "/product.ProductService/ChangeReviewStatus"
+	ProductService_DeleteReview_FullMethodName       = "/product.ProductService/DeleteReview"
+	ProductService_ListReviews_FullMethodName        = "/product.ProductService/ListReviews"
 )
 
 // ProductServiceClient is the client API for ProductService service.
@@ -67,6 +68,7 @@ type ProductServiceClient interface {
 	// 评价管理
 	CreateReview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewResponse, error)
 	UpdateReview(ctx context.Context, in *UpdateReviewRequest, opts ...grpc.CallOption) (*UpdateReviewResponse, error)
+	ChangeReviewStatus(ctx context.Context, in *ChangeReviewStatusRequest, opts ...grpc.CallOption) (*ChangeReviewStatusResponse, error)
 	DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*DeleteReviewResponse, error)
 	ListReviews(ctx context.Context, in *ListReviewsRequest, opts ...grpc.CallOption) (*ListReviewsResponse, error)
 }
@@ -249,6 +251,16 @@ func (c *productServiceClient) UpdateReview(ctx context.Context, in *UpdateRevie
 	return out, nil
 }
 
+func (c *productServiceClient) ChangeReviewStatus(ctx context.Context, in *ChangeReviewStatusRequest, opts ...grpc.CallOption) (*ChangeReviewStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeReviewStatusResponse)
+	err := c.cc.Invoke(ctx, ProductService_ChangeReviewStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *productServiceClient) DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*DeleteReviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteReviewResponse)
@@ -296,6 +308,7 @@ type ProductServiceServer interface {
 	// 评价管理
 	CreateReview(context.Context, *CreateReviewRequest) (*CreateReviewResponse, error)
 	UpdateReview(context.Context, *UpdateReviewRequest) (*UpdateReviewResponse, error)
+	ChangeReviewStatus(context.Context, *ChangeReviewStatusRequest) (*ChangeReviewStatusResponse, error)
 	DeleteReview(context.Context, *DeleteReviewRequest) (*DeleteReviewResponse, error)
 	ListReviews(context.Context, *ListReviewsRequest) (*ListReviewsResponse, error)
 	mustEmbedUnimplementedProductServiceServer()
@@ -358,6 +371,9 @@ func (UnimplementedProductServiceServer) CreateReview(context.Context, *CreateRe
 }
 func (UnimplementedProductServiceServer) UpdateReview(context.Context, *UpdateReviewRequest) (*UpdateReviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateReview not implemented")
+}
+func (UnimplementedProductServiceServer) ChangeReviewStatus(context.Context, *ChangeReviewStatusRequest) (*ChangeReviewStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeReviewStatus not implemented")
 }
 func (UnimplementedProductServiceServer) DeleteReview(context.Context, *DeleteReviewRequest) (*DeleteReviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteReview not implemented")
@@ -692,6 +708,24 @@ func _ProductService_UpdateReview_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_ChangeReviewStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeReviewStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).ChangeReviewStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_ChangeReviewStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).ChangeReviewStatus(ctx, req.(*ChangeReviewStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProductService_DeleteReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteReviewRequest)
 	if err := dec(in); err != nil {
@@ -802,6 +836,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateReview",
 			Handler:    _ProductService_UpdateReview_Handler,
+		},
+		{
+			MethodName: "ChangeReviewStatus",
+			Handler:    _ProductService_ChangeReviewStatus_Handler,
 		},
 		{
 			MethodName: "DeleteReview",

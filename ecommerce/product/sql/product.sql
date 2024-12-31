@@ -58,7 +58,7 @@ CREATE TABLE `product_reviews` (
     `rating` tinyint NOT NULL DEFAULT '5' COMMENT '评分 1-5',
     `content` text COMMENT '评价内容',
     `images` json DEFAULT NULL COMMENT '评价图片',
-    `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态 0:待审核 1:已通过 2:已拒绝',
+    `status` tinyint NOT NULL DEFAULT '0' COMMENT '状态 0:待审核 1:已通过 2:已拒绝',
     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

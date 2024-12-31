@@ -2,7 +2,9 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
 
@@ -24,7 +26,61 @@ func NewListSkusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListSkus
 }
 
 func (l *ListSkusLogic) ListSkus(in *product.ListSkusRequest) (*product.ListSkusResponse, error) {
-	// todo: add your logic here and delete this line
+	if in.ProductId <= 0 {
+		return nil, zeroerr.ErrInvalidParam
+	}
 
-	return &product.ListSkusResponse{}, nil
+	if in.PageSize <= 0 {
+		in.PageSize = 10
+	}
+	if in.Page <= 0 {
+		in.Page = 1
+	}
+
+	// Get total count
+	total, err := l.svcCtx.SkusModel.Count(l.ctx, uint64(in.ProductId))
+	if err != nil {
+		logx.Errorf("Failed to get SKUs count: %v", err)
+		return nil, err
+	}
+
+	// Get SKUs with pagination
+	skus, err := l.svcCtx.SkusModel.FindManyPageByProductId(
+		l.ctx,
+		uint64(in.ProductId),
+		int(in.Page),
+		int(in.PageSize),
+	)
+	if err != nil {
+		logx.Errorf("Failed to get SKUs: %v", err)
+		return nil, err
+	}
+
+	// Convert to proto messages
+	pbSkus := make([]*product.Sku, 0, len(skus))
+	for _, s := range skus {
+		pbSku := &product.Sku{
+			Id:        int64(s.Id),
+			ProductId: int64(s.ProductId),
+			SkuCode:   s.SkuCode,
+			Price:     s.Price,
+			Stock:     s.Stock,
+			Sales:     s.Sales,
+		}
+
+		// Parse attributes JSON
+		if s.Attributes != "" {
+			var attrs []*product.SkuAttribute
+			if err := json.Unmarshal([]byte(s.Attributes), &attrs); err == nil {
+				pbSku.Attributes = attrs
+			}
+		}
+
+		pbSkus = append(pbSkus, pbSku)
+	}
+
+	return &product.ListSkusResponse{
+		Total: total,
+		Skus:  pbSkus,
+	}, nil
 }

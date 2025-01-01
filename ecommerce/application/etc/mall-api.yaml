@@ -21,7 +21,7 @@ Auth:
 AdminAuth:
   AccessSecret: your-admin-jwt-secret-here
   AccessExpire: 3600      # 1 hour
-  RoleKey: role          # JWT claim key for role
+  RoleKey: admin          # JWT claim key for role
 
 PageSize: 10
 
@@ -39,11 +39,11 @@ UserRpc:
       - 127.0.0.1:2379
     Key: user.rpc
 
-# ProductRpc:
-#   Etcd:
-#     Hosts:
-#       - 127.0.0.1:2379
-#     Key: product.rpc
+ProductRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: product.rpc
 
 # CartRpc:
 #   Etcd:
@@ -97,3 +97,8 @@ Telemetry:
   Endpoint: http://jaeger:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: mall-api

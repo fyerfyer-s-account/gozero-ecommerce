@@ -1,10 +1,11 @@
 import React, { createContext, useState, useCallback, useContext } from 'react';
-import { userApi } from '../api/user';
-import { UserInfo, RegisterReq } from '../types/user';
+import { userApi } from '@/api/user';
+import { UserInfo, RegisterReq, AuthState, LoginReq, TokenResp } from '@/types/user';
 
 interface AuthContextType {
   user: UserInfo | null;
   token: string | null;
+  isAuthenticated: boolean;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   register: (data: RegisterReq) => Promise<void>;
@@ -16,6 +17,7 @@ export const AuthContext = createContext<AuthContextType>({} as AuthContextType)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
 
   const login = useCallback(async (username: string, password: string) => {
@@ -24,8 +26,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await userApi.login({ username, password });
       localStorage.setItem('token', response.accessToken);
       setToken(response.accessToken);
+      setIsAuthenticated(true);
+
+      // Add delay before fetching profile
+      await new Promise(resolve => setTimeout(resolve, 100));
       const userInfo = await userApi.getProfile();
       setUser(userInfo);
+    } catch (error) {
+      logout();
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -44,17 +53,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setIsAuthenticated(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      token, 
-      loading, 
-      login, 
-      register, 
-      logout 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isAuthenticated,
+        loading,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

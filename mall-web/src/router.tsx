@@ -6,13 +6,13 @@ import ProductListPage from './pages/product/ListPage'
 import ProductDetailPage from './pages/product/DetailPage'
 import SignUpPage from './pages/user/SignUpPage'
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />
   },
   {
-    path: '/signup',
+    path: '/register', 
     element: <SignUpPage />
   },
   {

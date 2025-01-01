@@ -1,5 +1,5 @@
-import { LoginReq, RegisterReq, TokenResp, UserInfo, User } from '../types/user';
-import { api } from '../utils/api';
+import { api } from '@/utils/api';
+import { RegisterReq, LoginReq, TokenResp, UserInfo, UpdateProfileReq, User } from '@/types/user';
 
 export const userApi = {
   register: async (data: RegisterReq): Promise<User> => {
@@ -14,6 +14,11 @@ export const userApi = {
 
   getProfile: async (): Promise<UserInfo> => {
     const response = await api.get<UserInfo>('/api/user/profile');
+    return response.data;
+  },
+
+  updateProfile: async (data: UpdateProfileReq): Promise<UserInfo> => {
+    const response = await api.put<UserInfo>('/api/user/profile', data);
     return response.data;
   }
 };

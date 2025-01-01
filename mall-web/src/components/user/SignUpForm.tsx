@@ -1,68 +1,66 @@
 import { Form, Input, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { RegisterReq } from '@/types/user';
 
-const schema = yup.object({
+const schema = yup.object().shape({
   username: yup.string().required('Username is required'),
-  password: yup.string().required('Password is required').min(6),
-  email: yup.string().email('Invalid email').required('Email is required'),
-  phone: yup.string(),
-}).required();
+  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  email: yup.string().email('Invalid email').optional(),
+  phone: yup.string().matches(/^1[3-9]\d{9}$/, 'Invalid phone number').optional(),
+});
 
 const SignUpForm = () => {
   const navigate = useNavigate();
   const { register: signUp, loading } = useAuth();
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
+  const { control, handleSubmit, formState: { errors } } = useForm<RegisterReq>({
+    resolver: yupResolver(schema),
+    mode: 'onBlur'
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: RegisterReq) => {
     try {
       await signUp(data);
-      message.success('Sign up successful');
+      message.success('Registration successful!');
       navigate('/login');
     } catch (error) {
-      message.error('Sign up failed');
+      message.error(error instanceof Error ? error.message : 'Registration failed');
     }
   };
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-      <Form.Item
-        label="Username"
-        validateStatus={errors.username ? 'error' : ''}
-        help={errors.username?.message}
-      >
-        <Input {...register('username')} />
+      <Form.Item label="Username" validateStatus={errors.username ? 'error' : ''} help={errors.username?.message}>
+        <Controller
+          name="username"
+          control={control}
+          render={({ field }) => <Input {...field} />}
+        />
       </Form.Item>
-
-      <Form.Item
-        label="Password"
-        validateStatus={errors.password ? 'error' : ''}
-        help={errors.password?.message}
-      >
-        <Input.Password {...register('password')} />
+      <Form.Item label="Password" validateStatus={errors.password ? 'error' : ''} help={errors.password?.message}>
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => <Input.Password {...field} />}
+        />
       </Form.Item>
-
-      <Form.Item
-        label="Email"
-        validateStatus={errors.email ? 'error' : ''}
-        help={errors.email?.message}
-      >
-        <Input {...register('email')} />
+      <Form.Item label="Email" validateStatus={errors.email ? 'error' : ''} help={errors.email?.message}>
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => <Input {...field} />}
+        />
       </Form.Item>
-
-      <Form.Item
-        label="Phone (Optional)"
-        validateStatus={errors.phone ? 'error' : ''}
-        help={errors.phone?.message}
-      >
-        <Input {...register('phone')} />
+      <Form.Item label="Phone" validateStatus={errors.phone ? 'error' : ''} help={errors.phone?.message}>
+        <Controller
+          name="phone"
+          control={control}
+          render={({ field }) => <Input {...field} />}
+        />
       </Form.Item>
-
       <Button type="primary" htmlType="submit" loading={loading} block>
         Sign Up
       </Button>

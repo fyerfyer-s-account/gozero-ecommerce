@@ -1,7 +1,10 @@
-import { Form, Input, Button } from 'antd'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+import { Form, Input, Select, Button, message } from 'antd';
+import { useAuth } from '@/hooks/useAuth';
+import { UpdateProfileReq } from '@/types/user';
+import { userApi } from '@/api/user';
+import * as yup from 'yup';
+
+const { Option } = Select;
 
 interface ProfileFormData {
   username: string;
@@ -13,33 +16,49 @@ const schema = yup.object({
   username: yup.string().required('Username is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   phone: yup.string().optional() // Make phone optional
-}).required()
+}).required();
 
 const ProfileForm = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
-    resolver: yupResolver(schema)
-  })
+  const { user } = useAuth();
+  const [form] = Form.useForm();
 
-  const onSubmit = (data: ProfileFormData) => {
-    console.log(data)
-  }
+  const onSubmit = async (values: UpdateProfileReq) => {
+    try {
+      await userApi.updateProfile(values);
+      message.success('Profile updated successfully');
+    } catch (error) {
+      message.error('Failed to update profile');
+    }
+  };
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-      <Form.Item label="Username" validateStatus={errors.username ? 'error' : ''}>
-        <Input {...register('username')} />
+    <Form
+      form={form}
+      layout="vertical"
+      initialValues={user || {}}
+      onFinish={onSubmit}
+    >
+      <Form.Item name="nickname" label="Nickname">
+        <Input />
       </Form.Item>
-      <Form.Item label="Email" validateStatus={errors.email ? 'error' : ''}>
-        <Input {...register('email')} type="email" />
+      <Form.Item name="email" label="Email">
+        <Input type="email" />
       </Form.Item>
-      <Form.Item label="Phone" validateStatus={errors.phone ? 'error' : ''}>
-        <Input {...register('phone')} />
+      <Form.Item name="phone" label="Phone">
+        <Input />
+      </Form.Item>
+      <Form.Item name="gender" label="Gender">
+        <Select>
+          <Option value="male">Male</Option>
+          <Option value="female">Female</Option>
+          <Option value="other">Other</Option>
+        </Select>
       </Form.Item>
       <Button type="primary" htmlType="submit">
         Update Profile
       </Button>
     </Form>
-  )
-}
+  );
+};
 
-export default ProfileForm
+export default ProfileForm;

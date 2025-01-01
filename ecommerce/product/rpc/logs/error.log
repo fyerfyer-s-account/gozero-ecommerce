@@ -1,0 +1,9 @@
+{"@timestamp":"2025-01-01T07:54:09.320Z","caller":"zrpc/server.go:90","content":"context deadline exceeded","level":"error"}
+{"@timestamp":"2025-01-01T07:56:59.404Z","caller":"zrpc/server.go:90","content":"context deadline exceeded","level":"error"}
+{"@timestamp":"2025-01-01T08:01:44.611Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-01T08:10:42.880Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-01T08:17:50.253Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-01T08:26:42.984Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-01T08:37:09.576Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-01T08:40:19.597Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-01T12:09:46.897Z","caller":"prometheus/agent.go:42","content":"listen tcp 0.0.0.0:9081: bind: address already in use","level":"error"}

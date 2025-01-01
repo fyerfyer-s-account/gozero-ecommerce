@@ -34,7 +34,7 @@ export interface SearchReq {
 }
 
 export interface SearchResp {
-  products: Product[];
+  list: Product[];       
   total: number;
   page: number;
   totalPages: number;

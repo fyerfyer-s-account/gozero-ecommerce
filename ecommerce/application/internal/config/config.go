@@ -20,7 +20,7 @@ type Config struct {
 	AdminAuth struct {
 		AccessSecret string
 		AccessExpire int64
-		RoleKey      string // 用于在JWT claims中存储角色信息的key
+		RoleKey      string
 	}
 
 	Redis struct {

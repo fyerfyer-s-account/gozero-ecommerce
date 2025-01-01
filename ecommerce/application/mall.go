@@ -6,6 +6,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/handler"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/middleware"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -22,6 +23,7 @@ func main() {
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
+	server.Use(middleware.Cors)
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)

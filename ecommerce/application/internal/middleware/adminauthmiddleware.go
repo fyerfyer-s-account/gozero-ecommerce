@@ -4,18 +4,18 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/jwtx"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type AdminAuthMiddleware struct {
-	svcCtx *svc.ServiceContext
+	config config.Config
 }
 
-func NewAdminAuthMiddleware(svcCtx *svc.ServiceContext) *AdminAuthMiddleware {
+func NewAdminAuthMiddleware(config config.Config) *AdminAuthMiddleware {
 	return &AdminAuthMiddleware{
-		svcCtx: svcCtx,
+		config: config,
 	}
 }
 
@@ -38,7 +38,7 @@ func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		// Validate token
 		token, err := jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
-			return []byte(m.svcCtx.Config.AdminAuth.AccessSecret), nil
+			return []byte(m.config.AdminAuth.AccessSecret), nil
 		})
 
 		if err != nil || !token.Valid {
@@ -48,7 +48,7 @@ func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		// Check admin role
 		claims := token.Claims.(jwt.MapClaims)
-		role, ok := claims[m.svcCtx.Config.AdminAuth.RoleKey].(string)
+		role, ok := claims[m.config.AdminAuth.RoleKey].(string)
 		if !ok || role != jwtx.RoleAdmin {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return

@@ -28,7 +28,7 @@ const Header = () => {
                 <Link to="/login">Login</Link>
               </Menu.Item>
               <Menu.Item key="signup">
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/register">Sign Up</Link>
               </Menu.Item>
             </>
           )}

@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
-import { useProduct } from '../../hooks/useProduct';
-import ProductList from '../../components/product/ProductList';
-import { Loading } from '../../components/common/Loading';
+import { useProduct } from '@/hooks/useProduct';
+import ProductList from '@/components/product/ProductList';
+import { Loading } from '@/components/common/Loading';
 
 const ListPage = () => {
-  const { searchProducts, loading } = useProduct();
+  const { fetchProducts, loading } = useProduct();
 
   useEffect(() => {
-    searchProducts({});
-  }, [searchProducts]);
+    fetchProducts();
+  }, [fetchProducts]);
 
   if (loading) return <Loading />;
 

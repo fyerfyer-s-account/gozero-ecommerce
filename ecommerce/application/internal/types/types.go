@@ -179,6 +179,10 @@ type GetProductSkusReq struct {
 	Id int64 `path:"id"`
 }
 
+type GetProfileReq struct {
+	Id int64 `path:"id"`
+}
+
 type LoginReq struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -289,7 +293,6 @@ type Product struct {
 	Brand        string   `json:"brand"`
 	Images       []string `json:"images"`
 	Price        float64  `json:"price"`
-	MarketPrice  float64  `json:"marketPrice"`
 	Stock        int32    `json:"stock"`
 	Sales        int32    `json:"sales"`
 	Rating       float64  `json:"rating"`

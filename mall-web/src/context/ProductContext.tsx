@@ -15,7 +15,7 @@ interface ProductContextType {
 export const ProductContext = createContext<ProductContextType>({} as ProductContextType);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);  // Initialize as empty array
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       setLoading(true);
       const data = await productApi.search(params);
-      setProducts(data.products);
+      setProducts(data.list); // Changed from data.products to data.list to match API
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search products');
     } finally {

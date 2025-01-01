@@ -1,14 +1,14 @@
 export interface User {
-  id: string;
+  id: number;
   username: string;
   email: string;
   phone?: string;
 }
 
 export interface AuthState {
-    user: User | null;
-    token: string | null;
-    isAuthenticated: boolean;
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
 }
 
 export interface LoginReq {
@@ -38,6 +38,18 @@ export interface UserInfo {
 export interface RegisterReq {
   username: string;
   password: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface RegisterResp {
+  userId: number;
+}
+
+export interface UpdateProfileReq {
+  nickname?: string;
+  avatar?: string;
+  gender: string;
   phone?: string;
   email?: string;
 }

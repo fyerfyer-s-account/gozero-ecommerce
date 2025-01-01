@@ -1,5 +1,7 @@
 package config
 
+import "strconv"
+
 type RabbitMQConfig struct {
 	Host      string          `yaml:"Host"`
 	Port      int             `yaml:"Port"`
@@ -55,5 +57,5 @@ func NewConfig() *RabbitMQConfig {
 }
 
 func (c *RabbitMQConfig) GetDSN() string {
-	return "amqp://" + c.Username + ":" + c.Password + "@" + c.Host + ":" + string(c.Port) + "/" + c.VHost
+	return "amqp://" + c.Username + ":" + c.Password + "@" + c.Host + ":" + strconv.Itoa(c.Port) + "/" + c.VHost
 }

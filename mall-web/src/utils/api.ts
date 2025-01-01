@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8888'; // Update with your backend URL
+const API_BASE_URL = 'http://0.0.0.0:9000'; // Update with your backend URL
 
 interface ApiResponse<T> {
   data: T;
@@ -8,34 +9,35 @@ interface ApiResponse<T> {
   code?: number;
 }
 
-export const api = {
-  post: async <T>(url: string, data: any): Promise<ApiResponse<T>> => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
+export const api = axios.create({
+  baseURL: '/api', // Use relative path for proxy. DON'T REMOVE THIS!!! OR YOU WILL GET CORS ERROR!!!
+  headers: {
+    'Content-Type': 'application/json',
   },
+});
 
-  get: async <T>(url: string): Promise<ApiResponse<T>> => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return response.json();
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    const message = error.response?.data?.message || 'An error occurred';
+    return Promise.reject(new Error(message));
   }
-};
+);
 
 export const fetchData = async (endpoint: string, options?: RequestInit) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, options);

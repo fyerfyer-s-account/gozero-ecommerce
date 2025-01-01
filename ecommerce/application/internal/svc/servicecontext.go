@@ -2,6 +2,7 @@ package svc
 
 import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/config"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/middleware"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cartclient"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketingclient"
@@ -47,6 +48,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 		UserRpc:    userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 		ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
+		AdminAuth:  middleware.NewAdminAuthMiddleware(c).Handle,
 		// CartRpc:      cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
 		// OrderRpc:     orderservice.NewOrderService(zrpc.MustNewClient(c.OrderRpc)),
 		// PaymentRpc:   paymentclient.NewPayment(zrpc.MustNewClient(c.PaymentRpc)),

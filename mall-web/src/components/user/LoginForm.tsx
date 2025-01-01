@@ -1,53 +1,44 @@
 import { Form, Input, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-
-const schema = yup.object({
-  username: yup.string().required('Username is required'),
-  password: yup.string().required('Password is required'),
-}).required();
-
-interface LoginFormData {
-  username: string;
-  password: string;
-}
+import { LoginReq } from '@/types/user';
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
-    resolver: yupResolver(schema)
-  });
+  const [form] = Form.useForm();
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (values: LoginReq) => {
     try {
-      await login(data.username, data.password);
+      await login(values.username, values.password);
       message.success('Login successful');
       navigate('/');
     } catch (error) {
-      message.error('Login failed');
+      message.error(error instanceof Error ? error.message : 'Login failed');
     }
   };
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
+    <Form 
+      form={form}
+      layout="vertical" 
+      onFinish={onSubmit}
+      autoComplete="off"
+    >
       <Form.Item 
-        label="Username" 
-        validateStatus={errors.username ? 'error' : ''}
-        help={errors.username?.message}
+        name="username"
+        label="Username"
+        rules={[{ required: true, message: 'Username is required' }]}
       >
-        <Input {...register('username')} />
+        <Input />
       </Form.Item>
       
       <Form.Item 
+        name="password"
         label="Password"
-        validateStatus={errors.password ? 'error' : ''}
-        help={errors.password?.message}
+        rules={[{ required: true, message: 'Password is required' }]}
       >
-        <Input.Password {...register('password')} />
+        <Input.Password />
       </Form.Item>
 
       <Form.Item>

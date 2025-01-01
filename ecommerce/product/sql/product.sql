@@ -19,6 +19,7 @@ CREATE TABLE `categories` (
 CREATE TABLE `products` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '商品ID',
     `name` varchar(100) NOT NULL COMMENT '商品名称',
+    `brief` varchar(255) DEFAULT NULL COMMENT '商品简介',
     `description` text COMMENT '商品描述',
     `category_id` bigint unsigned NOT NULL COMMENT '分类ID',
     `brand` varchar(50) DEFAULT NULL COMMENT '品牌',

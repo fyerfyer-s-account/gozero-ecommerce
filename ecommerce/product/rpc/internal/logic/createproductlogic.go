@@ -61,6 +61,7 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductRequest) (*p
 	}
 	p := &model.Products{
 		Name:        in.Name,
+		Brief:       sql.NullString{String: in.Brief, Valid: in.Brief != ""},
 		Description: sql.NullString{String: in.Description, Valid: in.Description != ""},
 		CategoryId:  uint64(in.CategoryId),
 		Brand:       sql.NullString{String: in.Brand, Valid: in.Brand != ""},

@@ -1,23 +1,19 @@
-Sure, here's the contents for the file `/mall-web/mall-web/src/api/user.ts`:
-
-import { User, RegisterReq, LoginReq, UpdateProfileReq } from '../types/user';
+import { LoginReq, RegisterReq, TokenResp, UserInfo, User } from '../types/user';
 import { api } from '../utils/api';
 
-export const registerUser = async (data: RegisterReq): Promise<User> => {
-    const response = await api.post('/api/user/register', data);
+export const userApi = {
+  register: async (data: RegisterReq): Promise<User> => {
+    const response = await api.post<User>('/api/user/register', data);
     return response.data;
-};
+  },
 
-export const loginUser = async (data: LoginReq): Promise<string> => {
-    const response = await api.post('/api/user/login', data);
-    return response.data.token;
-};
-
-export const getUserProfile = async (): Promise<User> => {
-    const response = await api.get('/api/user/profile');
+  login: async (data: LoginReq): Promise<TokenResp> => {
+    const response = await api.post<TokenResp>('/api/user/login', data);
     return response.data;
-};
+  },
 
-export const updateUserProfile = async (data: UpdateProfileReq): Promise<void> => {
-    await api.put('/api/user/profile', data);
+  getProfile: async (): Promise<UserInfo> => {
+    const response = await api.get<UserInfo>('/api/user/profile');
+    return response.data;
+  }
 };

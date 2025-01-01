@@ -1,51 +1,41 @@
-mall-web
-├── src
-│   ├── api
-│   │   ├── product.ts
-│   │   └── user.ts
-│   ├── components
-│   │   ├── common
-│   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
-│   │   │   └── Loading.tsx
-│   │   ├── layout
-│   │   │   ├── Footer.tsx
-│   │   │   ├── Header.tsx
-│   │   │   └── MainLayout.tsx
-│   │   ├── product
-│   │   │   ├── ProductCard.tsx
-│   │   │   └── ProductList.tsx
-│   │   └── user
-│   │       ├── LoginForm.tsx
-│   │       └── ProfileForm.tsx
-│   ├── context
-│   │   ├── AuthContext.tsx
-│   │   └── ProductContext.tsx
-│   ├── hooks
-│   │   ├── useAuth.ts
-│   │   └── useProduct.ts
-│   ├── pages
-│   │   ├── product
-│   │   │   ├── DetailPage.tsx
-│   │   │   └── ListPage.tsx
-│   │   └── user
-│   │       ├── LoginPage.tsx
-│   │       └── ProfilePage.tsx
-│   ├── types
-│   │   ├── product.ts
-│   │   └── user.ts
-│   ├── utils
-│   │   ├── api.ts
-│   │   └── validation.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── router.tsx
-├── .eslintrc.json
-├── .gitignore
-├── index.html
-├── package.json
-├── postcss.config.js
-├── tailwind.config.js
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+export interface Product {
+  id: number;
+  name: string;
+  brief: string;
+  description: string;
+  categoryId: number;
+  brand: string;
+  images: string[];
+  price: number;
+  marketPrice: number;
+  stock: number;
+  sales: number;
+  rating: number;
+  status: number;
+  createdAt: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface SearchReq {
+  keyword?: string;
+  categoryId?: number;
+  brandId?: number;
+  priceMin?: number;
+  priceMax?: number;
+  attributes?: string[];
+  sort?: string;
+  order?: 'asc' | 'desc';
+  page?: number;
+}
+
+export interface SearchResp {
+  products: Product[];
+  total: number;
+  page: number;
+  totalPages: number;
+}

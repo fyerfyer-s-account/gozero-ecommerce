@@ -1,17 +1,27 @@
-import { Product, SearchReq, SearchResp, GetProductReq } from '../types/product';
-import { api } from '../utils/api';
+import { Product, SearchReq, SearchResp } from '../types/product';
 
-export const fetchProducts = async (params: SearchReq): Promise<SearchResp> => {
-    const response = await api.get('/api/products/search', { params });
-    return response.data;
-};
+const BASE_URL = '/api/products';
 
-export const fetchProductById = async (id: string): Promise<Product> => {
-    const response = await api.get(`/api/products/${id}`);
-    return response.data;
-};
+export const productApi = {
+  search: async (params: SearchReq): Promise<SearchResp> => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    
+    const response = await fetch(`${BASE_URL}/search?${queryParams.toString()}`);
+    return response.json();
+  },
 
-export const fetchProductSkus = async (id: string): Promise<Sku[]> => {
-    const response = await api.get(`/api/products/${id}/skus`);
-    return response.data;
+  getProduct: async (id: string): Promise<Product> => {
+    const response = await fetch(`${BASE_URL}/${id}`);
+    return response.json();
+  },
+
+  getProducts: async (): Promise<Product[]> => {
+    const response = await fetch(BASE_URL);
+    return response.json();
+  }
 };

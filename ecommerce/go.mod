@@ -4,6 +4,7 @@ go 1.23.4
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/streadway/amqp v1.1.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zeromicro/go-zero v1.7.4
 	google.golang.org/grpc v1.69.2

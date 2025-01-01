@@ -1,12 +1,11 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { ProductContext } from '../../context/ProductContext';
+import { useProduct } from '../../hooks/useProduct';
 import { Loading } from '../../components/common/Loading';
-import { ProductCard } from '../../components/product/ProductCard';
 
 const DetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { fetchProductDetails, product, loading } = useContext(ProductContext);
+    const { fetchProductDetails, loading } = useProduct();
 
     useEffect(() => {
         if (id) {
@@ -19,8 +18,8 @@ const DetailPage: React.FC = () => {
     }
 
     return (
-        <div className="p-4">
-            {product ? <ProductCard product={product} /> : <p>Product not found.</p>}
+        <div className="container mx-auto px-4 py-8">
+            {/* Product detail content */}
         </div>
     );
 };

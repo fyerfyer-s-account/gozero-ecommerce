@@ -48,7 +48,7 @@ type (
 		Rating    int64          `db:"rating"`     // è¯„åˆ† 1-5
 		Content   sql.NullString `db:"content"`    // è¯„ä»·å†…å®¹
 		Images    sql.NullString `db:"images"`     // è¯„ä»·å›¾ç‰‡
-		Status    int64          `db:"status"`     // çŠ¶æ€ 0:å¾…å®¡æ ¸ 1:å·²é€šè¿‡ 2:å·²æ‹’ç»
+		Status    int64          `db:"status"`     // 0: inactive, 1: active, 2: pending
 		CreatedAt time.Time      `db:"created_at"` // åˆ›å»ºæ—¶é—´
 		UpdatedAt time.Time      `db:"updated_at"` // æ›´æ–°æ—¶é—´
 	}

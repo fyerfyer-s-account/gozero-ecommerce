@@ -1,28 +1,60 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useState, useCallback, useContext } from 'react';
+import { userApi } from '../api/user';
+import { UserInfo, RegisterReq } from '../types/user';
 
 interface AuthContextType {
-  isAuthenticated: boolean;
-  login: (token: string) => void;
+  user: UserInfo | null;
+  token: string | null;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  register: (data: RegisterReq) => Promise<void>;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(false);
 
-  const login = (token: string) => {
-    localStorage.setItem('token', token);
-    setIsAuthenticated(true);
-  };
+  const login = useCallback(async (username: string, password: string) => {
+    setLoading(true);
+    try {
+      const response = await userApi.login({ username, password });
+      localStorage.setItem('token', response.accessToken);
+      setToken(response.accessToken);
+      const userInfo = await userApi.getProfile();
+      setUser(userInfo);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const logout = () => {
+  const register = useCallback(async (data: RegisterReq) => {
+    setLoading(true);
+    try {
+      await userApi.register(data);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
-    setIsAuthenticated(false);
-  };
+    setToken(null);
+    setUser(null);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      loading, 
+      login, 
+      register, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,52 +1,61 @@
-import React from 'react';
+import { Form, Input, Button, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
-import { Input } from '../common/Input';
-import { Button } from '../common/Button';
-import { useAuth } from '../../hooks/useAuth';
+import * as yup from 'yup';
 
-interface LoginFormProps {
-  onLoginSuccess: () => void;
+const schema = yup.object({
+  username: yup.string().required('Username is required'),
+  password: yup.string().required('Password is required'),
+}).required();
+
+interface LoginFormData {
+  username: string;
+  password: string;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
-  const { login } = useAuth();
-
-  const validationSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email is invalid'),
-    password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
+const LoginForm = () => {
+  const navigate = useNavigate();
+  const { login, loading } = useAuth();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+    resolver: yupResolver(schema)
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(validationSchema),
-  });
-
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data.email, data.password);
-      onLoginSuccess();
+      await login(data.username, data.password);
+      message.success('Login successful');
+      navigate('/');
     } catch (error) {
-      console.error('Login failed:', error);
+      message.error('Login failed');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <Input
-        type="email"
-        label="Email"
-        {...register('email')}
-        error={errors.email?.message}
-      />
-      <Input
-        type="password"
+    <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
+      <Form.Item 
+        label="Username" 
+        validateStatus={errors.username ? 'error' : ''}
+        help={errors.username?.message}
+      >
+        <Input {...register('username')} />
+      </Form.Item>
+      
+      <Form.Item 
         label="Password"
-        {...register('password')}
-        error={errors.password?.message}
-      />
-      <Button type="submit">Login</Button>
-    </form>
+        validateStatus={errors.password ? 'error' : ''}
+        help={errors.password?.message}
+      >
+        <Input.Password {...register('password')} />
+      </Form.Item>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={loading} block>
+          Login
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 

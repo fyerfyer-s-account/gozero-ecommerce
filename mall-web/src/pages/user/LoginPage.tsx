@@ -1,51 +1,15 @@
-mall-web
-├── src
-│   ├── api
-│   │   ├── product.ts
-│   │   └── user.ts
-│   ├── components
-│   │   ├── common
-│   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
-│   │   │   └── Loading.tsx
-│   │   ├── layout
-│   │   │   ├── Footer.tsx
-│   │   │   ├── Header.tsx
-│   │   │   └── MainLayout.tsx
-│   │   ├── product
-│   │   │   ├── ProductCard.tsx
-│   │   │   └── ProductList.tsx
-│   │   └── user
-│   │       ├── LoginForm.tsx
-│   │       └── ProfileForm.tsx
-│   ├── context
-│   │   ├── AuthContext.tsx
-│   │   └── ProductContext.tsx
-│   ├── hooks
-│   │   ├── useAuth.ts
-│   │   └── useProduct.ts
-│   ├── pages
-│   │   ├── product
-│   │   │   ├── DetailPage.tsx
-│   │   │   └── ListPage.tsx
-│   │   └── user
-│   │       ├── LoginPage.tsx
-│   │       └── ProfilePage.tsx
-│   ├── types
-│   │   ├── product.ts
-│   │   └── user.ts
-│   ├── utils
-│   │   ├── api.ts
-│   │   └── validation.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── router.tsx
-├── .eslintrc.json
-├── .gitignore
-├── index.html
-├── package.json
-├── postcss.config.js
-├── tailwind.config.js
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+import { Card } from 'antd'
+import LoginForm from '@/components/user/LoginForm'
+
+const LoginPage = () => {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Card className="w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+        <LoginForm />
+      </Card>
+    </div>
+  )
+}
+
+export default LoginPage

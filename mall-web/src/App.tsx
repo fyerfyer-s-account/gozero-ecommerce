@@ -1,21 +1,16 @@
-Sure, here's the contents for the file `/mall-web/mall-web/src/App.tsx`:
+import { RouterProvider } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { ProductProvider } from './context/ProductContext'
+import router from './router'
 
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { ProductProvider } from './context/ProductContext';
-import RouterConfig from './router';
-
-const App = () => {
+function App() {
   return (
     <AuthProvider>
       <ProductProvider>
-        <Router>
-          <RouterConfig />
-        </Router>
+        <RouterProvider router={router} />
       </ProductProvider>
     </AuthProvider>
-  );
-};
+  )
+}
 
-export default App;
+export default App

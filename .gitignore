@@ -1,4 +1,5 @@
-/etcd/
-/prometheus/
-/default.etcd/
+etcd/
+prometheus/
+default.etcd/
 node_modules/
+logs/

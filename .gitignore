@@ -2,4 +2,4 @@ etcd/
 prometheus/
 default.etcd/
 node_modules/
-logs/
+/logs/

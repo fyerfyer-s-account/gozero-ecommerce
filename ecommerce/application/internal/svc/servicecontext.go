@@ -49,6 +49,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserRpc:    userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 		ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
 		AdminAuth:  middleware.NewAdminAuthMiddleware(c).Handle,
+		Auth:       middleware.NewAuthMiddleware(c).Handle,
 		// CartRpc:      cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
 		// OrderRpc:     orderservice.NewOrderService(zrpc.MustNewClient(c.OrderRpc)),
 		// PaymentRpc:   paymentclient.NewPayment(zrpc.MustNewClient(c.PaymentRpc)),

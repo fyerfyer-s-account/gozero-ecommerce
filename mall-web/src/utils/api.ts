@@ -14,6 +14,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 5000,
 });
 
 api.interceptors.request.use(
@@ -34,8 +35,7 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
-    const message = error.response?.data?.message || 'An error occurred';
-    return Promise.reject(new Error(message));
+    return Promise.reject(error);
   }
 );
 

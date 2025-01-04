@@ -28,9 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(response.accessToken);
       setIsAuthenticated(true);
 
-      // Add delay before fetching profile
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const userInfo = await userApi.getProfile();
+      const userInfo = await userApi.getProfile(); 
       setUser(userInfo);
     } catch (error) {
       logout();

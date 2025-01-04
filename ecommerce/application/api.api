@@ -27,8 +27,9 @@ service mall-api {
 }
 
 @server (
-	jwt:   Auth
-	group: user
+	jwt:        Auth
+	group:      user
+	middleware: Auth
 )
 service mall-api {
 	@handler GetProfile
@@ -137,8 +138,9 @@ service mall-api {
 }
 
 @server (
-	jwt:   Auth
-	group: cart
+	jwt:        Auth
+	group:      cart
+	middleware: Auth
 )
 service mall-api {
 	@handler AddCartItem
@@ -164,8 +166,9 @@ service mall-api {
 }
 
 @server (
-	jwt:   Auth
-	group: order
+	jwt:        Auth
+	group:      order
+	middleware: Auth
 )
 service mall-api {
 	@handler CreateOrder
@@ -188,8 +191,9 @@ service mall-api {
 }
 
 @server (
-	jwt:   Auth
-	group: payment
+	jwt:        Auth
+	group:      payment
+	middleware: Auth
 )
 service mall-api {
 	@handler CreatePayment

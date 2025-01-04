@@ -35,7 +35,12 @@ const ProfileForm = () => {
     <Form
       form={form}
       layout="vertical"
-      initialValues={user || {}}
+      initialValues={{
+        nickname: user?.nickname || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        gender: user?.gender || ''
+      }}
       onFinish={onSubmit}
     >
       <Form.Item name="nickname" label="Nickname">

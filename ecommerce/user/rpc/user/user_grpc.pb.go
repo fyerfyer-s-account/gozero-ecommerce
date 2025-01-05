@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	User_Register_FullMethodName         = "/user.User/Register"
 	User_Login_FullMethodName            = "/user.User/Login"
+	User_Logout_FullMethodName           = "/user.User/Logout"
 	User_GetUserInfo_FullMethodName      = "/user.User/GetUserInfo"
 	User_GetUserAddresses_FullMethodName = "/user.User/GetUserAddresses"
 	User_GetTransactions_FullMethodName  = "/user.User/GetTransactions"
@@ -45,6 +46,7 @@ type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// 用户登录
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 	// 获取用户信息
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
 	GetUserAddresses(ctx context.Context, in *GetUserAddressesRequest, opts ...grpc.CallOption) (*GetUserAddressesResponse, error)
@@ -87,6 +89,16 @@ func (c *userClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.C
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, User_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogoutResponse)
+	err := c.cc.Invoke(ctx, User_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -223,6 +235,7 @@ type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// 用户登录
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	// 获取用户信息
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error)
 	GetUserAddresses(context.Context, *GetUserAddressesRequest) (*GetUserAddressesResponse, error)
@@ -256,6 +269,9 @@ func (UnimplementedUserServer) Register(context.Context, *RegisterRequest) (*Reg
 }
 func (UnimplementedUserServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUserServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedUserServer) GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
@@ -346,6 +362,24 @@ func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).Logout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_Logout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).Logout(ctx, req.(*LogoutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -580,6 +614,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _User_Login_Handler,
+		},
+		{
+			MethodName: "Logout",
+			Handler:    _User_Logout_Handler,
 		},
 		{
 			MethodName: "GetUserInfo",

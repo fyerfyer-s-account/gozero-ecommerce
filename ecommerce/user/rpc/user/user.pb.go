@@ -254,6 +254,94 @@ func (x *LoginResponse) GetExpiresIn() int64 {
 	return 0
 }
 
+type LogoutRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutRequest) Reset() {
+	*x = LogoutRequest{}
+	mi := &file_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutRequest) ProtoMessage() {}
+
+func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *LogoutRequest) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+type LogoutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutResponse) Reset() {
+	*x = LogoutResponse{}
+	mi := &file_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutResponse) ProtoMessage() {}
+
+func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
+func (*LogoutResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *LogoutResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 // 用户信息
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -274,7 +362,7 @@ type UserInfo struct {
 
 func (x *UserInfo) Reset() {
 	*x = UserInfo{}
-	mi := &file_user_proto_msgTypes[4]
+	mi := &file_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -286,7 +374,7 @@ func (x *UserInfo) String() string {
 func (*UserInfo) ProtoMessage() {}
 
 func (x *UserInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[4]
+	mi := &file_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -299,7 +387,7 @@ func (x *UserInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserInfo.ProtoReflect.Descriptor instead.
 func (*UserInfo) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{4}
+	return file_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UserInfo) GetUserId() int64 {
@@ -389,7 +477,7 @@ type GetUserInfoRequest struct {
 
 func (x *GetUserInfoRequest) Reset() {
 	*x = GetUserInfoRequest{}
-	mi := &file_user_proto_msgTypes[5]
+	mi := &file_user_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +489,7 @@ func (x *GetUserInfoRequest) String() string {
 func (*GetUserInfoRequest) ProtoMessage() {}
 
 func (x *GetUserInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[5]
+	mi := &file_user_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,7 +502,7 @@ func (x *GetUserInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserInfoRequest.ProtoReflect.Descriptor instead.
 func (*GetUserInfoRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{5}
+	return file_user_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetUserInfoRequest) GetUserId() int64 {
@@ -433,7 +521,7 @@ type GetUserInfoResponse struct {
 
 func (x *GetUserInfoResponse) Reset() {
 	*x = GetUserInfoResponse{}
-	mi := &file_user_proto_msgTypes[6]
+	mi := &file_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -445,7 +533,7 @@ func (x *GetUserInfoResponse) String() string {
 func (*GetUserInfoResponse) ProtoMessage() {}
 
 func (x *GetUserInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[6]
+	mi := &file_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -458,7 +546,7 @@ func (x *GetUserInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserInfoResponse.ProtoReflect.Descriptor instead.
 func (*GetUserInfoResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{6}
+	return file_user_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetUserInfoResponse) GetUserInfo() *UserInfo {
@@ -483,7 +571,7 @@ type UpdateUserInfoRequest struct {
 
 func (x *UpdateUserInfoRequest) Reset() {
 	*x = UpdateUserInfoRequest{}
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -495,7 +583,7 @@ func (x *UpdateUserInfoRequest) String() string {
 func (*UpdateUserInfoRequest) ProtoMessage() {}
 
 func (x *UpdateUserInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -508,7 +596,7 @@ func (x *UpdateUserInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserInfoRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserInfoRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{7}
+	return file_user_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateUserInfoRequest) GetUserId() int64 {
@@ -562,7 +650,7 @@ type UpdateUserInfoResponse struct {
 
 func (x *UpdateUserInfoResponse) Reset() {
 	*x = UpdateUserInfoResponse{}
-	mi := &file_user_proto_msgTypes[8]
+	mi := &file_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -574,7 +662,7 @@ func (x *UpdateUserInfoResponse) String() string {
 func (*UpdateUserInfoResponse) ProtoMessage() {}
 
 func (x *UpdateUserInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[8]
+	mi := &file_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -587,7 +675,7 @@ func (x *UpdateUserInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserInfoResponse.ProtoReflect.Descriptor instead.
 func (*UpdateUserInfoResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{8}
+	return file_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateUserInfoResponse) GetSuccess() bool {
@@ -609,7 +697,7 @@ type ChangePasswordRequest struct {
 
 func (x *ChangePasswordRequest) Reset() {
 	*x = ChangePasswordRequest{}
-	mi := &file_user_proto_msgTypes[9]
+	mi := &file_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -621,7 +709,7 @@ func (x *ChangePasswordRequest) String() string {
 func (*ChangePasswordRequest) ProtoMessage() {}
 
 func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[9]
+	mi := &file_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -634,7 +722,7 @@ func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
 func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{9}
+	return file_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ChangePasswordRequest) GetUserId() int64 {
@@ -667,7 +755,7 @@ type ChangePasswordResponse struct {
 
 func (x *ChangePasswordResponse) Reset() {
 	*x = ChangePasswordResponse{}
-	mi := &file_user_proto_msgTypes[10]
+	mi := &file_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +767,7 @@ func (x *ChangePasswordResponse) String() string {
 func (*ChangePasswordResponse) ProtoMessage() {}
 
 func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[10]
+	mi := &file_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +780,7 @@ func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
 func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{10}
+	return file_user_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ChangePasswordResponse) GetSuccess() bool {
@@ -714,7 +802,7 @@ type ResetPasswordRequest struct {
 
 func (x *ResetPasswordRequest) Reset() {
 	*x = ResetPasswordRequest{}
-	mi := &file_user_proto_msgTypes[11]
+	mi := &file_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -726,7 +814,7 @@ func (x *ResetPasswordRequest) String() string {
 func (*ResetPasswordRequest) ProtoMessage() {}
 
 func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[11]
+	mi := &file_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -739,7 +827,7 @@ func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
 func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{11}
+	return file_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ResetPasswordRequest) GetPhone() string {
@@ -772,7 +860,7 @@ type ResetPasswordResponse struct {
 
 func (x *ResetPasswordResponse) Reset() {
 	*x = ResetPasswordResponse{}
-	mi := &file_user_proto_msgTypes[12]
+	mi := &file_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -784,7 +872,7 @@ func (x *ResetPasswordResponse) String() string {
 func (*ResetPasswordResponse) ProtoMessage() {}
 
 func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[12]
+	mi := &file_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +885,7 @@ func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
 func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{12}
+	return file_user_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ResetPasswordResponse) GetSuccess() bool {
@@ -827,7 +915,7 @@ type Address struct {
 
 func (x *Address) Reset() {
 	*x = Address{}
-	mi := &file_user_proto_msgTypes[13]
+	mi := &file_user_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +927,7 @@ func (x *Address) String() string {
 func (*Address) ProtoMessage() {}
 
 func (x *Address) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[13]
+	mi := &file_user_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,7 +940,7 @@ func (x *Address) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Address.ProtoReflect.Descriptor instead.
 func (*Address) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{13}
+	return file_user_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Address) GetId() int64 {
@@ -941,7 +1029,7 @@ type GetUserAddressesRequest struct {
 
 func (x *GetUserAddressesRequest) Reset() {
 	*x = GetUserAddressesRequest{}
-	mi := &file_user_proto_msgTypes[14]
+	mi := &file_user_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -953,7 +1041,7 @@ func (x *GetUserAddressesRequest) String() string {
 func (*GetUserAddressesRequest) ProtoMessage() {}
 
 func (x *GetUserAddressesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[14]
+	mi := &file_user_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -966,7 +1054,7 @@ func (x *GetUserAddressesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserAddressesRequest.ProtoReflect.Descriptor instead.
 func (*GetUserAddressesRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{14}
+	return file_user_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetUserAddressesRequest) GetUserId() int64 {
@@ -985,7 +1073,7 @@ type GetUserAddressesResponse struct {
 
 func (x *GetUserAddressesResponse) Reset() {
 	*x = GetUserAddressesResponse{}
-	mi := &file_user_proto_msgTypes[15]
+	mi := &file_user_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -997,7 +1085,7 @@ func (x *GetUserAddressesResponse) String() string {
 func (*GetUserAddressesResponse) ProtoMessage() {}
 
 func (x *GetUserAddressesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[15]
+	mi := &file_user_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1010,7 +1098,7 @@ func (x *GetUserAddressesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserAddressesResponse.ProtoReflect.Descriptor instead.
 func (*GetUserAddressesResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{15}
+	return file_user_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetUserAddressesResponse) GetAddresses() []*Address {
@@ -1036,7 +1124,7 @@ type AddAddressRequest struct {
 
 func (x *AddAddressRequest) Reset() {
 	*x = AddAddressRequest{}
-	mi := &file_user_proto_msgTypes[16]
+	mi := &file_user_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1048,7 +1136,7 @@ func (x *AddAddressRequest) String() string {
 func (*AddAddressRequest) ProtoMessage() {}
 
 func (x *AddAddressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[16]
+	mi := &file_user_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1061,7 +1149,7 @@ func (x *AddAddressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddAddressRequest.ProtoReflect.Descriptor instead.
 func (*AddAddressRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{16}
+	return file_user_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *AddAddressRequest) GetUserId() int64 {
@@ -1129,7 +1217,7 @@ type AddAddressResponse struct {
 
 func (x *AddAddressResponse) Reset() {
 	*x = AddAddressResponse{}
-	mi := &file_user_proto_msgTypes[17]
+	mi := &file_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1141,7 +1229,7 @@ func (x *AddAddressResponse) String() string {
 func (*AddAddressResponse) ProtoMessage() {}
 
 func (x *AddAddressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[17]
+	mi := &file_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1154,7 +1242,7 @@ func (x *AddAddressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddAddressResponse.ProtoReflect.Descriptor instead.
 func (*AddAddressResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{17}
+	return file_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AddAddressResponse) GetAddressId() int64 {
@@ -1180,7 +1268,7 @@ type UpdateAddressRequest struct {
 
 func (x *UpdateAddressRequest) Reset() {
 	*x = UpdateAddressRequest{}
-	mi := &file_user_proto_msgTypes[18]
+	mi := &file_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1192,7 +1280,7 @@ func (x *UpdateAddressRequest) String() string {
 func (*UpdateAddressRequest) ProtoMessage() {}
 
 func (x *UpdateAddressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[18]
+	mi := &file_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1205,7 +1293,7 @@ func (x *UpdateAddressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAddressRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAddressRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{18}
+	return file_user_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateAddressRequest) GetAddressId() int64 {
@@ -1273,7 +1361,7 @@ type UpdateAddressResponse struct {
 
 func (x *UpdateAddressResponse) Reset() {
 	*x = UpdateAddressResponse{}
-	mi := &file_user_proto_msgTypes[19]
+	mi := &file_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1285,7 +1373,7 @@ func (x *UpdateAddressResponse) String() string {
 func (*UpdateAddressResponse) ProtoMessage() {}
 
 func (x *UpdateAddressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[19]
+	mi := &file_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1298,7 +1386,7 @@ func (x *UpdateAddressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAddressResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAddressResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{19}
+	return file_user_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateAddressResponse) GetSuccess() bool {
@@ -1318,7 +1406,7 @@ type DeleteAddressRequest struct {
 
 func (x *DeleteAddressRequest) Reset() {
 	*x = DeleteAddressRequest{}
-	mi := &file_user_proto_msgTypes[20]
+	mi := &file_user_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1330,7 +1418,7 @@ func (x *DeleteAddressRequest) String() string {
 func (*DeleteAddressRequest) ProtoMessage() {}
 
 func (x *DeleteAddressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[20]
+	mi := &file_user_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1343,7 +1431,7 @@ func (x *DeleteAddressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAddressRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAddressRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{20}
+	return file_user_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DeleteAddressRequest) GetAddressId() int64 {
@@ -1369,7 +1457,7 @@ type DeleteAddressResponse struct {
 
 func (x *DeleteAddressResponse) Reset() {
 	*x = DeleteAddressResponse{}
-	mi := &file_user_proto_msgTypes[21]
+	mi := &file_user_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1381,7 +1469,7 @@ func (x *DeleteAddressResponse) String() string {
 func (*DeleteAddressResponse) ProtoMessage() {}
 
 func (x *DeleteAddressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[21]
+	mi := &file_user_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1394,7 +1482,7 @@ func (x *DeleteAddressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAddressResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAddressResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{21}
+	return file_user_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DeleteAddressResponse) GetSuccess() bool {
@@ -1414,7 +1502,7 @@ type GetWalletRequest struct {
 
 func (x *GetWalletRequest) Reset() {
 	*x = GetWalletRequest{}
-	mi := &file_user_proto_msgTypes[22]
+	mi := &file_user_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1426,7 +1514,7 @@ func (x *GetWalletRequest) String() string {
 func (*GetWalletRequest) ProtoMessage() {}
 
 func (x *GetWalletRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[22]
+	mi := &file_user_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1439,7 +1527,7 @@ func (x *GetWalletRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWalletRequest.ProtoReflect.Descriptor instead.
 func (*GetWalletRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{22}
+	return file_user_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetWalletRequest) GetUserId() int64 {
@@ -1460,7 +1548,7 @@ type GetWalletResponse struct {
 
 func (x *GetWalletResponse) Reset() {
 	*x = GetWalletResponse{}
-	mi := &file_user_proto_msgTypes[23]
+	mi := &file_user_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1472,7 +1560,7 @@ func (x *GetWalletResponse) String() string {
 func (*GetWalletResponse) ProtoMessage() {}
 
 func (x *GetWalletResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[23]
+	mi := &file_user_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1485,7 +1573,7 @@ func (x *GetWalletResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWalletResponse.ProtoReflect.Descriptor instead.
 func (*GetWalletResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{23}
+	return file_user_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetWalletResponse) GetBalance() float64 {
@@ -1520,7 +1608,7 @@ type RechargeWalletRequest struct {
 
 func (x *RechargeWalletRequest) Reset() {
 	*x = RechargeWalletRequest{}
-	mi := &file_user_proto_msgTypes[24]
+	mi := &file_user_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1532,7 +1620,7 @@ func (x *RechargeWalletRequest) String() string {
 func (*RechargeWalletRequest) ProtoMessage() {}
 
 func (x *RechargeWalletRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[24]
+	mi := &file_user_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1545,7 +1633,7 @@ func (x *RechargeWalletRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RechargeWalletRequest.ProtoReflect.Descriptor instead.
 func (*RechargeWalletRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{24}
+	return file_user_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RechargeWalletRequest) GetUserId() int64 {
@@ -1579,7 +1667,7 @@ type RechargeWalletResponse struct {
 
 func (x *RechargeWalletResponse) Reset() {
 	*x = RechargeWalletResponse{}
-	mi := &file_user_proto_msgTypes[25]
+	mi := &file_user_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1591,7 +1679,7 @@ func (x *RechargeWalletResponse) String() string {
 func (*RechargeWalletResponse) ProtoMessage() {}
 
 func (x *RechargeWalletResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[25]
+	mi := &file_user_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1604,7 +1692,7 @@ func (x *RechargeWalletResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RechargeWalletResponse.ProtoReflect.Descriptor instead.
 func (*RechargeWalletResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{25}
+	return file_user_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *RechargeWalletResponse) GetOrderId() string {
@@ -1632,7 +1720,7 @@ type WithdrawWalletRequest struct {
 
 func (x *WithdrawWalletRequest) Reset() {
 	*x = WithdrawWalletRequest{}
-	mi := &file_user_proto_msgTypes[26]
+	mi := &file_user_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1644,7 +1732,7 @@ func (x *WithdrawWalletRequest) String() string {
 func (*WithdrawWalletRequest) ProtoMessage() {}
 
 func (x *WithdrawWalletRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[26]
+	mi := &file_user_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1657,7 +1745,7 @@ func (x *WithdrawWalletRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WithdrawWalletRequest.ProtoReflect.Descriptor instead.
 func (*WithdrawWalletRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{26}
+	return file_user_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *WithdrawWalletRequest) GetUserId() int64 {
@@ -1691,7 +1779,7 @@ type WithdrawWalletResponse struct {
 
 func (x *WithdrawWalletResponse) Reset() {
 	*x = WithdrawWalletResponse{}
-	mi := &file_user_proto_msgTypes[27]
+	mi := &file_user_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1703,7 +1791,7 @@ func (x *WithdrawWalletResponse) String() string {
 func (*WithdrawWalletResponse) ProtoMessage() {}
 
 func (x *WithdrawWalletResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[27]
+	mi := &file_user_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1716,7 +1804,7 @@ func (x *WithdrawWalletResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WithdrawWalletResponse.ProtoReflect.Descriptor instead.
 func (*WithdrawWalletResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{27}
+	return file_user_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *WithdrawWalletResponse) GetOrderId() string {
@@ -1750,7 +1838,7 @@ type Transaction struct {
 
 func (x *Transaction) Reset() {
 	*x = Transaction{}
-	mi := &file_user_proto_msgTypes[28]
+	mi := &file_user_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1762,7 +1850,7 @@ func (x *Transaction) String() string {
 func (*Transaction) ProtoMessage() {}
 
 func (x *Transaction) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[28]
+	mi := &file_user_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1775,7 +1863,7 @@ func (x *Transaction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Transaction.ProtoReflect.Descriptor instead.
 func (*Transaction) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{28}
+	return file_user_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *Transaction) GetId() int64 {
@@ -1853,7 +1941,7 @@ type GetTransactionsRequest struct {
 
 func (x *GetTransactionsRequest) Reset() {
 	*x = GetTransactionsRequest{}
-	mi := &file_user_proto_msgTypes[29]
+	mi := &file_user_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1865,7 +1953,7 @@ func (x *GetTransactionsRequest) String() string {
 func (*GetTransactionsRequest) ProtoMessage() {}
 
 func (x *GetTransactionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[29]
+	mi := &file_user_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1878,7 +1966,7 @@ func (x *GetTransactionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionsRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionsRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{29}
+	return file_user_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetTransactionsRequest) GetUserId() int64 {
@@ -1921,7 +2009,7 @@ type GetTransactionsResponse struct {
 
 func (x *GetTransactionsResponse) Reset() {
 	*x = GetTransactionsResponse{}
-	mi := &file_user_proto_msgTypes[30]
+	mi := &file_user_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1933,7 +2021,7 @@ func (x *GetTransactionsResponse) String() string {
 func (*GetTransactionsResponse) ProtoMessage() {}
 
 func (x *GetTransactionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[30]
+	mi := &file_user_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1946,7 +2034,7 @@ func (x *GetTransactionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionsResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionsResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{30}
+	return file_user_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetTransactionsResponse) GetTransactions() []*Transaction {
@@ -2005,7 +2093,13 @@ var file_user_proto_rawDesc = []byte{
 	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x72, 0x65, 0x66, 0x72, 0x65, 0x73, 0x68, 0x54, 0x6f,
 	0x6b, 0x65, 0x6e, 0x12, 0x1d, 0x0a, 0x0a, 0x65, 0x78, 0x70, 0x69, 0x72, 0x65, 0x73, 0x5f, 0x69,
 	0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x65, 0x78, 0x70, 0x69, 0x72, 0x65, 0x73,
-	0x49, 0x6e, 0x22, 0xbf, 0x02, 0x0a, 0x08, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12,
+	0x49, 0x6e, 0x22, 0x32, 0x0a, 0x0d, 0x4c, 0x6f, 0x67, 0x6f, 0x75, 0x74, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f,
+	0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x61, 0x63, 0x63, 0x65, 0x73,
+	0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x22, 0x2a, 0x0a, 0x0e, 0x4c, 0x6f, 0x67, 0x6f, 0x75, 0x74,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63,
+	0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65,
+	0x73, 0x73, 0x22, 0xbf, 0x02, 0x0a, 0x08, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12,
 	0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03,
 	0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65, 0x72,
 	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72,
@@ -2209,7 +2303,7 @@ var file_user_proto_rawDesc = []byte{
 	0x6f, 0x74, 0x61, 0x6c, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01,
 	0x28, 0x05, 0x52, 0x04, 0x70, 0x61, 0x67, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x74, 0x6f, 0x74, 0x61,
 	0x6c, 0x5f, 0x70, 0x61, 0x67, 0x65, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x74,
-	0x6f, 0x74, 0x61, 0x6c, 0x50, 0x61, 0x67, 0x65, 0x73, 0x32, 0xeb, 0x07, 0x0a, 0x04, 0x55, 0x73,
+	0x6f, 0x74, 0x61, 0x6c, 0x50, 0x61, 0x67, 0x65, 0x73, 0x32, 0xa0, 0x08, 0x0a, 0x04, 0x55, 0x73,
 	0x65, 0x72, 0x12, 0x39, 0x0a, 0x08, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x12, 0x15,
 	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x67,
@@ -2217,63 +2311,66 @@ var file_user_proto_rawDesc = []byte{
 	0x05, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x12, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x4c, 0x6f,
 	0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x75, 0x73, 0x65,
 	0x72, 0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x42, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x18,
-	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66,
-	0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e,
-	0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x51, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x65, 0x73, 0x12, 0x1d, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47,
-	0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x65, 0x73, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65,
-	0x74, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x65, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4e, 0x0a, 0x0f, 0x47, 0x65, 0x74, 0x54, 0x72, 0x61,
-	0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x1c, 0x2e, 0x75, 0x73, 0x65, 0x72,
-	0x2e, 0x47, 0x65, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47,
-	0x65, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
-	0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50, 0x61, 0x73,
-	0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x43, 0x68, 0x61,
-	0x6e, 0x67, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65,
-	0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x48, 0x0a, 0x0d, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72,
-	0x64, 0x12, 0x1a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61,
-	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e,
-	0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f,
-	0x72, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3f, 0x0a, 0x0a, 0x41, 0x64,
-	0x64, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x17, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e,
-	0x41, 0x64, 0x64, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x18, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x41, 0x64, 0x64, 0x41, 0x64, 0x64, 0x72,
-	0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x48, 0x0a, 0x0d, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x1a, 0x2e, 0x75,
-	0x73, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
-	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x48, 0x0a, 0x0d, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x1a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x44, 0x65,
-	0x6c, 0x65, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x3c, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x12, 0x16, 0x2e, 0x75,
-	0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x57,
-	0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a,
-	0x0e, 0x52, 0x65, 0x63, 0x68, 0x61, 0x72, 0x67, 0x65, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x12,
-	0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x63, 0x68, 0x61, 0x72, 0x67, 0x65, 0x57,
-	0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x75,
-	0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x63, 0x68, 0x61, 0x72, 0x67, 0x65, 0x57, 0x61, 0x6c, 0x6c,
-	0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0e, 0x57, 0x69,
-	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x12, 0x1b, 0x2e, 0x75,
-	0x73, 0x65, 0x72, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x57, 0x61, 0x6c, 0x6c,
-	0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x75, 0x73, 0x65, 0x72,
-	0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x08, 0x5a, 0x06, 0x2e, 0x2f, 0x75, 0x73, 0x65,
-	0x72, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x33, 0x0a, 0x06, 0x4c, 0x6f, 0x67, 0x6f, 0x75, 0x74, 0x12, 0x13, 0x2e, 0x75, 0x73, 0x65, 0x72,
+	0x2e, 0x4c, 0x6f, 0x67, 0x6f, 0x75, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14,
+	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x4c, 0x6f, 0x67, 0x6f, 0x75, 0x74, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x42, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x49,
+	0x6e, 0x66, 0x6f, 0x12, 0x18, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73,
+	0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e,
+	0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x51, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x55,
+	0x73, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x65, 0x73, 0x12, 0x1d, 0x2e, 0x75,
+	0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x75, 0x73,
+	0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
+	0x73, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4e, 0x0a, 0x0f, 0x47,
+	0x65, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x1c,
+	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x75,
+	0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0e, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x1b, 0x2e,
+	0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x49,
+	0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x75, 0x73, 0x65,
+	0x72, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0e, 0x43, 0x68, 0x61, 0x6e,
+	0x67, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1b, 0x2e, 0x75, 0x73, 0x65,
+	0x72, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x43,
+	0x68, 0x61, 0x6e, 0x67, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x48, 0x0a, 0x0d, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65,
+	0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50,
+	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x3f, 0x0a, 0x0a, 0x41, 0x64, 0x64, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x17, 0x2e,
+	0x75, 0x73, 0x65, 0x72, 0x2e, 0x41, 0x64, 0x64, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x41, 0x64,
+	0x64, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x48, 0x0a, 0x0d, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
+	0x73, 0x12, 0x1a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e,
+	0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x48, 0x0a, 0x0d, 0x44, 0x65,
+	0x6c, 0x65, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x1a, 0x2e, 0x75, 0x73,
+	0x65, 0x72, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3c, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x57, 0x61, 0x6c, 0x6c, 0x65,
+	0x74, 0x12, 0x16, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x57, 0x61, 0x6c, 0x6c,
+	0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x75, 0x73, 0x65, 0x72,
+	0x2e, 0x47, 0x65, 0x74, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0e, 0x52, 0x65, 0x63, 0x68, 0x61, 0x72, 0x67, 0x65, 0x57, 0x61,
+	0x6c, 0x6c, 0x65, 0x74, 0x12, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x63, 0x68,
+	0x61, 0x72, 0x67, 0x65, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x1c, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x63, 0x68, 0x61, 0x72, 0x67,
+	0x65, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x4b, 0x0a, 0x0e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65,
+	0x74, 0x12, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61,
+	0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c,
+	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x57, 0x61,
+	0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x08, 0x5a, 0x06,
+	0x2e, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2288,74 +2385,78 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_user_proto_goTypes = []any{
 	(*RegisterRequest)(nil),          // 0: user.RegisterRequest
 	(*RegisterResponse)(nil),         // 1: user.RegisterResponse
 	(*LoginRequest)(nil),             // 2: user.LoginRequest
 	(*LoginResponse)(nil),            // 3: user.LoginResponse
-	(*UserInfo)(nil),                 // 4: user.UserInfo
-	(*GetUserInfoRequest)(nil),       // 5: user.GetUserInfoRequest
-	(*GetUserInfoResponse)(nil),      // 6: user.GetUserInfoResponse
-	(*UpdateUserInfoRequest)(nil),    // 7: user.UpdateUserInfoRequest
-	(*UpdateUserInfoResponse)(nil),   // 8: user.UpdateUserInfoResponse
-	(*ChangePasswordRequest)(nil),    // 9: user.ChangePasswordRequest
-	(*ChangePasswordResponse)(nil),   // 10: user.ChangePasswordResponse
-	(*ResetPasswordRequest)(nil),     // 11: user.ResetPasswordRequest
-	(*ResetPasswordResponse)(nil),    // 12: user.ResetPasswordResponse
-	(*Address)(nil),                  // 13: user.Address
-	(*GetUserAddressesRequest)(nil),  // 14: user.GetUserAddressesRequest
-	(*GetUserAddressesResponse)(nil), // 15: user.GetUserAddressesResponse
-	(*AddAddressRequest)(nil),        // 16: user.AddAddressRequest
-	(*AddAddressResponse)(nil),       // 17: user.AddAddressResponse
-	(*UpdateAddressRequest)(nil),     // 18: user.UpdateAddressRequest
-	(*UpdateAddressResponse)(nil),    // 19: user.UpdateAddressResponse
-	(*DeleteAddressRequest)(nil),     // 20: user.DeleteAddressRequest
-	(*DeleteAddressResponse)(nil),    // 21: user.DeleteAddressResponse
-	(*GetWalletRequest)(nil),         // 22: user.GetWalletRequest
-	(*GetWalletResponse)(nil),        // 23: user.GetWalletResponse
-	(*RechargeWalletRequest)(nil),    // 24: user.RechargeWalletRequest
-	(*RechargeWalletResponse)(nil),   // 25: user.RechargeWalletResponse
-	(*WithdrawWalletRequest)(nil),    // 26: user.WithdrawWalletRequest
-	(*WithdrawWalletResponse)(nil),   // 27: user.WithdrawWalletResponse
-	(*Transaction)(nil),              // 28: user.Transaction
-	(*GetTransactionsRequest)(nil),   // 29: user.GetTransactionsRequest
-	(*GetTransactionsResponse)(nil),  // 30: user.GetTransactionsResponse
+	(*LogoutRequest)(nil),            // 4: user.LogoutRequest
+	(*LogoutResponse)(nil),           // 5: user.LogoutResponse
+	(*UserInfo)(nil),                 // 6: user.UserInfo
+	(*GetUserInfoRequest)(nil),       // 7: user.GetUserInfoRequest
+	(*GetUserInfoResponse)(nil),      // 8: user.GetUserInfoResponse
+	(*UpdateUserInfoRequest)(nil),    // 9: user.UpdateUserInfoRequest
+	(*UpdateUserInfoResponse)(nil),   // 10: user.UpdateUserInfoResponse
+	(*ChangePasswordRequest)(nil),    // 11: user.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil),   // 12: user.ChangePasswordResponse
+	(*ResetPasswordRequest)(nil),     // 13: user.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),    // 14: user.ResetPasswordResponse
+	(*Address)(nil),                  // 15: user.Address
+	(*GetUserAddressesRequest)(nil),  // 16: user.GetUserAddressesRequest
+	(*GetUserAddressesResponse)(nil), // 17: user.GetUserAddressesResponse
+	(*AddAddressRequest)(nil),        // 18: user.AddAddressRequest
+	(*AddAddressResponse)(nil),       // 19: user.AddAddressResponse
+	(*UpdateAddressRequest)(nil),     // 20: user.UpdateAddressRequest
+	(*UpdateAddressResponse)(nil),    // 21: user.UpdateAddressResponse
+	(*DeleteAddressRequest)(nil),     // 22: user.DeleteAddressRequest
+	(*DeleteAddressResponse)(nil),    // 23: user.DeleteAddressResponse
+	(*GetWalletRequest)(nil),         // 24: user.GetWalletRequest
+	(*GetWalletResponse)(nil),        // 25: user.GetWalletResponse
+	(*RechargeWalletRequest)(nil),    // 26: user.RechargeWalletRequest
+	(*RechargeWalletResponse)(nil),   // 27: user.RechargeWalletResponse
+	(*WithdrawWalletRequest)(nil),    // 28: user.WithdrawWalletRequest
+	(*WithdrawWalletResponse)(nil),   // 29: user.WithdrawWalletResponse
+	(*Transaction)(nil),              // 30: user.Transaction
+	(*GetTransactionsRequest)(nil),   // 31: user.GetTransactionsRequest
+	(*GetTransactionsResponse)(nil),  // 32: user.GetTransactionsResponse
 }
 var file_user_proto_depIdxs = []int32{
-	4,  // 0: user.GetUserInfoResponse.user_info:type_name -> user.UserInfo
-	13, // 1: user.GetUserAddressesResponse.addresses:type_name -> user.Address
-	28, // 2: user.GetTransactionsResponse.transactions:type_name -> user.Transaction
+	6,  // 0: user.GetUserInfoResponse.user_info:type_name -> user.UserInfo
+	15, // 1: user.GetUserAddressesResponse.addresses:type_name -> user.Address
+	30, // 2: user.GetTransactionsResponse.transactions:type_name -> user.Transaction
 	0,  // 3: user.User.Register:input_type -> user.RegisterRequest
 	2,  // 4: user.User.Login:input_type -> user.LoginRequest
-	5,  // 5: user.User.GetUserInfo:input_type -> user.GetUserInfoRequest
-	14, // 6: user.User.GetUserAddresses:input_type -> user.GetUserAddressesRequest
-	29, // 7: user.User.GetTransactions:input_type -> user.GetTransactionsRequest
-	7,  // 8: user.User.UpdateUserInfo:input_type -> user.UpdateUserInfoRequest
-	9,  // 9: user.User.ChangePassword:input_type -> user.ChangePasswordRequest
-	11, // 10: user.User.ResetPassword:input_type -> user.ResetPasswordRequest
-	16, // 11: user.User.AddAddress:input_type -> user.AddAddressRequest
-	18, // 12: user.User.UpdateAddress:input_type -> user.UpdateAddressRequest
-	20, // 13: user.User.DeleteAddress:input_type -> user.DeleteAddressRequest
-	22, // 14: user.User.GetWallet:input_type -> user.GetWalletRequest
-	24, // 15: user.User.RechargeWallet:input_type -> user.RechargeWalletRequest
-	26, // 16: user.User.WithdrawWallet:input_type -> user.WithdrawWalletRequest
-	1,  // 17: user.User.Register:output_type -> user.RegisterResponse
-	3,  // 18: user.User.Login:output_type -> user.LoginResponse
-	6,  // 19: user.User.GetUserInfo:output_type -> user.GetUserInfoResponse
-	15, // 20: user.User.GetUserAddresses:output_type -> user.GetUserAddressesResponse
-	30, // 21: user.User.GetTransactions:output_type -> user.GetTransactionsResponse
-	8,  // 22: user.User.UpdateUserInfo:output_type -> user.UpdateUserInfoResponse
-	10, // 23: user.User.ChangePassword:output_type -> user.ChangePasswordResponse
-	12, // 24: user.User.ResetPassword:output_type -> user.ResetPasswordResponse
-	17, // 25: user.User.AddAddress:output_type -> user.AddAddressResponse
-	19, // 26: user.User.UpdateAddress:output_type -> user.UpdateAddressResponse
-	21, // 27: user.User.DeleteAddress:output_type -> user.DeleteAddressResponse
-	23, // 28: user.User.GetWallet:output_type -> user.GetWalletResponse
-	25, // 29: user.User.RechargeWallet:output_type -> user.RechargeWalletResponse
-	27, // 30: user.User.WithdrawWallet:output_type -> user.WithdrawWalletResponse
-	17, // [17:31] is the sub-list for method output_type
-	3,  // [3:17] is the sub-list for method input_type
+	4,  // 5: user.User.Logout:input_type -> user.LogoutRequest
+	7,  // 6: user.User.GetUserInfo:input_type -> user.GetUserInfoRequest
+	16, // 7: user.User.GetUserAddresses:input_type -> user.GetUserAddressesRequest
+	31, // 8: user.User.GetTransactions:input_type -> user.GetTransactionsRequest
+	9,  // 9: user.User.UpdateUserInfo:input_type -> user.UpdateUserInfoRequest
+	11, // 10: user.User.ChangePassword:input_type -> user.ChangePasswordRequest
+	13, // 11: user.User.ResetPassword:input_type -> user.ResetPasswordRequest
+	18, // 12: user.User.AddAddress:input_type -> user.AddAddressRequest
+	20, // 13: user.User.UpdateAddress:input_type -> user.UpdateAddressRequest
+	22, // 14: user.User.DeleteAddress:input_type -> user.DeleteAddressRequest
+	24, // 15: user.User.GetWallet:input_type -> user.GetWalletRequest
+	26, // 16: user.User.RechargeWallet:input_type -> user.RechargeWalletRequest
+	28, // 17: user.User.WithdrawWallet:input_type -> user.WithdrawWalletRequest
+	1,  // 18: user.User.Register:output_type -> user.RegisterResponse
+	3,  // 19: user.User.Login:output_type -> user.LoginResponse
+	5,  // 20: user.User.Logout:output_type -> user.LogoutResponse
+	8,  // 21: user.User.GetUserInfo:output_type -> user.GetUserInfoResponse
+	17, // 22: user.User.GetUserAddresses:output_type -> user.GetUserAddressesResponse
+	32, // 23: user.User.GetTransactions:output_type -> user.GetTransactionsResponse
+	10, // 24: user.User.UpdateUserInfo:output_type -> user.UpdateUserInfoResponse
+	12, // 25: user.User.ChangePassword:output_type -> user.ChangePasswordResponse
+	14, // 26: user.User.ResetPassword:output_type -> user.ResetPasswordResponse
+	19, // 27: user.User.AddAddress:output_type -> user.AddAddressResponse
+	21, // 28: user.User.UpdateAddress:output_type -> user.UpdateAddressResponse
+	23, // 29: user.User.DeleteAddress:output_type -> user.DeleteAddressResponse
+	25, // 30: user.User.GetWallet:output_type -> user.GetWalletResponse
+	27, // 31: user.User.RechargeWallet:output_type -> user.RechargeWalletResponse
+	29, // 32: user.User.WithdrawWallet:output_type -> user.WithdrawWalletResponse
+	18, // [18:33] is the sub-list for method output_type
+	3,  // [3:18] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -2372,7 +2473,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_user_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

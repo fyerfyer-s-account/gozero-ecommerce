@@ -43,7 +43,7 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return []byte(m.config.AdminAuth.AccessSecret), nil
+			return []byte(m.config.Auth.AccessSecret), nil
 		})
 
 		if err != nil {

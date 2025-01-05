@@ -9,10 +9,16 @@ type Config struct {
 	rest.RestConf
 
 	Auth struct {
-		AccessSecret  string
-		AccessExpire  int64
-		RefreshSecret string
-		RefreshExpire int64
+		AccessSecret   string
+		AccessExpire   int64
+		RefreshSecret  string
+		RefreshExpire  int64
+		BlacklistRedis struct {
+			Host string
+			Type string
+			Pass string
+			Key  string
+		}
 	}
 
 	PageSize int
@@ -32,11 +38,4 @@ type Config struct {
 
 	UserRpc    zrpc.RpcClientConf
 	ProductRpc zrpc.RpcClientConf
-	// CartRpc      zrpc.RpcClientConf
-	// OrderRpc     zrpc.RpcClientConf
-	// PaymentRpc   zrpc.RpcClientConf
-	// InventoryRpc zrpc.RpcClientConf
-	// MarketingRpc zrpc.RpcClientConf
-	// SearchRpc    zrpc.RpcClientConf
-	// MessageRpc   zrpc.RpcClientConf
 }

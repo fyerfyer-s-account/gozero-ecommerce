@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -25,7 +26,6 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.TokenResp, err error) {
-	// todo: add your logic here and delete this line
 	res, err := l.svcCtx.UserRpc.Login(l.ctx, &user.LoginRequest{
 		Username: req.Username,
 		Password: req.Password,
@@ -34,6 +34,12 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.TokenResp, err erro
 	if err != nil {
 		logx.Errorf("login error: %v", err)
 		return nil, err
+	}
+
+	// Make sure to use the same Auth.AccessSecret as middleware
+	if res.AccessToken == "" {
+		logx.Error("empty token received from user RPC")
+		return nil, zeroerr.ErrInvalidToken
 	}
 
 	return &types.TokenResp{

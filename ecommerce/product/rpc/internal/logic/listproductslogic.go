@@ -59,16 +59,16 @@ func (l *ListProductsLogic) ListProducts(in *product.ListProductsRequest) (*prod
 	pbProducts := make([]*product.Product, 0, len(products))
 	for _, p := range products {
 		pbProduct := &product.Product{
-			Id:          int64(p.Id),
-			Name:        p.Name,
-			Description: p.Description.String,
-			CategoryId:  int64(p.CategoryId),
-			Brand:       p.Brand.String,
-			Price:       p.Price,
-			Sales:       p.Sales,
-			Status:      p.Status,
-			CreatedAt:   p.CreatedAt.Unix(),
-			UpdatedAt:   p.UpdatedAt.Unix(),
+			Id:           int64(p.Id),
+			Name:         p.Name,
+			Description:  p.Description.String,
+			CategoryId:   int64(p.CategoryId),
+			Brand:        p.Brand.String,
+			Price:        p.Price,
+			Sales:        p.Sales,
+			Status:       p.Status,
+			CreatedAt:    p.CreatedAt.Unix(),
+			UpdatedAt:    p.UpdatedAt.Unix(),
 		}
 		if p.Images.Valid {
 			var images []string

@@ -16,6 +16,7 @@ type ServiceContext struct {
 	LoginRecordsModel       model.LoginRecordsModel
 	WalletAccountsModel     model.WalletAccountsModel
 	WalletTransactionsModel model.WalletTransactionsModel
+	AdminModel              model.AdminsModel
 
 	// Redis clients
 	BizRedis     *redis.Redis
@@ -38,6 +39,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
+		AdminModel:              model.NewAdminsModel(sqlConn),
 		UsersModel:              model.NewUsersModel(sqlConn),
 		UserAddressesModel:      model.NewUserAddressesModel(sqlConn),
 		LoginRecordsModel:       model.NewLoginRecordsModel(sqlConn),

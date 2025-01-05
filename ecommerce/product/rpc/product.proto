@@ -1,3 +1,4 @@
+
 syntax = "proto3";
 
 package product;
@@ -21,6 +22,7 @@ service ProductService {
     rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse);
     rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse);
     rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
+    rpc GetCategories(Empty) returns (GetCategoriesResponse);
     
     // SKU管理
     rpc CreateSku(CreateSkuRequest) returns (CreateSkuResponse);
@@ -38,6 +40,8 @@ service ProductService {
     rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewResponse);
     rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
 }
+
+message Empty { }
 
 // 商品相关消息
 message Product {
@@ -188,6 +192,10 @@ message GetCategoryRequest {
 message GetCategoryResponse {
     Category category = 1;
     repeated Category children = 2;
+}
+
+message GetCategoriesResponse {
+    repeated string category_names = 1;
 }
 
 message ListCategoriesRequest {

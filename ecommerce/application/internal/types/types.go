@@ -171,6 +171,10 @@ type DeleteReviewReq struct {
 	Id int64 `json:"id"`
 }
 
+type GetCategoriesResp struct {
+	CategoryNames []string `json:"names"`
+}
+
 type GetProductReq struct {
 	Id int64 `path:"id"`
 }
@@ -186,6 +190,14 @@ type GetProfileReq struct {
 type LoginReq struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type LogoutReq struct {
+	AccessToken string `json:"accessToken"`
+}
+
+type LogoutResp struct {
+	Success bool `json:"success"`
 }
 
 type Order struct {

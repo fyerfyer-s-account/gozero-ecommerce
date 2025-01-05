@@ -18,6 +18,8 @@ type (
 	// and implement the added methods in customCategoriesModel.
 	CategoriesModel interface {
 		categoriesModel
+		GetAll(ctx context.Context) ([]*Categories, error)
+		FindIdByName(ctx context.Context, name string) (uint64, error) 
 		FindByParentId(ctx context.Context, parentId uint64) ([]*Categories, error)
 		FindOneByName(ctx context.Context, name string) (*Categories, error)
 		UpdateSort(ctx context.Context, id uint64, sort int64) error
@@ -98,4 +100,29 @@ func (m *customCategoriesModel) HasProducts(ctx context.Context, id uint64) (boo
 	query := "select count(*) from products where `category_id` = ?"
 	err := m.QueryRowNoCacheCtx(ctx, &count, query, id)
 	return count > 0, err
+}
+
+func (m *customCategoriesModel) GetAll(ctx context.Context) ([]*Categories, error) {
+	query := fmt.Sprintf("select %s from %s",
+		productsRows, m.table)
+	var resp []*Categories
+	err := m.QueryRowsNoCacheCtx(ctx, &resp, query)
+
+	return resp, err
+}
+
+
+func (m *customCategoriesModel) FindIdByName(ctx context.Context, name string) (uint64, error) {
+	var id uint64
+	query := fmt.Sprintf("select `id` from %s where `name` = ?", m.table)
+	err := m.QueryRowNoCacheCtx(ctx, &id, query, name )
+
+	switch err {
+	case nil:
+		return id, nil
+	case sqlx.ErrNotFound:
+		return 0, ErrNotFound
+	default:
+		return 0, err
+	}
 }

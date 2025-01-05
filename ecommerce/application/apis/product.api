@@ -160,6 +160,10 @@ type (
         Id int64 `json:"id"`
     }
 
+    GetCategoriesResp {
+        CategoryNames []string `json:"names"`
+    }
+
     SkuAttributeReq {
         Key   string `json:"key"`
         Value string `json:"value"`

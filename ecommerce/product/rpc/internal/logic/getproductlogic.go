@@ -47,15 +47,15 @@ func (l *GetProductLogic) GetProduct(in *product.GetProductRequest) (*product.Ge
 
 	// Convert product to proto message
 	pbProduct := &product.Product{
-		Id:          int64(prod.Id),
-		Name:        prod.Name,
-		Description: prod.Description.String,
-		CategoryId:  int64(prod.CategoryId),
-		Brand:       prod.Brand.String,
-		Price:       prod.Price,
-		Status:      prod.Status,
-		CreatedAt:   prod.CreatedAt.Unix(),
-		UpdatedAt:   prod.UpdatedAt.Unix(),
+		Id:           int64(prod.Id),
+		Name:         prod.Name,
+		Description:  prod.Description.String,
+		CategoryId:   int64(prod.CategoryId),
+		Brand:        prod.Brand.String,
+		Price:        prod.Price,
+		Status:       prod.Status,
+		CreatedAt:    prod.CreatedAt.Unix(),
+		UpdatedAt:    prod.UpdatedAt.Unix(),
 	}
 
 	if prod.Images.Valid {

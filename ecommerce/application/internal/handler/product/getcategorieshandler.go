@@ -8,10 +8,10 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func ListCategoriesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func GetCategoriesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := product.NewListCategoriesLogic(r.Context(), svcCtx)
-		resp, err := l.ListCategories()
+		l := product.NewGetCategoriesLogic(r.Context(), svcCtx)
+		resp, err := l.GetCategories()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

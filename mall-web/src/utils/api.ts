@@ -17,23 +17,41 @@ export const api = axios.create({
   timeout: 5000,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Clear role if not admin
+      if (payload.role !== 'admin') {
+        localStorage.removeItem('role');
+      }
+    } catch (e) {
+      console.error('Error parsing JWT:', e);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  }
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    console.group('API Error Details');
+    console.log('Status:', error.response?.status);
+    console.log('URL:', error.config?.url);
+    console.log('Method:', error.config?.method);
+    console.log('Headers:', error.config?.headers);
+    console.log('Response:', error.response?.data);
+    console.groupEnd();
+    
     if (error.response?.status === 401) {
+      if (!error.config?.url.includes('/api/user/')) {
+        console.log('Non-auth 401 error - keeping token');
+        return Promise.reject(error);
+      }
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('role');
     }
     return Promise.reject(error);
   }

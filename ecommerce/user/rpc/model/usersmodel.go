@@ -18,7 +18,8 @@ type (
 		FindOneByPhoneOrEmail(ctx context.Context, account string) (*Users, error)
 		UpdatePassword(ctx context.Context, id uint64, password string) error
 		UpdateStatus(ctx context.Context, id uint64, status int32) error
-		UpdateProfile(ctx context.Context, id uint64, nickname string, avatar string, gender int32) error
+		UpdateProfile(ctx context.Context, id uint64, nickname string, gender string) error
+		UpdateOnline(ctx context.Context, id uint64, online int32) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
 	}
 
@@ -64,9 +65,9 @@ func (m *customUsersModel) UpdateStatus(ctx context.Context, id uint64, status i
 	return err
 }
 
-func (m *customUsersModel) UpdateProfile(ctx context.Context, id uint64, nickname string, avatar string, gender int32) error {
-	query := `update ` + m.table + ` set nickname = ?, avatar = ?, gender = ? where id = ?`
-	_, err := m.conn.ExecCtx(ctx, query, nickname, avatar, gender, id)
+func (m *customUsersModel) UpdateProfile(ctx context.Context, id uint64, nickname string, gender string) error {
+	query := `update ` + m.table + ` set nickname = ?, gender = ? where id = ?`
+	_, err := m.conn.ExecCtx(ctx, query, nickname, gender, id)
 	return err
 }
 
@@ -74,4 +75,10 @@ func (m *customUsersModel) Trans(ctx context.Context, fn func(context context.Co
 	return m.conn.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		return fn(ctx, session)
 	})
+}
+
+func (m *customUsersModel) UpdateOnline(ctx context.Context, id uint64, online int32) error {
+	query := `update ` + m.table + ` set online = ? where id = ?`
+	_, err := m.conn.ExecCtx(ctx, query, online, id)
+	return err
 }

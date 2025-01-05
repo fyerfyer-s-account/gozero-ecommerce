@@ -10,9 +10,9 @@ const LoginForm = () => {
 
   const onSubmit = async (values: LoginReq) => {
     try {
-      await login(values.username, values.password);
+      const response = await login(values.username, values.password);
       message.success('Login successful');
-      navigate('/');
+      navigate('/', { replace: true });  // Remove setTimeout, direct navigation
     } catch (error) {
       message.error(error instanceof Error ? error.message : 'Login failed');
     }

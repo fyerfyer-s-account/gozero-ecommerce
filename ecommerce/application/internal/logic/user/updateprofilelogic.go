@@ -2,10 +2,12 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/user"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,12 +27,33 @@ func NewUpdateProfileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateProfileLogic) UpdateProfile(req *types.UpdateProfileReq) error {
-	// todo: add your logic here and delete this line
-	// Get userId from JWT context
-	userId := l.ctx.Value("userId").(int64)
+	// Get userId from JWT context with proper type conversion
+	userIdVal := l.ctx.Value("userId")
+	if userIdVal == nil {
+		return zeroerr.ErrInvalidToken
+	}
+
+	// Handle json.Number type from JWT claims
+	var userId int64
+	var err error
+	switch v := userIdVal.(type) {
+	case json.Number:
+		userId, err = v.Int64()
+		if err != nil {
+			logx.Errorf("invalid userId format: %v", err)
+			return zeroerr.ErrInvalidToken
+		}
+	case float64:
+		userId = int64(v)
+	case int64:
+		userId = v
+	default:
+		logx.Errorf("unexpected userId type: %T", userIdVal)
+		return zeroerr.ErrInvalidToken
+	}
 
 	// Call RPC
-	_, err := l.svcCtx.UserRpc.UpdateUserInfo(l.ctx, &user.UpdateUserInfoRequest{
+	_, err = l.svcCtx.UserRpc.UpdateUserInfo(l.ctx, &user.UpdateUserInfoRequest{
 		UserId:   userId,
 		Nickname: req.Nickname,
 		Avatar:   req.Avatar,

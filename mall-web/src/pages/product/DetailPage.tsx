@@ -5,7 +5,7 @@ import { Loading } from '../../components/common/Loading';
 
 const DetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { fetchProductDetails, loading } = useProduct();
+    const { fetchProductDetails, currentProduct, loading, error } = useProduct();
 
     useEffect(() => {
         if (id) {
@@ -17,9 +17,26 @@ const DetailPage: React.FC = () => {
         return <Loading />;
     }
 
+    if (error) {
+        return <div className="text-red-500">{error}</div>;
+    }
+
+    if (!currentProduct) {
+        return <div>Product not found</div>;
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
-            {/* Product detail content */}
+            <h1 className="text-2xl font-bold mb-4">{currentProduct.name}</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <img src={currentProduct.images[0]} alt={currentProduct.name} className="w-full" />
+                </div>
+                <div>
+                    <p className="text-xl font-bold text-red-500">¥{currentProduct.price}</p>
+                    <p className="mt-4">{currentProduct.description}</p>
+                </div>
+            </div>
         </div>
     );
 };

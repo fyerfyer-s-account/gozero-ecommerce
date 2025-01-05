@@ -61,6 +61,11 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		return nil, zeroerr.ErrAccountDisabled
 	}
 
+	// Check if user is already online
+	if userInfo.Online == 1 {
+		return nil, zeroerr.ErrAlreadyLoggedIn
+	}
+
 	// 4. Verify password
 	log.Println("Verifying password")
 	if cryptx.HashPassword(in.Password, l.svcCtx.Config.Salt) != userInfo.Password {
@@ -68,10 +73,27 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		return nil, zeroerr.ErrInvalidPassword
 	}
 
+	// Set user status to logged in
+	if err := l.svcCtx.UsersModel.UpdateStatus(l.ctx, userInfo.Id, 1); err != nil {
+		return nil, err
+	}
+
+	// Set user online status
+	if err := l.svcCtx.UsersModel.UpdateOnline(l.ctx, userInfo.Id, 1); err != nil {
+		return nil, err
+	}
+
+	// Invalidate old token if exists
+	oldTokenKey := fmt.Sprintf("%s%d", l.svcCtx.Config.JwtAuth.RefreshRedis.KeyPrefix, userInfo.Id)
+	if _, err := l.svcCtx.RefreshRedis.Del(oldTokenKey); err != nil {
+		logx.Error("failed to invalidate old token:", err)
+	}
+
 	// Check if user is admin
 	role := jwtx.RoleUser
-	if userInfo.IsAdmin == 1 {
+	if admin, _ := l.svcCtx.AdminModel.FindOneByUserId(l.ctx, userInfo.Id); admin != nil {
 		role = jwtx.RoleAdmin
+		log.Println("the user is administrator")
 	}
 
 	// Generate tokens

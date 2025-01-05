@@ -25,14 +25,14 @@ export interface TokenResp {
 export interface UserInfo {
   id: number;
   username: string;
-  nickname: string;
-  avatar: string;
-  phone: string;
-  email: string;
-  gender: string;
-  memberLevel: number;
-  balance: number;
-  createdAt: number;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  gender?: string;
+  memberLevel?: number;
+  balance?: number;
+  createdAt?: number;
+  role?: string;
 }
 
 export interface RegisterReq {

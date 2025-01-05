@@ -47,7 +47,7 @@ func (l *GetCategoryLogic) GetCategory(in *product.GetCategoryRequest) (*product
 	pbCategory := &product.Category{
 		Id:       int64(category.Id),
 		Name:     category.Name,
-		ParentId: int64(category.ParentId),
+		ParentId: int64(category.ParentId.Int64),
 		Level:    category.Level,
 		Sort:     category.Sort,
 		Icon:     category.Icon.String,
@@ -59,7 +59,7 @@ func (l *GetCategoryLogic) GetCategory(in *product.GetCategoryRequest) (*product
 		pbChild := &product.Category{
 			Id:       int64(child.Id),
 			Name:     child.Name,
-			ParentId: int64(child.ParentId),
+			ParentId: int64(child.ParentId.Int64),
 			Level:    child.Level,
 			Sort:     child.Sort,
 			Icon:     child.Icon.String,

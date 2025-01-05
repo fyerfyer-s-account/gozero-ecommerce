@@ -154,7 +154,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/api/categories",
-				Handler: product.ListCategoriesHandler(serverCtx),
+				Handler: product.GetCategoriesHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
@@ -296,6 +296,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodDelete,
 					Path:    "/api/user/addresses/:id",
 					Handler: user.DeleteAddressHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/user/logout",
+					Handler: user.LogoutHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,

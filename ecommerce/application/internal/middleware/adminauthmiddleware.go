@@ -6,7 +6,6 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/jwtx"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 type AdminAuthMiddleware struct {
@@ -21,36 +20,29 @@ func NewAdminAuthMiddleware(config config.Config) *AdminAuthMiddleware {
 
 func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO generate middleware implement function, delete after code implementation
-		// Get JWT token from Authorization header
 		authHeader := r.Header.Get("Authorization")
-        if authHeader == "" {
-            http.Error(w, "Unauthorized", http.StatusUnauthorized)
-            return
-        }
+		if authHeader == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
-        parts := strings.SplitN(authHeader, " ", 2)
-        if len(parts) != 2 || parts[0] != "Bearer" {
-            http.Error(w, "Invalid token format", http.StatusUnauthorized)
-            return
-        }
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			http.Error(w, "Invalid token format", http.StatusUnauthorized)
+			return
+		}
 
-        token, err := jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
-            return []byte(m.config.AdminAuth.AccessSecret), nil
-        })
+		claims, err := jwtx.ParseToken(parts[1], m.config.Auth.AccessSecret)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
 
-        if err != nil || !token.Valid {
-            http.Error(w, "Invalid token", http.StatusUnauthorized)
-            return
-        }
+		if claims.Role != jwtx.RoleAdmin {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
 
-        claims := token.Claims.(jwt.MapClaims)
-        role, ok := claims[string(jwtx.KeyRole)].(string)
-        if !ok || role != jwtx.RoleAdmin {
-            http.Error(w, "Forbidden", http.StatusForbidden)
-            return
-        }
-		// Passthrough to next handler if need
 		next(w, r)
 	}
 }

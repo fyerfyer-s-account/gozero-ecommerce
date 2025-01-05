@@ -1,4 +1,4 @@
-import React, { createContext, useState, useCallback, useContext } from 'react';
+import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
 import { userApi } from '@/api/user';
 import { UserInfo, RegisterReq, AuthState, LoginReq, TokenResp } from '@/types/user';
 
@@ -7,18 +7,37 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<TokenResp>;
   register: (data: RegisterReq) => Promise<void>;
   logout: () => void;
+  refreshProfile: () => Promise<void>; // Add this
 }
 
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!localStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (token && !user) {
+        try {
+          const userInfo = await userApi.getProfile();
+          const userWithRole = {
+            ...userInfo,
+            role: localStorage.getItem('role') || 'user'
+          };
+          setUser(userWithRole);
+        } catch (error) {
+          logout();
+        }
+      }
+    };
+    loadUserProfile();
+  }, [token]);
 
   const login = useCallback(async (username: string, password: string) => {
     setLoading(true);
@@ -27,9 +46,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', response.accessToken);
       setToken(response.accessToken);
       setIsAuthenticated(true);
-
-      const userInfo = await userApi.getProfile(); 
-      setUser(userInfo);
+      
+      let role: string | undefined;
+      try {
+        const payload = JSON.parse(atob(response.accessToken.split('.')[1]));
+        role = payload.role || undefined;
+        if (role) {
+          localStorage.setItem('role', role);
+        }
+      } catch (e) {
+        console.error('Error parsing JWT:', e);
+      }
+      
+      const userInfo = await userApi.getProfile();
+      setUser({
+        ...userInfo,
+        role: role
+      });
+      
+      return response;
     } catch (error) {
       logout();
       throw error;
@@ -47,12 +82,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
-  }, []);
+  const logout = useCallback(async () => {
+    try {
+      if (token) {
+        await userApi.logout();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role'); // Add this
+      setToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  }, [token]);
+
+  const refreshProfile = useCallback(async () => {
+    if (token) {
+      try {
+        const userInfo = await userApi.getProfile();
+        setUser(userInfo);
+      } catch (error) {
+        console.error('Failed to refresh profile:', error);
+      }
+    }
+  }, [token]);
 
   return (
     <AuthContext.Provider
@@ -64,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
+        refreshProfile // Add this
       }}
     >
       {children}

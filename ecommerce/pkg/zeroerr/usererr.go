@@ -23,8 +23,9 @@ var (
 	ErrDuplicateUsername = NewCodeError(100003, "用户名已存在")
 	ErrDuplicatePhone    = NewCodeError(100004, "手机号已存在")
 	ErrDuplicateEmail    = NewCodeError(100005, "邮箱已存在")
-	ErrInvalidPassword   = NewCodeError(100006, "密码错误")
-	ErrInvalidToken      = NewCodeError(100007, "无效的Token")
+	ErrAlreadyLoggedIn   = NewCodeError(100006, "用户已登陆")
+	ErrInvalidPassword   = NewCodeError(100007, "密码错误")
+	ErrInvalidToken      = NewCodeError(100008, "无效的Token")
 )
 
 // Registration Errors

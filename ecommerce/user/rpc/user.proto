@@ -9,6 +9,7 @@ service User {
     rpc Register(RegisterRequest) returns (RegisterResponse);
     // 用户登录
     rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
     // 获取用户信息
     rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse);
     rpc GetUserAddresses(GetUserAddressesRequest) returns (GetUserAddressesResponse);
@@ -53,6 +54,14 @@ message LoginResponse {
     string access_token = 1;
     string refresh_token = 2;
     int64 expires_in = 3;
+}
+
+message LogoutRequest {
+    string access_token = 1;
+}
+
+message LogoutResponse {
+    bool success = 1;
 }
 
 // 用户信息

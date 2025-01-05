@@ -32,6 +32,9 @@ service mall-api {
 	middleware: Auth
 )
 service mall-api {
+	@handler Logout
+	post /api/user/logout (LogoutReq) returns (LogoutResp)
+
 	@handler GetProfile
 	get /api/user/profile returns (UserInfo)
 
@@ -81,8 +84,8 @@ service mall-api {
 	@handler GetProductSkus
 	get /api/products/:id/skus (GetProductSkusReq) returns ([]Sku)
 
-	@handler ListCategories
-	get /api/categories returns ([]Category)
+	@handler GetCategories
+	get /api/categories returns (GetCategoriesResp)
 
 	@handler GetProductReviews
 	get /api/products/:id/reviews (ReviewListReq) returns ([]Review)

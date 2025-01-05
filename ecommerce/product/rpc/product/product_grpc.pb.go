@@ -32,6 +32,7 @@ const (
 	ProductService_DeleteCategory_FullMethodName      = "/product.ProductService/DeleteCategory"
 	ProductService_GetCategory_FullMethodName         = "/product.ProductService/GetCategory"
 	ProductService_ListCategories_FullMethodName      = "/product.ProductService/ListCategories"
+	ProductService_GetCategories_FullMethodName       = "/product.ProductService/GetCategories"
 	ProductService_CreateSku_FullMethodName           = "/product.ProductService/CreateSku"
 	ProductService_UpdateSkuStock_FullMethodName      = "/product.ProductService/UpdateSkuStock"
 	ProductService_UpdateSkuPrice_FullMethodName      = "/product.ProductService/UpdateSkuPrice"
@@ -67,6 +68,7 @@ type ProductServiceClient interface {
 	DeleteCategory(ctx context.Context, in *DeleteCategoryRequest, opts ...grpc.CallOption) (*DeleteCategoryResponse, error)
 	GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error)
 	ListCategories(ctx context.Context, in *ListCategoriesRequest, opts ...grpc.CallOption) (*ListCategoriesResponse, error)
+	GetCategories(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
 	// SKU管理
 	CreateSku(ctx context.Context, in *CreateSkuRequest, opts ...grpc.CallOption) (*CreateSkuResponse, error)
 	UpdateSkuStock(ctx context.Context, in *UpdateSkuStockRequest, opts ...grpc.CallOption) (*UpdateSkuStockResponse, error)
@@ -221,6 +223,16 @@ func (c *productServiceClient) ListCategories(ctx context.Context, in *ListCateg
 	return out, nil
 }
 
+func (c *productServiceClient) GetCategories(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCategoriesResponse)
+	err := c.cc.Invoke(ctx, ProductService_GetCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *productServiceClient) CreateSku(ctx context.Context, in *CreateSkuRequest, opts ...grpc.CallOption) (*CreateSkuResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateSkuResponse)
@@ -362,6 +374,7 @@ type ProductServiceServer interface {
 	DeleteCategory(context.Context, *DeleteCategoryRequest) (*DeleteCategoryResponse, error)
 	GetCategory(context.Context, *GetCategoryRequest) (*GetCategoryResponse, error)
 	ListCategories(context.Context, *ListCategoriesRequest) (*ListCategoriesResponse, error)
+	GetCategories(context.Context, *Empty) (*GetCategoriesResponse, error)
 	// SKU管理
 	CreateSku(context.Context, *CreateSkuRequest) (*CreateSkuResponse, error)
 	UpdateSkuStock(context.Context, *UpdateSkuStockRequest) (*UpdateSkuStockResponse, error)
@@ -424,6 +437,9 @@ func (UnimplementedProductServiceServer) GetCategory(context.Context, *GetCatego
 }
 func (UnimplementedProductServiceServer) ListCategories(context.Context, *ListCategoriesRequest) (*ListCategoriesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCategories not implemented")
+}
+func (UnimplementedProductServiceServer) GetCategories(context.Context, *Empty) (*GetCategoriesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
 }
 func (UnimplementedProductServiceServer) CreateSku(context.Context, *CreateSkuRequest) (*CreateSkuResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSku not implemented")
@@ -716,6 +732,24 @@ func _ProductService_ListCategories_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_GetCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetCategories(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProductService_CreateSku_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateSkuRequest)
 	if err := dec(in); err != nil {
@@ -990,6 +1024,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCategories",
 			Handler:    _ProductService_ListCategories_Handler,
+		},
+		{
+			MethodName: "GetCategories",
+			Handler:    _ProductService_GetCategories_Handler,
 		},
 		{
 			MethodName: "CreateSku",

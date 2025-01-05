@@ -691,6 +691,80 @@ func (_c *ProductService_DeleteSku_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// GetCategories provides a mock function with given fields: ctx, in, opts
+func (_m *ProductService) GetCategories(ctx context.Context, in *product.Empty, opts ...grpc.CallOption) (*product.GetCategoriesResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCategories")
+	}
+
+	var r0 *product.GetCategoriesResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *product.Empty, ...grpc.CallOption) (*product.GetCategoriesResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *product.Empty, ...grpc.CallOption) *product.GetCategoriesResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*product.GetCategoriesResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *product.Empty, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProductService_GetCategories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCategories'
+type ProductService_GetCategories_Call struct {
+	*mock.Call
+}
+
+// GetCategories is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *product.Empty
+//   - opts ...grpc.CallOption
+func (_e *ProductService_Expecter) GetCategories(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_GetCategories_Call {
+	return &ProductService_GetCategories_Call{Call: _e.mock.On("GetCategories",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ProductService_GetCategories_Call) Run(run func(ctx context.Context, in *product.Empty, opts ...grpc.CallOption)) *ProductService_GetCategories_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*product.Empty), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ProductService_GetCategories_Call) Return(_a0 *product.GetCategoriesResponse, _a1 error) *ProductService_GetCategories_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProductService_GetCategories_Call) RunAndReturn(run func(context.Context, *product.Empty, ...grpc.CallOption) (*product.GetCategoriesResponse, error)) *ProductService_GetCategories_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetCategory provides a mock function with given fields: ctx, in, opts
 func (_m *ProductService) GetCategory(ctx context.Context, in *product.GetCategoryRequest, opts ...grpc.CallOption) (*product.GetCategoryResponse, error) {
 	_va := make([]interface{}, len(opts))

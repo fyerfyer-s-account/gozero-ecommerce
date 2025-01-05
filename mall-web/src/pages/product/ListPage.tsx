@@ -4,11 +4,11 @@ import ProductList from '@/components/product/ProductList';
 import { Loading } from '@/components/common/Loading';
 
 const ListPage = () => {
-  const { fetchProducts, loading } = useProduct();
+  const { searchProducts, loading } = useProduct();
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    searchProducts();  // Call without params for initial load
+  }, [searchProducts]);
 
   if (loading) return <Loading />;
 

@@ -24,6 +24,8 @@ type ServiceContext struct {
 
 	Redis *redis.Redis
 
+	TokenBlacklist *redis.Redis
+
 	UserRpc    userclient.User
 	ProductRpc productservice.ProductService
 	// CartRpc      cartclient.Cart
@@ -42,10 +44,15 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		r.Pass = c.Redis.Pass
 	})
 
+	blacklistRdb := redis.New(c.Auth.BlacklistRedis.Host, func(r *redis.Redis) {
+		r.Type = c.Auth.BlacklistRedis.Type
+		r.Pass = c.Auth.BlacklistRedis.Pass
+	})
+
 	return &ServiceContext{
 		Config: c,
 		Redis:  rdb,
-
+		TokenBlacklist: blacklistRdb,
 		UserRpc:    userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 		ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
 		AdminAuth:  middleware.NewAdminAuthMiddleware(c).Handle,

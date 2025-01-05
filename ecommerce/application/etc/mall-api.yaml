@@ -12,10 +12,15 @@ Log:
 
 # JWT Authentication
 Auth:
-  AccessSecret: your-jwt-secret-here
+  AccessSecret: your-jwt-secret-here   
   AccessExpire: 7200      # 2 hours
-  RefreshSecret: your-refresh-secret
+  RefreshSecret: your-refresh-secret    
   RefreshExpire: 604800   # 7 days
+  BlacklistRedis:
+    Host: 172.17.0.3:6379
+    Type: node
+    Pass: 
+    Key: token-blacklist
 
 # Admin Authentication
 AdminAuth:

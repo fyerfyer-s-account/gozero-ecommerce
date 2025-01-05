@@ -20,5 +20,12 @@ export const userApi = {
   updateProfile: async (data: UpdateProfileReq): Promise<UserInfo> => {
     const response = await api.put<UserInfo>('/api/user/profile', data);
     return response.data;
+  },
+
+  logout: async (): Promise<boolean> => {
+    const response = await api.post<{success: boolean}>('/api/user/logout', {
+      accessToken: localStorage.getItem('token')
+    });
+    return response.data.success;
   }
 };

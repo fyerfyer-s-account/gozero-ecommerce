@@ -1,4 +1,3 @@
-// filepath: tsconfig.json
 {
     "compilerOptions": {
         "target": "ESNext",
@@ -20,6 +19,10 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
+        "typeRoots": [
+            "node_modules/@types",
+            "src/types"
+        ],
         "baseUrl": ".",
         "paths": {
             "@/*": [
@@ -28,7 +31,8 @@
         }
     },
     "include": [
-        "src"
+        "src/**/*",
+        "src/types/*.d.ts"
     ],
     "references": [
         {

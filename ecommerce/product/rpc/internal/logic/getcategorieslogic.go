@@ -31,10 +31,18 @@ func (l *GetCategoriesLogic) GetCategories(in *product.Empty) (*product.GetCateg
 		return nil, err 
 	}
 
-	var resp []string
+	var resp []*product.Category
 	for _, cat := range cats {
-		resp = append(resp, cat.Name)
+		resp = append(resp, &product.Category{
+			Id: int64(cat.Id),
+			Name: cat.Name,
+			ParentId: cat.ParentId.Int64,
+			Level: cat.Level,
+			Sort: cat.Sort,
+			Icon: cat.Icon.String,
+			CreatedAt: cat.CreatedAt.Unix(),
+		})
 	}
 
-	return &product.GetCategoriesResponse{CategoryNames: resp}, nil
+	return &product.GetCategoriesResponse{Categories: resp}, nil
 }

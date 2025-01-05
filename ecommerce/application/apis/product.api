@@ -161,7 +161,7 @@ type (
     }
 
     GetCategoriesResp {
-        CategoryNames []string `json:"names"`
+        Categories []Category `json:"names"`
     }
 
     SkuAttributeReq {

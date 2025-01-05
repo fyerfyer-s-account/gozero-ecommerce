@@ -195,7 +195,7 @@ message GetCategoryResponse {
 }
 
 message GetCategoriesResponse {
-    repeated string category_names = 1;
+    repeated Category categories = 1;
 }
 
 message ListCategoriesRequest {

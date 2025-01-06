@@ -72,11 +72,6 @@ type ChangePasswordReq struct {
 	NewPassword string `json:"newPassword"`
 }
 
-type ChangeReviewStatusReq struct {
-	Id     int64 `path:"id"`
-	Status int32 `json:"status"`
-}
-
 type CreateCategoryReq struct {
 	Name     string `json:"name"`
 	ParentId int64  `json:"parentId"`
@@ -492,11 +487,6 @@ type UpdateCategoryReq struct {
 	Icon string `json:"icon,optional"`
 }
 
-type UpdateProductPriceReq struct {
-	Id    int64   `path:"id"`
-	Price float64 `json:"price"`
-}
-
 type UpdateProductReq struct {
 	Id          int64    `path:"id"`
 	Name        string   `json:"name,optional"`
@@ -505,11 +495,7 @@ type UpdateProductReq struct {
 	Brand       string   `json:"brand,optional"`
 	Images      []string `json:"images,optional"`
 	Price       float64  `json:"price,optional"`
-}
-
-type UpdateProductStatusReq struct {
-	Id     int64 `path:"id"`
-	Status int32 `json:"status"` // 1:上架 2:下架
+	Status      int64    `json:"status,optional"`
 }
 
 type UpdateProfileReq struct {
@@ -521,20 +507,15 @@ type UpdateProfileReq struct {
 }
 
 type UpdateReviewReq struct {
-	Id      int64    `path:"id"`
-	Rating  int32    `json:"rating,optional"`
-	Content string   `json:"content,optional"`
-	Images  []string `json:"images,optional"`
+	Id     int64 `path:"id"`
+	Status int64 `json:"status"`
 }
 
-type UpdateSkuPriceReq struct {
-	Id    int64   `path:"id"`
-	Price float64 `json:"price"`
-}
-
-type UpdateSkuStockReq struct {
-	Id    int64 `path:"id"`
-	Stock int64 `json:"stock"`
+type UpdateSkuReq struct {
+	Id         int64             `path:"id"`
+	Price      float64           `json:"price"`
+	Stock      int32             `json:"stock"`
+	Attributes map[string]string `json:"attributes"`
 }
 
 type UserInfo struct {

@@ -21,6 +21,7 @@ type (
 		FindOneByProductId(ctx context.Context, productId, userId uint64) (*ProductReviews, error)
 		Count(ctx context.Context, productId uint64) (int64, error)
 		BatchCreate(ctx context.Context, reviews []*ProductReviews) error
+		UpdateStatus(ctx context.Context, id uint64, status int64) error
 		UpdateReviews(ctx context.Context, id uint64, updates map[string]interface{}) error
 	}
 
@@ -75,15 +76,6 @@ func (m *customProductReviewsModel) UpdateStatus(ctx context.Context, id uint64,
 	return err
 }
 
-func (m *customProductReviewsModel) UpdateContent(ctx context.Context, id uint64, rating int64, content, images sql.NullString) error {
-	productReviewKey := fmt.Sprintf("%s%v", cacheMallProductProductReviewsIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `rating` = ?, `content` = ?, `images` = ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, rating, content, images, id)
-	}, productReviewKey)
-
-	return err
-}
 
 func (m *customProductReviewsModel) BatchCreate(ctx context.Context, reviews []*ProductReviews) error {
 	if len(reviews) == 0 {

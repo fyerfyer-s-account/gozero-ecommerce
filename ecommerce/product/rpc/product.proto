@@ -76,7 +76,6 @@ message UpdateProductRequest {
     repeated string images = 6;
     double price = 7;
     int64 status = 8;
-    int64 sales_increment = 9;
 }
 
 message UpdateProductResponse {
@@ -205,10 +204,11 @@ message CreateSkuResponse {
 }
 
 message UpdateSkuRequest {
-    int64 id = 1;
+    int64 id = 1; 
     double price = 2;
     int64 stock_increment = 3;
     int64 sales_increment = 4;
+    repeated SkuAttribute attributes = 5;
 }
 
 message UpdateSkuResponse {
@@ -270,10 +270,7 @@ message CreateReviewResponse {
 
 message UpdateReviewRequest {
     int64 id = 1;
-    int32 rating = 2;
-    string content = 3;
-    repeated string images = 4;
-    int64 status = 5;
+    int64 status = 2;
 }
 
 message UpdateReviewResponse {

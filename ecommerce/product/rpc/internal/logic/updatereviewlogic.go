@@ -2,8 +2,6 @@ package logic
 
 import (
 	"context"
-	"database/sql"
-	"encoding/json"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
@@ -36,27 +34,8 @@ func (l *UpdateReviewLogic) UpdateReview(in *product.UpdateReviewRequest) (*prod
 		return nil, zeroerr.ErrReviewNotFound
 	}
 
-	// Prepare updates
-	updates := make(map[string]interface{})
-	if in.Rating > 0 {
-		updates["rating"] = in.Rating
-	}
-	if in.Content != "" {
-		updates["content"] = sql.NullString{String: in.Content, Valid: true}
-	}
-	if len(in.Images) > 0 {
-		imagesJSON, err := json.Marshal(in.Images)
-		if err != nil {
-			return nil, err
-		}
-		updates["images"] = sql.NullString{String: string(imagesJSON), Valid: true}
-	}
-	if in.Status > 0 {
-		updates["status"] = in.Status
-	}
-
-	// Update review
-	err = l.svcCtx.ProductReviewsModel.UpdateReviews(l.ctx, uint64(in.Id), updates)
+	// Update review Status
+	err = l.svcCtx.ProductReviewsModel.UpdateStatus(l.ctx, uint64(in.Id), in.Status)
 	if err != nil {
 		return nil, err
 	}

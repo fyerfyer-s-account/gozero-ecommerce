@@ -1,204 +1,185 @@
 syntax = "v1"
 
 type (
-    // 商品基础信息
-    Product {
-        Id           int64    `json:"id"`
-        Name         string   `json:"name"`
-        Brief        string   `json:"brief"`
-        Description  string   `json:"description"`
-        CategoryId   int64    `json:"categoryId"`
-        CategoryName string   `json:"categoryName"`
-        Brand        string   `json:"brand"`
-        Images       []string `json:"images"`
-        Price        float64  `json:"price"`
-        Stock        int32    `json:"stock"`
-        Sales        int32    `json:"sales"`
-        Rating       float64  `json:"rating"`
-        Status       int32    `json:"status"`
-        CreatedAt    int64    `json:"createdAt"`
-    }
+	// 商品基础信息
+	Product {
+		Id           int64    `json:"id"`
+		Name         string   `json:"name"`
+		Brief        string   `json:"brief"`
+		Description  string   `json:"description"`
+		CategoryId   int64    `json:"categoryId"`
+		CategoryName string   `json:"categoryName"`
+		Brand        string   `json:"brand"`
+		Images       []string `json:"images"`
+		Price        float64  `json:"price"`
+		Stock        int32    `json:"stock"`
+		Sales        int32    `json:"sales"`
+		Rating       float64  `json:"rating"`
+		Status       int32    `json:"status"`
+		CreatedAt    int64    `json:"createdAt"`
+	}
 
-    GetProductReq {
-        Id int64 `path:"id"`
-    }
+	UpdateProductReq {
+		Id          int64    `path:"id"`
+		Name        string   `json:"name,optional"`
+		Description string   `json:"description,optional"`
+		CategoryId  int64    `json:"categoryId,optional"`
+		Brand       string   `json:"brand,optional"`
+		Images      []string `json:"images,optional"`
+		Price       float64  `json:"price,optional"`
+        Status      int64    `json:"status,optional"`
+	}
 
-    GetProductSkusReq {
-        Id   int64 `path:"id"`
-    }
+	GetProductReq {
+		Id int64 `path:"id"`
+	}
 
-    // SKU信息
-    Sku {
-        Id         int64             `json:"id"`
-        ProductId  int64             `json:"productId"`
-        Name       string            `json:"name"`
-        Code       string            `json:"code"`
-        Price      float64           `json:"price"`
-        Stock      int32             `json:"stock"`
-        Attributes map[string]string `json:"attributes"`
-    }
+	GetProductSkusReq {
+		Id int64 `path:"id"`
+	}
 
-    // 商品分类
-    Category {
-        Id       int64  `json:"id"`
-        Name     string `json:"name"`
-        ParentId int64  `json:"parentId"`
-        Level    int32  `json:"level"`
-        Sort     int32  `json:"sort"`
-        Icon     string `json:"icon,optional"`
-    }
+	// SKU信息
+	Sku {
+		Id         int64             `json:"id"`
+		ProductId  int64             `json:"productId"`
+		Name       string            `json:"name"`
+		Code       string            `json:"code"`
+		Price      float64           `json:"price"`
+		Stock      int32             `json:"stock"`
+		Attributes map[string]string `json:"attributes"`
+	}
 
-    // 搜索相关
-    SearchReq {
-        Keyword     string   `form:"keyword,optional"`
-        CategoryId  int64    `form:"categoryId,optional"`
-        BrandId     int64    `form:"brandId,optional"`
-        PriceMin    float64  `form:"priceMin,optional"`
-        PriceMax    float64  `form:"priceMax,optional"`
-        Attributes  []string `form:"attributes,optional"`
-        Sort        string   `form:"sort,optional"`      // price,sales,rating
-        Order       string   `form:"order,optional"`     // asc,desc
-        Page        int32    `form:"page,optional,default=1"`
-    }
+	UpdateSkuReq {
+		Id         int64             `path:"id"`
+		Price      float64           `json:"price"`
+		Stock      int32             `json:"stock"`
+		Attributes map[string]string `json:"attributes"`
+	}
 
-    SearchResp {
-        List        []Product `json:"list"`
-        Total       int64     `json:"total"`
-        Page        int32     `json:"page"`
-        TotalPages  int32     `json:"totalPages"`
-    }
+	// 商品分类
+	Category {
+		Id       int64  `json:"id"`
+		Name     string `json:"name"`
+		ParentId int64  `json:"parentId"`
+		Level    int32  `json:"level"`
+		Sort     int32  `json:"sort"`
+		Icon     string `json:"icon,optional"`
+	}
 
-    UpdateProductStatusReq {
-        Id     int64 `path:"id"`
-        Status int32 `json:"status"` // 1:上架 2:下架
-    }
-    
-    UpdateSkuStockReq {
-        Id    int64 `path:"id"`
-        Stock int64 `json:"stock"`
-    }
+	// 搜索相关
+	SearchReq {
+		Keyword    string   `form:"keyword,optional"`
+		CategoryId int64    `form:"categoryId,optional"`
+		BrandId    int64    `form:"brandId,optional"`
+		PriceMin   float64  `form:"priceMin,optional"`
+		PriceMax   float64  `form:"priceMax,optional"`
+		Attributes []string `form:"attributes,optional"`
+		Sort       string   `form:"sort,optional"`  // price,sales,rating
+		Order      string   `form:"order,optional"` // asc,desc
+		Page       int32    `form:"page,optional,default=1"`
+	}
 
-    // 商品评价
-    Review {
-        Id         int64    `json:"id"`
-        ProductId  int64    `json:"productId"`
-        OrderId    int64    `json:"orderId"`
-        UserId     int64    `json:"userId"`
-        UserName   string   `json:"userName"`
-        Rating     int32    `json:"rating"`
-        Content    string   `json:"content"`
-        Images     []string `json:"images,optional"`
-        CreatedAt  int64    `json:"createdAt"`
-    }
+	SearchResp {
+		List       []Product `json:"list"`
+		Total      int64     `json:"total"`
+		Page       int32     `json:"page"`
+		TotalPages int32     `json:"totalPages"`
+	}
 
-    CreateReviewReq {
-        ProductId  int64    `json:"productId"`
-        OrderId    int64    `json:"orderId"`
-        Rating     int32    `json:"rating"`
-        Content    string   `json:"content"`
-        Images     []string `json:"images,optional"`
-    }
+	// 商品评价
+	Review {
+		Id        int64    `json:"id"`
+		ProductId int64    `json:"productId"`
+		OrderId   int64    `json:"orderId"`
+		UserId    int64    `json:"userId"`
+		UserName  string   `json:"userName"`
+		Rating    int32    `json:"rating"`
+		Content   string   `json:"content"`
+		Images    []string `json:"images,optional"`
+		CreatedAt int64    `json:"createdAt"`
+	}
 
-    ReviewListReq {
-        ProductId  int64 `form:"productId"`
-        Rating     int32 `form:"rating,optional"`
-        Page       int32 `form:"page,optional,default=1"`
-    }
+	CreateReviewReq {
+		ProductId int64    `json:"productId"`
+		OrderId   int64    `json:"orderId"`
+		Rating    int32    `json:"rating"`
+		Content   string   `json:"content"`
+		Images    []string `json:"images,optional"`
+	}
 
-    CreateProductReq {
-        Name        string   `json:"name"`
-        Description string   `json:"description"`
-        CategoryId  int64    `json:"categoryId"`
-        Brand       string   `json:"brand"`
-        Images      []string `json:"images"`
-        Price       float64  `json:"price"`
-        Attributes  []SkuAttributeReq `json:"skuAttributes"`
-    }
+	ReviewListReq {
+		ProductId int64 `form:"productId"`
+		Rating    int32 `form:"rating,optional"`
+		Page      int32 `form:"page,optional,default=1"`
+	}
 
-    CreateProductResp {
-        Id int64 `json:"id"`
-    }
+	CreateProductReq {
+		Name        string            `json:"name"`
+		Description string            `json:"description"`
+		CategoryId  int64             `json:"categoryId"`
+		Brand       string            `json:"brand"`
+		Images      []string          `json:"images"`
+		Price       float64           `json:"price"`
+		Attributes  []SkuAttributeReq `json:"skuAttributes"`
+	}
 
-    UpdateProductReq {
-        Id          int64    `path:"id"`
-        Name        string   `json:"name,optional"`
-        Description string   `json:"description,optional"`
-        CategoryId  int64    `json:"categoryId,optional"`
-        Brand       string   `json:"brand,optional"`
-        Images      []string `json:"images,optional"`
-        Price       float64  `json:"price,optional"`
-    }
+	CreateProductResp {
+		Id int64 `json:"id"`
+	}
 
-    UpdateProductPriceReq {
-        Id    int64   `path:"id"`
-        Price float64 `json:"price"`
-    }
+	DeleteProductReq {
+		Id int64 `path:"id"`
+	}
 
-    DeleteProductReq {
-        Id int64 `path:"id"`
-    }
+	CreateCategoryReq {
+		Name     string `json:"name"`
+		ParentId int64  `json:"parentId"`
+		Sort     int32  `json:"sort"`
+		Icon     string `json:"icon,optional"`
+	}
 
-    CreateCategoryReq {
-        Name     string `json:"name"`
-        ParentId int64  `json:"parentId"`
-        Sort     int32  `json:"sort"`
-        Icon     string `json:"icon,optional"`
-    }
+	CreateCategoryResp {
+		Id int64 `json:"id"`
+	}
 
-    CreateCategoryResp {
-        Id int64 `json:"id"`
-    }
+	UpdateCategoryReq {
+		Id   int64  `path:"id"`
+		Name string `json:"name,optional"`
+		Sort int32  `json:"sort,optional"`
+		Icon string `json:"icon,optional"`
+	}
 
-    UpdateCategoryReq {
-        Id   int64  `path:"id"`
-        Name string `json:"name,optional"`
-        Sort int32  `json:"sort,optional"`
-        Icon string `json:"icon,optional"`
-    }
+	DeleteCategoryReq {
+		Id int64 `json:"id"`
+	}
 
-    DeleteCategoryReq {
-        Id int64 `json:"id"`
-    }
+	GetCategoriesResp {
+		Categories []Category `json:"categories"`
+	}
 
-    GetCategoriesResp {
-        Categories []Category `json:"categories"`
-    }
+	SkuAttributeReq {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
 
-    SkuAttributeReq {
-        Key   string `json:"key"`
-        Value string `json:"value"`
-    }
+	CreateSkuReq {
+		ProductId  int64             `path:"productId"`
+		SkuCode    string            `json:"skuCode"`
+		Price      float64           `json:"price"`
+		Stock      int64             `json:"stock"`
+		Attributes []SkuAttributeReq `json:"attributes"`
+	}
 
-    CreateSkuReq {
-        ProductId  int64            `path:"productId"`
-        SkuCode   string           `json:"skuCode"`
-        Price     float64          `json:"price"`
-        Stock     int64            `json:"stock"`
-        Attributes []SkuAttributeReq `json:"attributes"`
-    }
+	CreateSkuResp {
+		Id int64 `json:"id"`
+	}
 
-    CreateSkuResp {
-        Id int64 `json:"id"`
-    }
+	DeleteReviewReq {
+		Id int64 `json:"id"`
+	}
 
-    UpdateSkuPriceReq {
-        Id    int64   `path:"id"`
-        Price float64 `json:"price"`
-    }
-
-    ChangeReviewStatusReq {
-        Id     int64 `path:"id"`
-        Status int32 `json:"status"`
-    }
-
-    DeleteReviewReq {
-        Id int64 `json:"id"`
-    }
-
-    UpdateReviewReq {
-        Id      int64    `path:"id"`
-        Rating  int32    `json:"rating,optional"`
-        Content string   `json:"content,optional"`
-        Images  []string `json:"images,optional"`
-    }
+	UpdateReviewReq {
+		Id     int64 `path:"id"`
+		Status int64 `json:"status"`
+	}
 )

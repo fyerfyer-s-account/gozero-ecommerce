@@ -172,11 +172,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: product.GetProductSkusHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPut,
-				Path:    "/api/products/reviews/:id",
-				Handler: product.UpdateReviewHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodGet,
 				Path:    "/api/products/search",
 				Handler: product.SearchProductsHandler(serverCtx),
@@ -224,9 +219,19 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: product.CreateSkuHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPut,
+					Path:    "/api/admin/products/skus/:id",
+					Handler: product.UpdateSkuHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodDelete,
 					Path:    "/api/admin/reviews/:id",
 					Handler: product.DeleteReviewHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/products/reviews/:id",
+					Handler: product.UpdateReviewHandler(serverCtx),
 				},
 			}...,
 		),

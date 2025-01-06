@@ -89,9 +89,6 @@ service mall-api {
 
 	@handler GetProductReviews
 	get /api/products/:id/reviews (ReviewListReq) returns ([]Review)
-
-	@handler UpdateReview
-	put /api/products/reviews/:id (UpdateReviewReq)
 }
 
 @server (
@@ -121,8 +118,14 @@ service mall-api {
 	@handler CreateSku
 	post /api/admin/products/:productId/skus (CreateSkuReq) returns (CreateSkuResp)
 
+	@handler UpdateSku
+	put /api/admin/products/skus/:id (UpdateSkuReq)
+
 	@handler DeleteReview
 	delete /api/admin/reviews/:id (DeleteReviewReq)
+
+	@handler UpdateReview
+	put /api/products/reviews/:id (UpdateReviewReq)
 }
 
 @server (

@@ -9,21 +9,21 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type UpdateReviewLogic struct {
+type UpdateSkuLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewUpdateReviewLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UpdateReviewLogic {
-	return &UpdateReviewLogic{
+func NewUpdateSkuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UpdateSkuLogic {
+	return &UpdateSkuLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *UpdateReviewLogic) UpdateReview(req *types.UpdateReviewReq) error {
+func (l *UpdateSkuLogic) UpdateSku(req *types.UpdateSkuReq) error {
 	// todo: add your logic here and delete this line
 
 	return nil

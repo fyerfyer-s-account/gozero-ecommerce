@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
@@ -69,9 +68,6 @@ func (l *UpdateProductLogic) UpdateProduct(in *product.UpdateProductRequest) (*p
 	}
 	if in.Status > 0 {
 		updates["status"] = in.Status
-	}
-	if in.SalesIncrement != 0 {
-		updates["sales"] = fmt.Sprintf("sales + %d", in.SalesIncrement)
 	}
 
 	// Update product

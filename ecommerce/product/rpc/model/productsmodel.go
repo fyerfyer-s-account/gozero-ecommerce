@@ -19,9 +19,6 @@ type (
 		SearchByKeyword(ctx context.Context, keyword string, page, pageSize int) ([]*Products, error)
 		GeneralSearch(ctx context.Context, page, pageSize int) ([]*Products, error)
 		Count(ctx context.Context, categoryId uint64, keyword string) (int64, error)
-		UpdateStatus(ctx context.Context, id uint64, status int64) error
-		UpdateSales(ctx context.Context, id uint64, increment int64) error
-		UpdatePrice(ctx context.Context, id uint64, price float64) error
 		UpdatePartial(ctx context.Context, id uint64, updates map[string]interface{}) error
 	}
 
@@ -118,54 +115,31 @@ func (m *customProductsModel) Count(ctx context.Context, categoryId uint64, keyw
 	return count, err
 }
 
-func (m *customProductsModel) UpdateStatus(ctx context.Context, id uint64, status int64) error {
-	mallProductProductsIdKey := fmt.Sprintf("%s%v", cacheMallProductProductsIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `status` = ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, status, id)
-	}, mallProductProductsIdKey)
-
-	return err
-}
-
-func (m *customProductsModel) UpdateSales(ctx context.Context, id uint64, increment int64) error {
-	mallProductProductsIdKey := fmt.Sprintf("%s%v", cacheMallProductProductsIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `sales` = `sales` + ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, increment, id)
-	}, mallProductProductsIdKey)
-
-	return err
-}
-
-func (m *customProductsModel) UpdatePrice(ctx context.Context, id uint64, price float64) error {
-	mallProductProductsIdKey := fmt.Sprintf("%s%v", cacheMallProductProductsIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `price` = ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, price, id)
-	}, mallProductProductsIdKey)
-
-	return err
-}
-
 func (m *customProductsModel) UpdatePartial(ctx context.Context, id uint64, updates map[string]interface{}) error {
-	if len(updates) == 0 {
-		return nil
-	}
+    if len(updates) == 0 {
+        return nil
+    }
 
-	var sets []string
-	var args []interface{}
-	for k, v := range updates {
-		sets = append(sets, fmt.Sprintf("`%s` = ?", k))
-		args = append(args, v)
-	}
-	args = append(args, id)
+    var sets []string
+    var args []interface{}
+    for k, v := range updates {
+        // Special handling for sales increment
+        if k == "sales" && strings.Contains(v.(string), "sales + ") {
+            sets = append(sets, "`sales` = sales + ?")
+            increment := strings.TrimPrefix(v.(string), "sales + ")
+            args = append(args, increment)
+        } else {
+            sets = append(sets, fmt.Sprintf("`%s` = ?", k))
+            args = append(args, v)
+        }
+    }
+    args = append(args, id)
 
-	mallProductProductsIdKey := fmt.Sprintf("%s%v", cacheMallProductProductsIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, strings.Join(sets, ", "))
-		return conn.ExecCtx(ctx, query, args...)
-	}, mallProductProductsIdKey)
+    mallProductProductsIdKey := fmt.Sprintf("%s%v", cacheMallProductProductsIdPrefix, id)
+    _, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+        query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, strings.Join(sets, ", "))
+        return conn.ExecCtx(ctx, query, args...)
+    }, mallProductProductsIdKey)
 
-	return err
+    return err
 }

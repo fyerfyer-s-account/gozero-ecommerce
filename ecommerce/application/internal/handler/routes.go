@@ -219,39 +219,14 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: product.DeleteProductHandler(serverCtx),
 				},
 				{
-					Method:  http.MethodPut,
-					Path:    "/api/admin/products/:id/price",
-					Handler: product.UpdateProductPriceHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPut,
-					Path:    "/api/admin/products/:id/status",
-					Handler: product.UpdateProductStatusHandler(serverCtx),
-				},
-				{
 					Method:  http.MethodPost,
 					Path:    "/api/admin/products/:productId/skus",
 					Handler: product.CreateSkuHandler(serverCtx),
 				},
 				{
-					Method:  http.MethodPut,
-					Path:    "/api/admin/products/skus/:id/price",
-					Handler: product.UpdateSkuPriceHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPut,
-					Path:    "/api/admin/products/skus/:id/stock",
-					Handler: product.UpdateSkuStockHandler(serverCtx),
-				},
-				{
 					Method:  http.MethodDelete,
 					Path:    "/api/admin/reviews/:id",
 					Handler: product.DeleteReviewHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPut,
-					Path:    "/api/admin/reviews/:id/status",
-					Handler: product.ChangeReviewStatusHandler(serverCtx),
 				},
 			}...,
 		),

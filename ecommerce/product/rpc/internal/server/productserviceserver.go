@@ -23,7 +23,7 @@ func NewProductServiceServer(svcCtx *svc.ServiceContext) *ProductServiceServer {
 	}
 }
 
-// 商品管理
+// Product Management
 func (s *ProductServiceServer) CreateProduct(ctx context.Context, in *product.CreateProductRequest) (*product.CreateProductResponse, error) {
 	l := logic.NewCreateProductLogic(ctx, s.svcCtx)
 	return l.CreateProduct(in)
@@ -32,21 +32,6 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, in *product.Cr
 func (s *ProductServiceServer) UpdateProduct(ctx context.Context, in *product.UpdateProductRequest) (*product.UpdateProductResponse, error) {
 	l := logic.NewUpdateProductLogic(ctx, s.svcCtx)
 	return l.UpdateProduct(in)
-}
-
-func (s *ProductServiceServer) UpdateProductStatus(ctx context.Context, in *product.UpdateProductStatusRequest) (*product.UpdateProductStatusResponse, error) {
-	l := logic.NewUpdateProductStatusLogic(ctx, s.svcCtx)
-	return l.UpdateProductStatus(in)
-}
-
-func (s *ProductServiceServer) UpdateProductSales(ctx context.Context, in *product.UpdateProductSalesRequest) (*product.UpdateProductSalesResponse, error) {
-	l := logic.NewUpdateProductSalesLogic(ctx, s.svcCtx)
-	return l.UpdateProductSales(in)
-}
-
-func (s *ProductServiceServer) UpdateProductPrice(ctx context.Context, in *product.UpdateProductPriceRequest) (*product.UpdateProductPriceResponse, error) {
-	l := logic.NewUpdateProductPriceLogic(ctx, s.svcCtx)
-	return l.UpdateProductPrice(in)
 }
 
 func (s *ProductServiceServer) GetProduct(ctx context.Context, in *product.GetProductRequest) (*product.GetProductResponse, error) {
@@ -64,7 +49,7 @@ func (s *ProductServiceServer) DeleteProduct(ctx context.Context, in *product.De
 	return l.DeleteProduct(in)
 }
 
-// 分类管理
+// Category Management
 func (s *ProductServiceServer) CreateCategory(ctx context.Context, in *product.CreateCategoryRequest) (*product.CreateCategoryResponse, error) {
 	l := logic.NewCreateCategoryLogic(ctx, s.svcCtx)
 	return l.CreateCategory(in)
@@ -95,30 +80,15 @@ func (s *ProductServiceServer) GetCategories(ctx context.Context, in *product.Em
 	return l.GetCategories(in)
 }
 
-// SKU管理
+// SKU Management
 func (s *ProductServiceServer) CreateSku(ctx context.Context, in *product.CreateSkuRequest) (*product.CreateSkuResponse, error) {
 	l := logic.NewCreateSkuLogic(ctx, s.svcCtx)
 	return l.CreateSku(in)
 }
 
-func (s *ProductServiceServer) UpdateSkuStock(ctx context.Context, in *product.UpdateSkuStockRequest) (*product.UpdateSkuStockResponse, error) {
-	l := logic.NewUpdateSkuStockLogic(ctx, s.svcCtx)
-	return l.UpdateSkuStock(in)
-}
-
-func (s *ProductServiceServer) UpdateSkuPrice(ctx context.Context, in *product.UpdateSkuPriceRequest) (*product.UpdateSkuPriceResponse, error) {
-	l := logic.NewUpdateSkuPriceLogic(ctx, s.svcCtx)
-	return l.UpdateSkuPrice(in)
-}
-
-func (s *ProductServiceServer) UpdateSkuSales(ctx context.Context, in *product.UpdateSkuSalesRequest) (*product.UpdateSkuSalesResponse, error) {
-	l := logic.NewUpdateSkuSalesLogic(ctx, s.svcCtx)
-	return l.UpdateSkuSales(in)
-}
-
-func (s *ProductServiceServer) DeleteSku(ctx context.Context, in *product.DeleteSkuRequest) (*product.DeleteSkuResponse, error) {
-	l := logic.NewDeleteSkuLogic(ctx, s.svcCtx)
-	return l.DeleteSku(in)
+func (s *ProductServiceServer) UpdateSku(ctx context.Context, in *product.UpdateSkuRequest) (*product.UpdateSkuResponse, error) {
+	l := logic.NewUpdateSkuLogic(ctx, s.svcCtx)
+	return l.UpdateSku(in)
 }
 
 func (s *ProductServiceServer) GetSku(ctx context.Context, in *product.GetSkuRequest) (*product.GetSkuResponse, error) {
@@ -131,7 +101,12 @@ func (s *ProductServiceServer) ListSkus(ctx context.Context, in *product.ListSku
 	return l.ListSkus(in)
 }
 
-// 评价管理
+func (s *ProductServiceServer) DeleteSku(ctx context.Context, in *product.DeleteSkuRequest) (*product.DeleteSkuResponse, error) {
+	l := logic.NewDeleteSkuLogic(ctx, s.svcCtx)
+	return l.DeleteSku(in)
+}
+
+// Review Management
 func (s *ProductServiceServer) CreateReview(ctx context.Context, in *product.CreateReviewRequest) (*product.CreateReviewResponse, error) {
 	l := logic.NewCreateReviewLogic(ctx, s.svcCtx)
 	return l.CreateReview(in)
@@ -140,11 +115,6 @@ func (s *ProductServiceServer) CreateReview(ctx context.Context, in *product.Cre
 func (s *ProductServiceServer) UpdateReview(ctx context.Context, in *product.UpdateReviewRequest) (*product.UpdateReviewResponse, error) {
 	l := logic.NewUpdateReviewLogic(ctx, s.svcCtx)
 	return l.UpdateReview(in)
-}
-
-func (s *ProductServiceServer) ChangeReviewStatus(ctx context.Context, in *product.ChangeReviewStatusRequest) (*product.ChangeReviewStatusResponse, error) {
-	l := logic.NewChangeReviewStatusLogic(ctx, s.svcCtx)
-	return l.ChangeReviewStatus(in)
 }
 
 func (s *ProductServiceServer) DeleteReview(ctx context.Context, in *product.DeleteReviewRequest) (*product.DeleteReviewResponse, error) {

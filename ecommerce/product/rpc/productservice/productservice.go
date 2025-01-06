@@ -14,93 +14,75 @@ import (
 )
 
 type (
-	Category                    = product.Category
-	ChangeReviewStatusRequest   = product.ChangeReviewStatusRequest
-	ChangeReviewStatusResponse  = product.ChangeReviewStatusResponse
-	CreateCategoryRequest       = product.CreateCategoryRequest
-	CreateCategoryResponse      = product.CreateCategoryResponse
-	CreateProductRequest        = product.CreateProductRequest
-	CreateProductResponse       = product.CreateProductResponse
-	CreateReviewRequest         = product.CreateReviewRequest
-	CreateReviewResponse        = product.CreateReviewResponse
-	CreateSkuRequest            = product.CreateSkuRequest
-	CreateSkuResponse           = product.CreateSkuResponse
-	DeleteCategoryRequest       = product.DeleteCategoryRequest
-	DeleteCategoryResponse      = product.DeleteCategoryResponse
-	DeleteProductRequest        = product.DeleteProductRequest
-	DeleteProductResponse       = product.DeleteProductResponse
-	DeleteReviewRequest         = product.DeleteReviewRequest
-	DeleteReviewResponse        = product.DeleteReviewResponse
-	DeleteSkuRequest            = product.DeleteSkuRequest
-	DeleteSkuResponse           = product.DeleteSkuResponse
-	Empty                       = product.Empty
-	GetCategoriesResponse       = product.GetCategoriesResponse
-	GetCategoryRequest          = product.GetCategoryRequest
-	GetCategoryResponse         = product.GetCategoryResponse
-	GetProductRequest           = product.GetProductRequest
-	GetProductResponse          = product.GetProductResponse
-	GetSkuRequest               = product.GetSkuRequest
-	GetSkuResponse              = product.GetSkuResponse
-	ListCategoriesRequest       = product.ListCategoriesRequest
-	ListCategoriesResponse      = product.ListCategoriesResponse
-	ListProductsRequest         = product.ListProductsRequest
-	ListProductsResponse        = product.ListProductsResponse
-	ListReviewsRequest          = product.ListReviewsRequest
-	ListReviewsResponse         = product.ListReviewsResponse
-	ListSkusRequest             = product.ListSkusRequest
-	ListSkusResponse            = product.ListSkusResponse
-	Product                     = product.Product
-	Review                      = product.Review
-	Sku                         = product.Sku
-	SkuAttribute                = product.SkuAttribute
-	UpdateCategoryRequest       = product.UpdateCategoryRequest
-	UpdateCategoryResponse      = product.UpdateCategoryResponse
-	UpdateProductPriceRequest   = product.UpdateProductPriceRequest
-	UpdateProductPriceResponse  = product.UpdateProductPriceResponse
-	UpdateProductRequest        = product.UpdateProductRequest
-	UpdateProductResponse       = product.UpdateProductResponse
-	UpdateProductSalesRequest   = product.UpdateProductSalesRequest
-	UpdateProductSalesResponse  = product.UpdateProductSalesResponse
-	UpdateProductStatusRequest  = product.UpdateProductStatusRequest
-	UpdateProductStatusResponse = product.UpdateProductStatusResponse
-	UpdateReviewRequest         = product.UpdateReviewRequest
-	UpdateReviewResponse        = product.UpdateReviewResponse
-	UpdateSkuPriceRequest       = product.UpdateSkuPriceRequest
-	UpdateSkuPriceResponse      = product.UpdateSkuPriceResponse
-	UpdateSkuSalesRequest       = product.UpdateSkuSalesRequest
-	UpdateSkuSalesResponse      = product.UpdateSkuSalesResponse
-	UpdateSkuStockRequest       = product.UpdateSkuStockRequest
-	UpdateSkuStockResponse      = product.UpdateSkuStockResponse
+	Category               = product.Category
+	CreateCategoryRequest  = product.CreateCategoryRequest
+	CreateCategoryResponse = product.CreateCategoryResponse
+	CreateProductRequest   = product.CreateProductRequest
+	CreateProductResponse  = product.CreateProductResponse
+	CreateReviewRequest    = product.CreateReviewRequest
+	CreateReviewResponse   = product.CreateReviewResponse
+	CreateSkuRequest       = product.CreateSkuRequest
+	CreateSkuResponse      = product.CreateSkuResponse
+	DeleteCategoryRequest  = product.DeleteCategoryRequest
+	DeleteCategoryResponse = product.DeleteCategoryResponse
+	DeleteProductRequest   = product.DeleteProductRequest
+	DeleteProductResponse  = product.DeleteProductResponse
+	DeleteReviewRequest    = product.DeleteReviewRequest
+	DeleteReviewResponse   = product.DeleteReviewResponse
+	DeleteSkuRequest       = product.DeleteSkuRequest
+	DeleteSkuResponse      = product.DeleteSkuResponse
+	Empty                  = product.Empty
+	GetCategoriesResponse  = product.GetCategoriesResponse
+	GetCategoryRequest     = product.GetCategoryRequest
+	GetCategoryResponse    = product.GetCategoryResponse
+	GetProductRequest      = product.GetProductRequest
+	GetProductResponse     = product.GetProductResponse
+	GetSkuRequest          = product.GetSkuRequest
+	GetSkuResponse         = product.GetSkuResponse
+	ListCategoriesRequest  = product.ListCategoriesRequest
+	ListCategoriesResponse = product.ListCategoriesResponse
+	ListProductsRequest    = product.ListProductsRequest
+	ListProductsResponse   = product.ListProductsResponse
+	ListReviewsRequest     = product.ListReviewsRequest
+	ListReviewsResponse    = product.ListReviewsResponse
+	ListSkusRequest        = product.ListSkusRequest
+	ListSkusResponse       = product.ListSkusResponse
+	Product                = product.Product
+	Review                 = product.Review
+	Sku                    = product.Sku
+	SkuAttribute           = product.SkuAttribute
+	UpdateCategoryRequest  = product.UpdateCategoryRequest
+	UpdateCategoryResponse = product.UpdateCategoryResponse
+	UpdateProductRequest   = product.UpdateProductRequest
+	UpdateProductResponse  = product.UpdateProductResponse
+	UpdateReviewRequest    = product.UpdateReviewRequest
+	UpdateReviewResponse   = product.UpdateReviewResponse
+	UpdateSkuRequest       = product.UpdateSkuRequest
+	UpdateSkuResponse      = product.UpdateSkuResponse
 
 	ProductService interface {
-		// 商品管理
+		// Product Management
 		CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error)
 		UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*UpdateProductResponse, error)
-		UpdateProductStatus(ctx context.Context, in *UpdateProductStatusRequest, opts ...grpc.CallOption) (*UpdateProductStatusResponse, error)
-		UpdateProductSales(ctx context.Context, in *UpdateProductSalesRequest, opts ...grpc.CallOption) (*UpdateProductSalesResponse, error)
-		UpdateProductPrice(ctx context.Context, in *UpdateProductPriceRequest, opts ...grpc.CallOption) (*UpdateProductPriceResponse, error)
 		GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error)
 		ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
 		DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
-		// 分类管理
+		// Category Management
 		CreateCategory(ctx context.Context, in *CreateCategoryRequest, opts ...grpc.CallOption) (*CreateCategoryResponse, error)
 		UpdateCategory(ctx context.Context, in *UpdateCategoryRequest, opts ...grpc.CallOption) (*UpdateCategoryResponse, error)
 		DeleteCategory(ctx context.Context, in *DeleteCategoryRequest, opts ...grpc.CallOption) (*DeleteCategoryResponse, error)
 		GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error)
 		ListCategories(ctx context.Context, in *ListCategoriesRequest, opts ...grpc.CallOption) (*ListCategoriesResponse, error)
 		GetCategories(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
-		// SKU管理
+		// SKU Management
 		CreateSku(ctx context.Context, in *CreateSkuRequest, opts ...grpc.CallOption) (*CreateSkuResponse, error)
-		UpdateSkuStock(ctx context.Context, in *UpdateSkuStockRequest, opts ...grpc.CallOption) (*UpdateSkuStockResponse, error)
-		UpdateSkuPrice(ctx context.Context, in *UpdateSkuPriceRequest, opts ...grpc.CallOption) (*UpdateSkuPriceResponse, error)
-		UpdateSkuSales(ctx context.Context, in *UpdateSkuSalesRequest, opts ...grpc.CallOption) (*UpdateSkuSalesResponse, error)
-		DeleteSku(ctx context.Context, in *DeleteSkuRequest, opts ...grpc.CallOption) (*DeleteSkuResponse, error)
+		UpdateSku(ctx context.Context, in *UpdateSkuRequest, opts ...grpc.CallOption) (*UpdateSkuResponse, error)
 		GetSku(ctx context.Context, in *GetSkuRequest, opts ...grpc.CallOption) (*GetSkuResponse, error)
 		ListSkus(ctx context.Context, in *ListSkusRequest, opts ...grpc.CallOption) (*ListSkusResponse, error)
-		// 评价管理
+		DeleteSku(ctx context.Context, in *DeleteSkuRequest, opts ...grpc.CallOption) (*DeleteSkuResponse, error)
+		// Review Management
 		CreateReview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewResponse, error)
 		UpdateReview(ctx context.Context, in *UpdateReviewRequest, opts ...grpc.CallOption) (*UpdateReviewResponse, error)
-		ChangeReviewStatus(ctx context.Context, in *ChangeReviewStatusRequest, opts ...grpc.CallOption) (*ChangeReviewStatusResponse, error)
 		DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*DeleteReviewResponse, error)
 		ListReviews(ctx context.Context, in *ListReviewsRequest, opts ...grpc.CallOption) (*ListReviewsResponse, error)
 	}
@@ -116,7 +98,7 @@ func NewProductService(cli zrpc.Client) ProductService {
 	}
 }
 
-// 商品管理
+// Product Management
 func (m *defaultProductService) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.CreateProduct(ctx, in, opts...)
@@ -125,21 +107,6 @@ func (m *defaultProductService) CreateProduct(ctx context.Context, in *CreatePro
 func (m *defaultProductService) UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*UpdateProductResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.UpdateProduct(ctx, in, opts...)
-}
-
-func (m *defaultProductService) UpdateProductStatus(ctx context.Context, in *UpdateProductStatusRequest, opts ...grpc.CallOption) (*UpdateProductStatusResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.UpdateProductStatus(ctx, in, opts...)
-}
-
-func (m *defaultProductService) UpdateProductSales(ctx context.Context, in *UpdateProductSalesRequest, opts ...grpc.CallOption) (*UpdateProductSalesResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.UpdateProductSales(ctx, in, opts...)
-}
-
-func (m *defaultProductService) UpdateProductPrice(ctx context.Context, in *UpdateProductPriceRequest, opts ...grpc.CallOption) (*UpdateProductPriceResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.UpdateProductPrice(ctx, in, opts...)
 }
 
 func (m *defaultProductService) GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error) {
@@ -157,7 +124,7 @@ func (m *defaultProductService) DeleteProduct(ctx context.Context, in *DeletePro
 	return client.DeleteProduct(ctx, in, opts...)
 }
 
-// 分类管理
+// Category Management
 func (m *defaultProductService) CreateCategory(ctx context.Context, in *CreateCategoryRequest, opts ...grpc.CallOption) (*CreateCategoryResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.CreateCategory(ctx, in, opts...)
@@ -188,30 +155,15 @@ func (m *defaultProductService) GetCategories(ctx context.Context, in *Empty, op
 	return client.GetCategories(ctx, in, opts...)
 }
 
-// SKU管理
+// SKU Management
 func (m *defaultProductService) CreateSku(ctx context.Context, in *CreateSkuRequest, opts ...grpc.CallOption) (*CreateSkuResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.CreateSku(ctx, in, opts...)
 }
 
-func (m *defaultProductService) UpdateSkuStock(ctx context.Context, in *UpdateSkuStockRequest, opts ...grpc.CallOption) (*UpdateSkuStockResponse, error) {
+func (m *defaultProductService) UpdateSku(ctx context.Context, in *UpdateSkuRequest, opts ...grpc.CallOption) (*UpdateSkuResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.UpdateSkuStock(ctx, in, opts...)
-}
-
-func (m *defaultProductService) UpdateSkuPrice(ctx context.Context, in *UpdateSkuPriceRequest, opts ...grpc.CallOption) (*UpdateSkuPriceResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.UpdateSkuPrice(ctx, in, opts...)
-}
-
-func (m *defaultProductService) UpdateSkuSales(ctx context.Context, in *UpdateSkuSalesRequest, opts ...grpc.CallOption) (*UpdateSkuSalesResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.UpdateSkuSales(ctx, in, opts...)
-}
-
-func (m *defaultProductService) DeleteSku(ctx context.Context, in *DeleteSkuRequest, opts ...grpc.CallOption) (*DeleteSkuResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.DeleteSku(ctx, in, opts...)
+	return client.UpdateSku(ctx, in, opts...)
 }
 
 func (m *defaultProductService) GetSku(ctx context.Context, in *GetSkuRequest, opts ...grpc.CallOption) (*GetSkuResponse, error) {
@@ -224,7 +176,12 @@ func (m *defaultProductService) ListSkus(ctx context.Context, in *ListSkusReques
 	return client.ListSkus(ctx, in, opts...)
 }
 
-// 评价管理
+func (m *defaultProductService) DeleteSku(ctx context.Context, in *DeleteSkuRequest, opts ...grpc.CallOption) (*DeleteSkuResponse, error) {
+	client := product.NewProductServiceClient(m.cli.Conn())
+	return client.DeleteSku(ctx, in, opts...)
+}
+
+// Review Management
 func (m *defaultProductService) CreateReview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.CreateReview(ctx, in, opts...)
@@ -233,11 +190,6 @@ func (m *defaultProductService) CreateReview(ctx context.Context, in *CreateRevi
 func (m *defaultProductService) UpdateReview(ctx context.Context, in *UpdateReviewRequest, opts ...grpc.CallOption) (*UpdateReviewResponse, error) {
 	client := product.NewProductServiceClient(m.cli.Conn())
 	return client.UpdateReview(ctx, in, opts...)
-}
-
-func (m *defaultProductService) ChangeReviewStatus(ctx context.Context, in *ChangeReviewStatusRequest, opts ...grpc.CallOption) (*ChangeReviewStatusResponse, error) {
-	client := product.NewProductServiceClient(m.cli.Conn())
-	return client.ChangeReviewStatus(ctx, in, opts...)
 }
 
 func (m *defaultProductService) DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*DeleteReviewResponse, error) {

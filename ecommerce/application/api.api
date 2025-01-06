@@ -106,12 +106,6 @@ service mall-api {
 	@handler UpdateProduct
 	put /api/admin/products/:id (UpdateProductReq)
 
-	@handler UpdateProductStatus
-	put /api/admin/products/:id/status (UpdateProductStatusReq)
-
-	@handler UpdateProductPrice
-	put /api/admin/products/:id/price (UpdateProductPriceReq)
-
 	@handler DeleteProduct
 	delete /api/admin/products/:id (DeleteProductReq)
 
@@ -126,15 +120,6 @@ service mall-api {
 
 	@handler CreateSku
 	post /api/admin/products/:productId/skus (CreateSkuReq) returns (CreateSkuResp)
-
-	@handler UpdateSkuStock
-	put /api/admin/products/skus/:id/stock (UpdateSkuStockReq)
-
-	@handler UpdateSkuPrice
-	put /api/admin/products/skus/:id/price (UpdateSkuPriceReq)
-
-	@handler ChangeReviewStatus
-	put /api/admin/reviews/:id/status (ChangeReviewStatusReq)
 
 	@handler DeleteReview
 	delete /api/admin/reviews/:id (DeleteReviewReq)

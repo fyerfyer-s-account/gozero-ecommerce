@@ -20,9 +20,8 @@ type (
 		FindManyByProductId(ctx context.Context, productId uint64, page, pageSize int) ([]*ProductReviews, error)
 		FindOneByProductId(ctx context.Context, productId, userId uint64) (*ProductReviews, error)
 		Count(ctx context.Context, productId uint64) (int64, error)
-		UpdateStatus(ctx context.Context, id uint64, status int64) error
-		UpdateContent(ctx context.Context, id uint64, rating int64, content, images sql.NullString) error
 		BatchCreate(ctx context.Context, reviews []*ProductReviews) error
+		UpdateReviews(ctx context.Context, id uint64, updates map[string]interface{}) error
 	}
 
 	customProductReviewsModel struct {
@@ -110,6 +109,28 @@ func (m *customProductReviewsModel) BatchCreate(ctx context.Context, reviews []*
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		return conn.ExecCtx(ctx, query, args...)
 	})
+
+	return err
+}
+
+func (m *customProductReviewsModel) UpdateReviews(ctx context.Context, id uint64, updates map[string]interface{}) error {
+	if len(updates) == 0 {
+		return nil
+	}
+
+	var sets []string
+	var args []interface{}
+	for k, v := range updates {
+		sets = append(sets, fmt.Sprintf("`%s` = ?", k))
+		args = append(args, v)
+	}
+	args = append(args, id)
+
+	productReviewKey := fmt.Sprintf("%s%v", cacheMallProductProductReviewsIdPrefix, id)
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, strings.Join(sets, ", "))
+		return conn.ExecCtx(ctx, query, args...)
+	}, productReviewKey)
 
 	return err
 }

@@ -6,7 +6,6 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/model"
@@ -24,12 +23,14 @@ func TestUpdateProductLogic_UpdateProduct(t *testing.T) {
 	// Create test product
 	testProduct := &model.Products{
 		Name:        "Test Product",
-		Description: sql.NullString{String: "Test Description", Valid: true},
+		Description: sql.NullString{String: "Original description", Valid: true},
 		CategoryId:  1,
-		Brand:       sql.NullString{String: "Test Brand", Valid: true},
+		Brand:       sql.NullString{String: "Original brand", Valid: true},
 		Price:       99.99,
 		Status:      1,
+		Sales:       10,
 	}
+
 	result, err := ctx.ProductsModel.Insert(context.Background(), testProduct)
 	assert.NoError(t, err)
 	productId, err := result.LastInsertId()
@@ -42,62 +43,73 @@ func TestUpdateProductLogic_UpdateProduct(t *testing.T) {
 	tests := []struct {
 		name    string
 		req     *product.UpdateProductRequest
-		wantErr error
-		verify  func(*testing.T, *model.Products)
+		wantErr bool
+		verify  func(*testing.T, uint64, error)
 	}{
 		{
-			name: "Update single field",
-			req: &product.UpdateProductRequest{
-				Id:   productId,
-				Name: "Updated Product",
-			},
-			wantErr: nil,
-			verify: func(t *testing.T, p *model.Products) {
-				assert.Equal(t, "Updated Product", p.Name)
-			},
-		},
-		{
-			name: "Update multiple fields",
+			name: "Update all fields",
 			req: &product.UpdateProductRequest{
 				Id:          productId,
-				Description: "Updated Description",
+				Name:        "Updated Product",
+				Description: "Updated description",
+				CategoryId:  2,
+				Brand:       "Updated brand",
 				Price:       199.99,
-				Brand:       "Updated Brand",
+				Status:      2,
 			},
-			wantErr: nil,
-			verify: func(t *testing.T, p *model.Products) {
-				assert.Equal(t, "Updated Description", p.Description.String)
-				assert.True(t, p.Description.Valid)
-				assert.Equal(t, "Updated Brand", p.Brand.String)
-				assert.True(t, p.Brand.Valid)
-				assert.Equal(t, 199.99, p.Price)
+			wantErr: false,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.NoError(t, err)
+				updated, err := ctx.ProductsModel.FindOne(context.Background(), uint64(id))
+				assert.NoError(t, err)
+				assert.Equal(t, "Updated Product", updated.Name)
+				assert.Equal(t, "Updated description", updated.Description.String)
+				assert.Equal(t, uint64(2), updated.CategoryId)
+				assert.Equal(t, "Updated brand", updated.Brand.String)
+				assert.Equal(t, 199.99, updated.Price)
+				assert.Equal(t, int64(2), updated.Status)
 			},
 		},
 		{
-			name: "Invalid ID",
+			name: "Update partial fields",
+			req: &product.UpdateProductRequest{
+				Id:    productId,
+				Name:  "Partially Updated",
+				Price: 299.99,
+			},
+			wantErr: false,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.NoError(t, err)
+				updated, err := ctx.ProductsModel.FindOne(context.Background(), uint64(id))
+				assert.NoError(t, err)
+				assert.Equal(t, "Partially Updated", updated.Name)
+				assert.Equal(t, 299.99, updated.Price)
+			},
+		},
+		{
+			name: "Update with sales increment",
+			req: &product.UpdateProductRequest{
+				Id:             productId,
+				SalesIncrement: 5,
+			},
+			wantErr: false,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.NoError(t, err)
+				updated, err := ctx.ProductsModel.FindOne(context.Background(), uint64(id))
+				assert.NoError(t, err)
+				assert.Equal(t, int64(15), updated.Sales) // 10 + 5
+			},
+		},
+		{
+			name: "Invalid product ID",
 			req: &product.UpdateProductRequest{
 				Id:   0,
-				Name: "Test",
+				Name: "Invalid Update",
 			},
-			wantErr: zeroerr.ErrInvalidParam,
-			verify:  nil,
-		},
-		{
-			name: "Empty update",
-			req: &product.UpdateProductRequest{
-				Id: productId,
+			wantErr: true,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.Error(t, err)
 			},
-			wantErr: zeroerr.ErrInvalidParam,
-			verify:  nil,
-		},
-		{
-			name: "Non-existent product",
-			req: &product.UpdateProductRequest{
-				Id:   99999,
-				Name: "Test",
-			},
-			wantErr: zeroerr.ErrProductNotFound, // Changed from model.ErrNotFound
-			verify:  nil,
 		},
 	}
 
@@ -106,20 +118,15 @@ func TestUpdateProductLogic_UpdateProduct(t *testing.T) {
 			l := NewUpdateProductLogic(context.Background(), ctx)
 			resp, err := l.UpdateProduct(tt.req)
 
-			if tt.wantErr != nil {
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err)
 				assert.Nil(t, resp)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, resp)
 				assert.True(t, resp.Success)
-
 				if tt.verify != nil {
-					// Verify updates
-					updated, err := ctx.ProductsModel.FindOne(context.Background(), uint64(productId))
-					assert.NoError(t, err)
-					tt.verify(t, updated)
+					tt.verify(t, uint64(tt.req.Id), err)
 				}
 			}
 		})

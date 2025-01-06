@@ -4,11 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,40 +26,40 @@ func NewUpdateReviewLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upda
 
 func (l *UpdateReviewLogic) UpdateReview(in *product.UpdateReviewRequest) (*product.UpdateReviewResponse, error) {
 	// Validate input
-	if in.Id <= 0 || in.Rating < 1 || in.Rating > 5 {
+	if in.Id <= 0 {
 		return nil, zeroerr.ErrInvalidParam
 	}
 
-	// Check review exists
+	// Check if review exists
 	_, err := l.svcCtx.ProductReviewsModel.FindOne(l.ctx, uint64(in.Id))
 	if err != nil {
 		return nil, zeroerr.ErrReviewNotFound
 	}
 
-	// Convert images to JSON
-	var imagesJSON string
+	// Prepare updates
+	updates := make(map[string]interface{})
+	if in.Rating > 0 {
+		updates["rating"] = in.Rating
+	}
+	if in.Content != "" {
+		updates["content"] = sql.NullString{String: in.Content, Valid: true}
+	}
 	if len(in.Images) > 0 {
-		imagesBytes, err := json.Marshal(in.Images)
+		imagesJSON, err := json.Marshal(in.Images)
 		if err != nil {
-			return nil, zeroerr.ErrInvalidParam
+			return nil, err
 		}
-		imagesJSON = string(imagesBytes)
+		updates["images"] = sql.NullString{String: string(imagesJSON), Valid: true}
+	}
+	if in.Status > 0 {
+		updates["status"] = in.Status
 	}
 
-	// Update only allowed fields
-	err = l.svcCtx.ProductReviewsModel.UpdateContent(
-		l.ctx,
-		uint64(in.Id),
-		int64(in.Rating),
-		sql.NullString{String: in.Content, Valid: in.Content != ""},
-		sql.NullString{String: imagesJSON, Valid: len(in.Images) > 0},
-	)
+	// Update review
+	err = l.svcCtx.ProductReviewsModel.UpdateReviews(l.ctx, uint64(in.Id), updates)
 	if err != nil {
-		logx.Errorf("Failed to update review: %v", err)
-		return nil, zeroerr.ErrReviewUpdateFailed
+		return nil, err
 	}
 
-	return &product.UpdateReviewResponse{
-		Success: true,
-	}, nil
+	return &product.UpdateReviewResponse{Success: true}, nil
 }

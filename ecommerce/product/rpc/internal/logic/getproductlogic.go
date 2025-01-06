@@ -76,9 +76,9 @@ func (l *GetProductLogic) GetProduct(in *product.GetProductRequest) (*product.Ge
 		}
 
 		// Parse attributes JSON
-		if sku.Attributes != "" {
+		if sku.Attributes.Valid {
 			var attrs []*product.SkuAttribute
-			if err := json.Unmarshal([]byte(sku.Attributes), &attrs); err == nil {
+			if err := json.Unmarshal([]byte(sku.Attributes.String), &attrs); err == nil {
 				pbSku.Attributes = attrs
 			}
 		}

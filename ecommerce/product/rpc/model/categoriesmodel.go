@@ -18,7 +18,7 @@ type (
 	// and implement the added methods in customCategoriesModel.
 	CategoriesModel interface {
 		categoriesModel
-		GetAll(ctx context.Context) ([]*Categories, error)
+		FindAll(ctx context.Context) ([]*Categories, error)
 		FindIdByName(ctx context.Context, name string) (uint64, error) 
 		FindByParentId(ctx context.Context, parentId uint64) ([]*Categories, error)
 		FindOneByName(ctx context.Context, name string) (*Categories, error)
@@ -102,16 +102,6 @@ func (m *customCategoriesModel) HasProducts(ctx context.Context, id uint64) (boo
 	return count > 0, err
 }
 
-func (m *customCategoriesModel) GetAll(ctx context.Context) ([]*Categories, error) {
-	query := fmt.Sprintf("select %s from %s",
-		productsRows, m.table)
-	var resp []*Categories
-	err := m.QueryRowsNoCacheCtx(ctx, &resp, query)
-
-	return resp, err
-}
-
-
 func (m *customCategoriesModel) FindIdByName(ctx context.Context, name string) (uint64, error) {
 	var id uint64
 	query := fmt.Sprintf("select `id` from %s where `name` = ?", m.table)
@@ -125,4 +115,15 @@ func (m *customCategoriesModel) FindIdByName(ctx context.Context, name string) (
 	default:
 		return 0, err
 	}
+}
+
+func (m *defaultCategoriesModel) FindAll(ctx context.Context) ([]*Categories, error) {
+    var categories []*Categories
+    query := fmt.Sprintf("select %s from %s", categoriesRows, m.table)
+
+    err := m.QueryRowsNoCacheCtx(ctx, &categories, query)
+	if err != nil {
+		return nil, err 
+	}
+    return categories, nil
 }

@@ -17,11 +17,9 @@ type (
 		FindManyByProductId(ctx context.Context, productId uint64) ([]*Skus, error)
 		FindManyPageByProductId(ctx context.Context, productId uint64, page, pageSize int) ([]*Skus, error)
 		Count(ctx context.Context, productId uint64) (int64, error)
-		UpdateStock(ctx context.Context, id uint64, increment int64) error
-		UpdateSales(ctx context.Context, id uint64, increment int64) error
-		UpdatePrice(ctx context.Context, id uint64, price float64) error
 		BatchInsert(ctx context.Context, data []*Skus) error
 		DeleteByProductId(ctx context.Context, productId uint64) error
+		UpdateSkus(ctx context.Context, id uint64, updates map[string]interface{}) error
 	}
 
 	customSkusModel struct {
@@ -54,33 +52,6 @@ func (m *customSkusModel) Count(ctx context.Context, productId uint64) (int64, e
 	var count int64
 	err := m.QueryRowNoCacheCtx(ctx, &count, query, productId)
 	return count, err
-}
-
-func (m *customSkusModel) UpdateStock(ctx context.Context, id uint64, increment int64) error {
-	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `stock` = `stock` + ? where `id` = ? and `stock` + ? >= 0", m.table)
-		return conn.ExecCtx(ctx, query, increment, id, increment)
-	}, mallProductSkusIdKey)
-	return err
-}
-
-func (m *customSkusModel) UpdateSales(ctx context.Context, id uint64, increment int64) error {
-	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `sales` = `sales` + ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, increment, id)
-	}, mallProductSkusIdKey)
-	return err
-}
-
-func (m *customSkusModel) UpdatePrice(ctx context.Context, id uint64, price float64) error {
-	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set `price` = ? where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, price, id)
-	}, mallProductSkusIdKey)
-	return err
 }
 
 func (m *customSkusModel) BatchInsert(ctx context.Context, data []*Skus) error {
@@ -122,6 +93,33 @@ func (m *customSkusModel) DeleteByProductId(ctx context.Context, productId uint6
 		query := fmt.Sprintf("delete from %s where `product_id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, productId)
 	}, keys...)
+
+	return err
+}
+
+func (m *customSkusModel) UpdateSkus(ctx context.Context, id uint64, updates map[string]interface{}) error {
+	if len(updates) == 0 {
+		return nil
+	}
+
+	var sets []string
+	var args []interface{}
+	for k, v := range updates {
+		// Handle increments
+		if k == "stock" || k == "sales" {
+			sets = append(sets, fmt.Sprintf("`%s` = `%s` + ?", k, k))
+		} else {
+			sets = append(sets, fmt.Sprintf("`%s` = ?", k))
+		}
+		args = append(args, v)
+	}
+	args = append(args, id)
+
+	mallProductSkusIdKey := fmt.Sprintf("%s%v", cacheMallProductSkusIdPrefix, id)
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
+		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, strings.Join(sets, ", "))
+		return conn.ExecCtx(ctx, query, args...)
+	}, mallProductSkusIdKey)
 
 	return err
 }

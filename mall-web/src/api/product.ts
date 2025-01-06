@@ -8,7 +8,8 @@ import {
   UpdateProductReq,
   ProductFilter,
   CreateCategoryReq,
-  CreateCategoryResp
+  CreateCategoryResp,
+  GetCategoriesResp
 } from '@/types/product';
 import { api } from '@/utils/api';
 
@@ -30,11 +31,11 @@ export const productApi = {
 
   listCategories: async (): Promise<Category[]> => {
     try {
-      const response = await api.get<{categories: Category[]}>('/api/product/categories');
-      console.log('API Response:', response); // Debug
-      return response.data.categories || [];
+      const response = await api.get<GetCategoriesResp>('/api/categories');
+      console.log('Categories API Response:', response.data);
+      return response.data.categories;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('Categories API Error:', error);
       throw error;
     }
   },

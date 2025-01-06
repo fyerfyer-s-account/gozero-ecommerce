@@ -25,80 +25,6 @@ func (_m *ProductService) EXPECT() *ProductService_Expecter {
 	return &ProductService_Expecter{mock: &_m.Mock}
 }
 
-// ChangeReviewStatus provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) ChangeReviewStatus(ctx context.Context, in *product.ChangeReviewStatusRequest, opts ...grpc.CallOption) (*product.ChangeReviewStatusResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ChangeReviewStatus")
-	}
-
-	var r0 *product.ChangeReviewStatusResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.ChangeReviewStatusRequest, ...grpc.CallOption) (*product.ChangeReviewStatusResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.ChangeReviewStatusRequest, ...grpc.CallOption) *product.ChangeReviewStatusResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.ChangeReviewStatusResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *product.ChangeReviewStatusRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ProductService_ChangeReviewStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangeReviewStatus'
-type ProductService_ChangeReviewStatus_Call struct {
-	*mock.Call
-}
-
-// ChangeReviewStatus is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *product.ChangeReviewStatusRequest
-//   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) ChangeReviewStatus(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_ChangeReviewStatus_Call {
-	return &ProductService_ChangeReviewStatus_Call{Call: _e.mock.On("ChangeReviewStatus",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *ProductService_ChangeReviewStatus_Call) Run(run func(ctx context.Context, in *product.ChangeReviewStatusRequest, opts ...grpc.CallOption)) *ProductService_ChangeReviewStatus_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*product.ChangeReviewStatusRequest), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *ProductService_ChangeReviewStatus_Call) Return(_a0 *product.ChangeReviewStatusResponse, _a1 error) *ProductService_ChangeReviewStatus_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ProductService_ChangeReviewStatus_Call) RunAndReturn(run func(context.Context, *product.ChangeReviewStatusRequest, ...grpc.CallOption) (*product.ChangeReviewStatusResponse, error)) *ProductService_ChangeReviewStatus_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateCategory provides a mock function with given fields: ctx, in, opts
 func (_m *ProductService) CreateCategory(ctx context.Context, in *product.CreateCategoryRequest, opts ...grpc.CallOption) (*product.CreateCategoryResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1431,228 +1357,6 @@ func (_c *ProductService_UpdateProduct_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// UpdateProductPrice provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) UpdateProductPrice(ctx context.Context, in *product.UpdateProductPriceRequest, opts ...grpc.CallOption) (*product.UpdateProductPriceResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateProductPrice")
-	}
-
-	var r0 *product.UpdateProductPriceResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateProductPriceRequest, ...grpc.CallOption) (*product.UpdateProductPriceResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateProductPriceRequest, ...grpc.CallOption) *product.UpdateProductPriceResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.UpdateProductPriceResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateProductPriceRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ProductService_UpdateProductPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProductPrice'
-type ProductService_UpdateProductPrice_Call struct {
-	*mock.Call
-}
-
-// UpdateProductPrice is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *product.UpdateProductPriceRequest
-//   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) UpdateProductPrice(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateProductPrice_Call {
-	return &ProductService_UpdateProductPrice_Call{Call: _e.mock.On("UpdateProductPrice",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *ProductService_UpdateProductPrice_Call) Run(run func(ctx context.Context, in *product.UpdateProductPriceRequest, opts ...grpc.CallOption)) *ProductService_UpdateProductPrice_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*product.UpdateProductPriceRequest), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *ProductService_UpdateProductPrice_Call) Return(_a0 *product.UpdateProductPriceResponse, _a1 error) *ProductService_UpdateProductPrice_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ProductService_UpdateProductPrice_Call) RunAndReturn(run func(context.Context, *product.UpdateProductPriceRequest, ...grpc.CallOption) (*product.UpdateProductPriceResponse, error)) *ProductService_UpdateProductPrice_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateProductSales provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) UpdateProductSales(ctx context.Context, in *product.UpdateProductSalesRequest, opts ...grpc.CallOption) (*product.UpdateProductSalesResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateProductSales")
-	}
-
-	var r0 *product.UpdateProductSalesResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateProductSalesRequest, ...grpc.CallOption) (*product.UpdateProductSalesResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateProductSalesRequest, ...grpc.CallOption) *product.UpdateProductSalesResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.UpdateProductSalesResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateProductSalesRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ProductService_UpdateProductSales_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProductSales'
-type ProductService_UpdateProductSales_Call struct {
-	*mock.Call
-}
-
-// UpdateProductSales is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *product.UpdateProductSalesRequest
-//   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) UpdateProductSales(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateProductSales_Call {
-	return &ProductService_UpdateProductSales_Call{Call: _e.mock.On("UpdateProductSales",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *ProductService_UpdateProductSales_Call) Run(run func(ctx context.Context, in *product.UpdateProductSalesRequest, opts ...grpc.CallOption)) *ProductService_UpdateProductSales_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*product.UpdateProductSalesRequest), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *ProductService_UpdateProductSales_Call) Return(_a0 *product.UpdateProductSalesResponse, _a1 error) *ProductService_UpdateProductSales_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ProductService_UpdateProductSales_Call) RunAndReturn(run func(context.Context, *product.UpdateProductSalesRequest, ...grpc.CallOption) (*product.UpdateProductSalesResponse, error)) *ProductService_UpdateProductSales_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateProductStatus provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) UpdateProductStatus(ctx context.Context, in *product.UpdateProductStatusRequest, opts ...grpc.CallOption) (*product.UpdateProductStatusResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateProductStatus")
-	}
-
-	var r0 *product.UpdateProductStatusResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateProductStatusRequest, ...grpc.CallOption) (*product.UpdateProductStatusResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateProductStatusRequest, ...grpc.CallOption) *product.UpdateProductStatusResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.UpdateProductStatusResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateProductStatusRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ProductService_UpdateProductStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProductStatus'
-type ProductService_UpdateProductStatus_Call struct {
-	*mock.Call
-}
-
-// UpdateProductStatus is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *product.UpdateProductStatusRequest
-//   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) UpdateProductStatus(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateProductStatus_Call {
-	return &ProductService_UpdateProductStatus_Call{Call: _e.mock.On("UpdateProductStatus",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *ProductService_UpdateProductStatus_Call) Run(run func(ctx context.Context, in *product.UpdateProductStatusRequest, opts ...grpc.CallOption)) *ProductService_UpdateProductStatus_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*product.UpdateProductStatusRequest), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *ProductService_UpdateProductStatus_Call) Return(_a0 *product.UpdateProductStatusResponse, _a1 error) *ProductService_UpdateProductStatus_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ProductService_UpdateProductStatus_Call) RunAndReturn(run func(context.Context, *product.UpdateProductStatusRequest, ...grpc.CallOption) (*product.UpdateProductStatusResponse, error)) *ProductService_UpdateProductStatus_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // UpdateReview provides a mock function with given fields: ctx, in, opts
 func (_m *ProductService) UpdateReview(ctx context.Context, in *product.UpdateReviewRequest, opts ...grpc.CallOption) (*product.UpdateReviewResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1727,8 +1431,8 @@ func (_c *ProductService_UpdateReview_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// UpdateSkuPrice provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) UpdateSkuPrice(ctx context.Context, in *product.UpdateSkuPriceRequest, opts ...grpc.CallOption) (*product.UpdateSkuPriceResponse, error) {
+// UpdateSku provides a mock function with given fields: ctx, in, opts
+func (_m *ProductService) UpdateSku(ctx context.Context, in *product.UpdateSkuRequest, opts ...grpc.CallOption) (*product.UpdateSkuResponse, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1739,23 +1443,23 @@ func (_m *ProductService) UpdateSkuPrice(ctx context.Context, in *product.Update
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateSkuPrice")
+		panic("no return value specified for UpdateSku")
 	}
 
-	var r0 *product.UpdateSkuPriceResponse
+	var r0 *product.UpdateSkuResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuPriceRequest, ...grpc.CallOption) (*product.UpdateSkuPriceResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuRequest, ...grpc.CallOption) (*product.UpdateSkuResponse, error)); ok {
 		return rf(ctx, in, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuPriceRequest, ...grpc.CallOption) *product.UpdateSkuPriceResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuRequest, ...grpc.CallOption) *product.UpdateSkuResponse); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.UpdateSkuPriceResponse)
+			r0 = ret.Get(0).(*product.UpdateSkuResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateSkuPriceRequest, ...grpc.CallOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateSkuRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1764,21 +1468,21 @@ func (_m *ProductService) UpdateSkuPrice(ctx context.Context, in *product.Update
 	return r0, r1
 }
 
-// ProductService_UpdateSkuPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSkuPrice'
-type ProductService_UpdateSkuPrice_Call struct {
+// ProductService_UpdateSku_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSku'
+type ProductService_UpdateSku_Call struct {
 	*mock.Call
 }
 
-// UpdateSkuPrice is a helper method to define mock.On call
+// UpdateSku is a helper method to define mock.On call
 //   - ctx context.Context
-//   - in *product.UpdateSkuPriceRequest
+//   - in *product.UpdateSkuRequest
 //   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) UpdateSkuPrice(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateSkuPrice_Call {
-	return &ProductService_UpdateSkuPrice_Call{Call: _e.mock.On("UpdateSkuPrice",
+func (_e *ProductService_Expecter) UpdateSku(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateSku_Call {
+	return &ProductService_UpdateSku_Call{Call: _e.mock.On("UpdateSku",
 		append([]interface{}{ctx, in}, opts...)...)}
 }
 
-func (_c *ProductService_UpdateSkuPrice_Call) Run(run func(ctx context.Context, in *product.UpdateSkuPriceRequest, opts ...grpc.CallOption)) *ProductService_UpdateSkuPrice_Call {
+func (_c *ProductService_UpdateSku_Call) Run(run func(ctx context.Context, in *product.UpdateSkuRequest, opts ...grpc.CallOption)) *ProductService_UpdateSku_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]grpc.CallOption, len(args)-2)
 		for i, a := range args[2:] {
@@ -1786,165 +1490,17 @@ func (_c *ProductService_UpdateSkuPrice_Call) Run(run func(ctx context.Context, 
 				variadicArgs[i] = a.(grpc.CallOption)
 			}
 		}
-		run(args[0].(context.Context), args[1].(*product.UpdateSkuPriceRequest), variadicArgs...)
+		run(args[0].(context.Context), args[1].(*product.UpdateSkuRequest), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *ProductService_UpdateSkuPrice_Call) Return(_a0 *product.UpdateSkuPriceResponse, _a1 error) *ProductService_UpdateSkuPrice_Call {
+func (_c *ProductService_UpdateSku_Call) Return(_a0 *product.UpdateSkuResponse, _a1 error) *ProductService_UpdateSku_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ProductService_UpdateSkuPrice_Call) RunAndReturn(run func(context.Context, *product.UpdateSkuPriceRequest, ...grpc.CallOption) (*product.UpdateSkuPriceResponse, error)) *ProductService_UpdateSkuPrice_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateSkuSales provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) UpdateSkuSales(ctx context.Context, in *product.UpdateSkuSalesRequest, opts ...grpc.CallOption) (*product.UpdateSkuSalesResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateSkuSales")
-	}
-
-	var r0 *product.UpdateSkuSalesResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuSalesRequest, ...grpc.CallOption) (*product.UpdateSkuSalesResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuSalesRequest, ...grpc.CallOption) *product.UpdateSkuSalesResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.UpdateSkuSalesResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateSkuSalesRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ProductService_UpdateSkuSales_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSkuSales'
-type ProductService_UpdateSkuSales_Call struct {
-	*mock.Call
-}
-
-// UpdateSkuSales is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *product.UpdateSkuSalesRequest
-//   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) UpdateSkuSales(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateSkuSales_Call {
-	return &ProductService_UpdateSkuSales_Call{Call: _e.mock.On("UpdateSkuSales",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *ProductService_UpdateSkuSales_Call) Run(run func(ctx context.Context, in *product.UpdateSkuSalesRequest, opts ...grpc.CallOption)) *ProductService_UpdateSkuSales_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*product.UpdateSkuSalesRequest), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *ProductService_UpdateSkuSales_Call) Return(_a0 *product.UpdateSkuSalesResponse, _a1 error) *ProductService_UpdateSkuSales_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ProductService_UpdateSkuSales_Call) RunAndReturn(run func(context.Context, *product.UpdateSkuSalesRequest, ...grpc.CallOption) (*product.UpdateSkuSalesResponse, error)) *ProductService_UpdateSkuSales_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateSkuStock provides a mock function with given fields: ctx, in, opts
-func (_m *ProductService) UpdateSkuStock(ctx context.Context, in *product.UpdateSkuStockRequest, opts ...grpc.CallOption) (*product.UpdateSkuStockResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateSkuStock")
-	}
-
-	var r0 *product.UpdateSkuStockResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuStockRequest, ...grpc.CallOption) (*product.UpdateSkuStockResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *product.UpdateSkuStockRequest, ...grpc.CallOption) *product.UpdateSkuStockResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*product.UpdateSkuStockResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *product.UpdateSkuStockRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ProductService_UpdateSkuStock_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSkuStock'
-type ProductService_UpdateSkuStock_Call struct {
-	*mock.Call
-}
-
-// UpdateSkuStock is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *product.UpdateSkuStockRequest
-//   - opts ...grpc.CallOption
-func (_e *ProductService_Expecter) UpdateSkuStock(ctx interface{}, in interface{}, opts ...interface{}) *ProductService_UpdateSkuStock_Call {
-	return &ProductService_UpdateSkuStock_Call{Call: _e.mock.On("UpdateSkuStock",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *ProductService_UpdateSkuStock_Call) Run(run func(ctx context.Context, in *product.UpdateSkuStockRequest, opts ...grpc.CallOption)) *ProductService_UpdateSkuStock_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*product.UpdateSkuStockRequest), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *ProductService_UpdateSkuStock_Call) Return(_a0 *product.UpdateSkuStockResponse, _a1 error) *ProductService_UpdateSkuStock_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ProductService_UpdateSkuStock_Call) RunAndReturn(run func(context.Context, *product.UpdateSkuStockRequest, ...grpc.CallOption) (*product.UpdateSkuStockResponse, error)) *ProductService_UpdateSkuStock_Call {
+func (_c *ProductService_UpdateSku_Call) RunAndReturn(run func(context.Context, *product.UpdateSkuRequest, ...grpc.CallOption) (*product.UpdateSkuResponse, error)) *ProductService_UpdateSku_Call {
 	_c.Call.Return(run)
 	return _c
 }

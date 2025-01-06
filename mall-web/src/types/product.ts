@@ -105,3 +105,7 @@ export interface CreateCategoryReq {
 export interface CreateCategoryResp {
   id: number;
 }
+
+export interface GetCategoriesResp {
+  categories: Category[];
+}

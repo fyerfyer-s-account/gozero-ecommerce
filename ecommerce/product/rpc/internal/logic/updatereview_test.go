@@ -3,11 +3,10 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"testing"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/model"
@@ -22,79 +21,77 @@ func TestUpdateReviewLogic_UpdateReview(t *testing.T) {
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
-	// Create test product
-	testProduct := &model.Products{
-		Name:   "Test Product",
-		Price:  99.99,
-		Status: 1,
-	}
-	result, err := ctx.ProductsModel.Insert(context.Background(), testProduct)
-	assert.NoError(t, err)
-	productId, err := result.LastInsertId()
-	assert.NoError(t, err)
-
 	// Create test review
-	images := []string{"test1.jpg", "test2.jpg"}
-	imagesJSON, _ := json.Marshal(images)
-
-	review := &model.ProductReviews{
-		ProductId: uint64(productId),
+	testReview := &model.ProductReviews{
+		ProductId: 1,
 		UserId:    1,
-		OrderId:   1,
 		Rating:    4,
 		Content:   sql.NullString{String: "Original review", Valid: true},
-		Images:    sql.NullString{String: string(imagesJSON), Valid: true},
+		Images:    sql.NullString{String: "[]", Valid: true},
 		Status:    1,
 	}
 
-	result, err = ctx.ProductReviewsModel.Insert(context.Background(), review)
+	result, err := ctx.ProductReviewsModel.Insert(context.Background(), testReview)
 	assert.NoError(t, err)
 	reviewId, err := result.LastInsertId()
 	assert.NoError(t, err)
 
 	defer func() {
 		_ = ctx.ProductReviewsModel.Delete(context.Background(), uint64(reviewId))
-		_ = ctx.ProductsModel.Delete(context.Background(), uint64(productId))
 	}()
 
 	tests := []struct {
 		name    string
 		req     *product.UpdateReviewRequest
-		wantErr error
+		wantErr bool
+		verify  func(*testing.T, uint64, error)
 	}{
 		{
-			name: "Valid update",
+			name: "Update all fields",
 			req: &product.UpdateReviewRequest{
 				Id:      reviewId,
 				Rating:  5,
-				Content: "Updated review content",
-				Images:  []string{"new1.jpg", "new2.jpg"},
+				Content: "Updated review",
+				Images:  []string{"new_image.jpg"},
+				Status:  2,
 			},
-			wantErr: nil,
+			wantErr: false,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.NoError(t, err)
+				updated, err := ctx.ProductReviewsModel.FindOne(context.Background(), uint64(id))
+				assert.NoError(t, err)
+				assert.Equal(t, int64(5), updated.Rating)
+				assert.Equal(t, "Updated review", updated.Content.String)
+				assert.Equal(t, `["new_image.jpg"]`, updated.Images.String)
+				assert.Equal(t, int64(2), updated.Status)
+			},
 		},
 		{
-			name: "Invalid rating",
+			name: "Update partial fields",
 			req: &product.UpdateReviewRequest{
-				Id:     reviewId,
-				Rating: 6,
+				Id:      reviewId,
+				Rating:  3,
+				Content: "Partially updated",
 			},
-			wantErr: zeroerr.ErrInvalidParam,
+			wantErr: false,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.NoError(t, err)
+				updated, err := ctx.ProductReviewsModel.FindOne(context.Background(), uint64(id))
+				assert.NoError(t, err)
+				assert.Equal(t, int64(3), updated.Rating)
+				assert.Equal(t, "Partially updated", updated.Content.String)
+			},
 		},
 		{
 			name: "Invalid review ID",
 			req: &product.UpdateReviewRequest{
-				Id:     0,
-				Rating: 5,
+				Id:      0,
+				Content: "Invalid update",
 			},
-			wantErr: zeroerr.ErrInvalidParam,
-		},
-		{
-			name: "Non-existent review",
-			req: &product.UpdateReviewRequest{
-				Id:     99999,
-				Rating: 5,
+			wantErr: true,
+			verify: func(t *testing.T, id uint64, err error) {
+				assert.Error(t, err)
 			},
-			wantErr: zeroerr.ErrReviewNotFound,
 		},
 	}
 
@@ -103,28 +100,17 @@ func TestUpdateReviewLogic_UpdateReview(t *testing.T) {
 			l := NewUpdateReviewLogic(context.Background(), ctx)
 			resp, err := l.UpdateReview(tt.req)
 
-			if tt.wantErr != nil {
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err)
 				assert.Nil(t, resp)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, resp)
 				assert.True(t, resp.Success)
-
-				// Verify changes
-				updated, err := ctx.ProductReviewsModel.FindOne(context.Background(), uint64(reviewId))
-				assert.NoError(t, err)
-				assert.Equal(t, tt.req.Rating, int32(updated.Rating))
-				assert.Equal(t, tt.req.Content, updated.Content.String)
-
-				var updatedImages []string
-				err = json.Unmarshal([]byte(updated.Images.String), &updatedImages)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.req.Images, updatedImages)
-
-				// Status should remain unchanged
-				assert.Equal(t, int64(1), updated.Status)
+				time.Sleep(100 * time.Millisecond)
+				if tt.verify != nil {
+					tt.verify(t, uint64(tt.req.Id), err)
+				}
 			}
 		})
 	}

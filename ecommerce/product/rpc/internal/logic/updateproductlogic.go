@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
@@ -28,11 +29,21 @@ func NewUpdateProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateProductLogic) UpdateProduct(in *product.UpdateProductRequest) (*product.UpdateProductResponse, error) {
+	// Validate input
 	if in.Id <= 0 {
 		return nil, zeroerr.ErrInvalidParam
 	}
 
-	// Build updates map first to validate if there are any updates
+	// Check if product exists
+	_, err := l.svcCtx.ProductsModel.FindOne(l.ctx, uint64(in.Id))
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, zeroerr.ErrProductNotFound
+		}
+		return nil, err
+	}
+
+	// Prepare updates
 	updates := make(map[string]interface{})
 	if in.Name != "" {
 		updates["name"] = in.Name
@@ -51,31 +62,23 @@ func (l *UpdateProductLogic) UpdateProduct(in *product.UpdateProductRequest) (*p
 		if err != nil {
 			return nil, err
 		}
-		updates["images"] = string(imagesJSON)
+		updates["images"] = sql.NullString{String: string(imagesJSON), Valid: true}
 	}
 	if in.Price > 0 {
 		updates["price"] = in.Price
 	}
-
-	if len(updates) == 0 {
-		return nil, zeroerr.ErrInvalidParam
+	if in.Status > 0 {
+		updates["status"] = in.Status
+	}
+	if in.SalesIncrement != 0 {
+		updates["sales"] = fmt.Sprintf("sales + %d", in.SalesIncrement)
 	}
 
-	// Check if product exists
-	_, err := l.svcCtx.ProductsModel.FindOne(l.ctx, uint64(in.Id))
-	if err != nil {
-		if err == sqlx.ErrNotFound {
-			return nil, zeroerr.ErrProductNotFound
-		}
-		return nil, err
-	}
-
+	// Update product
 	err = l.svcCtx.ProductsModel.UpdatePartial(l.ctx, uint64(in.Id), updates)
 	if err != nil {
 		return nil, err
 	}
 
-	return &product.UpdateProductResponse{
-		Success: true,
-	}, nil
+	return &product.UpdateProductResponse{Success: true}, nil
 }

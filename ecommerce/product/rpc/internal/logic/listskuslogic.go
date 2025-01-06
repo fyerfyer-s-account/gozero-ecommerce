@@ -66,9 +66,9 @@ func (l *ListSkusLogic) ListSkus(in *product.ListSkusRequest) (*product.ListSkus
 		}
 
 		// Parse attributes JSON
-		if s.Attributes != "" {
+		if s.Attributes.Valid {
 			var attrs []*product.SkuAttribute
-			if err := json.Unmarshal([]byte(s.Attributes), &attrs); err == nil {
+			if err := json.Unmarshal([]byte(s.Attributes.String), &attrs); err == nil {
 				pbSku.Attributes = attrs
 			}
 		}

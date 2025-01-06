@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"flag"
 	"testing"
@@ -44,14 +45,20 @@ func TestListSkusLogic_ListSkus(t *testing.T) {
 			SkuCode:    "SKU-001",
 			Price:      99.99,
 			Stock:      100,
-			Attributes: string(attrsJSON),
+			Attributes: sql.NullString {
+				String: string(attrsJSON),
+				Valid:  true,
+			},
 		},
 		{
 			ProductId:  uint64(productId),
 			SkuCode:    "SKU-002",
 			Price:      109.99,
 			Stock:      50,
-			Attributes: string(attrsJSON),
+			Attributes: sql.NullString {
+				String: string(attrsJSON),
+				Valid:  true,
+			},
 		},
 	}
 

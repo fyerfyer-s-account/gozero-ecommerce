@@ -66,11 +66,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [searchProducts]);
 
   const refreshCategories = useCallback(async () => {
-    console.log('Refreshing categories...'); // Debug
+    console.log('Refreshing categories...');
     try {
-      const data = await productApi.listCategories();
-      console.log('Received categories:', data); // Debug
-      setCategories(data);
+      const categories = await productApi.listCategories();
+      console.log('Setting categories:', categories);
+      setCategories(categories || []);
     } catch (err) {
       console.error('Failed to fetch categories:', err);
       setCategories([]);
@@ -78,9 +78,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   useEffect(() => {
-    console.log('Initial categories load'); // Debug
     refreshCategories();
-  }, []); // Remove refreshCategories from deps
+  }, []);
 
   return (
     <ProductContext.Provider value={{ 

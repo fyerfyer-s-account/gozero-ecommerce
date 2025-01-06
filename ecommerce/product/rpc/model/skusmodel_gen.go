@@ -43,15 +43,15 @@ type (
 	}
 
 	Skus struct {
-		Id         uint64    `db:"id"`         // SKU ID
-		ProductId  uint64    `db:"product_id"` // å•†å“ID
-		SkuCode    string    `db:"sku_code"`   // SKUç¼–ç 
-		Attributes string    `db:"attributes"` // SKUå±žæ€§
-		Price      float64   `db:"price"`      // SKUä»·æ ¼
-		Stock      int64     `db:"stock"`      // åº“å­˜
-		Sales      int64     `db:"sales"`      // é”€é‡
-		CreatedAt  time.Time `db:"created_at"` // åˆ›å»ºæ—¶é—´
-		UpdatedAt  time.Time `db:"updated_at"` // æ›´æ–°æ—¶é—´
+		Id         uint64         `db:"id"`         // SKU ID
+		ProductId  uint64         `db:"product_id"` // å•†å“ID
+		SkuCode    string         `db:"sku_code"`   // SKUç¼–ç 
+		Attributes sql.NullString `db:"attributes"` // SKU attribute
+		Price      float64        `db:"price"`      // SKUä»·æ ¼
+		Stock      int64          `db:"stock"`      // åº“å­˜
+		Sales      int64          `db:"sales"`      // é”€é‡
+		CreatedAt  time.Time      `db:"created_at"` // åˆ›å»ºæ—¶é—´
+		UpdatedAt  time.Time      `db:"updated_at"` // æ›´æ–°æ—¶é—´
 	}
 )
 

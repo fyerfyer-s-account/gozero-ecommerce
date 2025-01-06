@@ -1,4 +1,3 @@
-
 syntax = "proto3";
 
 package product;
@@ -6,17 +5,14 @@ option go_package="./product";
 
 // 商品管理服务
 service ProductService {
-    // 商品管理
+    // Product Management
     rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
     rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
-    rpc UpdateProductStatus(UpdateProductStatusRequest) returns (UpdateProductStatusResponse);
-    rpc UpdateProductSales(UpdateProductSalesRequest) returns (UpdateProductSalesResponse);
-    rpc UpdateProductPrice(UpdateProductPriceRequest) returns (UpdateProductPriceResponse);
     rpc GetProduct(GetProductRequest) returns (GetProductResponse);
     rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
     rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
 
-    // 分类管理
+    // Category Management
     rpc CreateCategory(CreateCategoryRequest) returns (CreateCategoryResponse);
     rpc UpdateCategory(UpdateCategoryRequest) returns (UpdateCategoryResponse);
     rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse);
@@ -24,19 +20,16 @@ service ProductService {
     rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
     rpc GetCategories(Empty) returns (GetCategoriesResponse);
     
-    // SKU管理
+    // SKU Management
     rpc CreateSku(CreateSkuRequest) returns (CreateSkuResponse);
-    rpc UpdateSkuStock(UpdateSkuStockRequest) returns (UpdateSkuStockResponse);
-    rpc UpdateSkuPrice(UpdateSkuPriceRequest) returns (UpdateSkuPriceResponse);
-    rpc UpdateSkuSales(UpdateSkuSalesRequest) returns (UpdateSkuSalesResponse);
-    rpc DeleteSku(DeleteSkuRequest) returns (DeleteSkuResponse);
+    rpc UpdateSku(UpdateSkuRequest) returns (UpdateSkuResponse);
     rpc GetSku(GetSkuRequest) returns (GetSkuResponse);
     rpc ListSkus(ListSkusRequest) returns (ListSkusResponse);
+    rpc DeleteSku(DeleteSkuRequest) returns (DeleteSkuResponse);
     
-    // 评价管理
+    // Review Management
     rpc CreateReview(CreateReviewRequest) returns (CreateReviewResponse);
     rpc UpdateReview(UpdateReviewRequest) returns (UpdateReviewResponse);
-    rpc ChangeReviewStatus(ChangeReviewStatusRequest) returns (ChangeReviewStatusResponse);
     rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewResponse);
     rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
 }
@@ -82,36 +75,11 @@ message UpdateProductRequest {
     string brand = 5;
     repeated string images = 6;
     double price = 7;
+    int64 status = 8;
+    int64 sales_increment = 9;
 }
 
 message UpdateProductResponse {
-    bool success = 1;
-}
-
-message UpdateProductStatusRequest {
-    int64 id = 1;
-    int64 status = 2;
-}
-
-message UpdateProductStatusResponse {
-    bool success = 1;
-}
-
-message UpdateProductSalesRequest {
-    int64 id = 1;
-    int64 increment = 2;
-}
-
-message UpdateProductSalesResponse {
-    bool success = 1;
-}
-
-message UpdateProductPriceRequest {
-    int64 id = 1;
-    double price = 2;
-}
-
-message UpdateProductPriceResponse {
     bool success = 1;
 }
 
@@ -236,30 +204,14 @@ message CreateSkuResponse {
     int64 id = 1;
 }
 
-message UpdateSkuStockRequest {
-    int64 id = 1;
-    int64 increment = 2;
-}
-
-message UpdateSkuStockResponse {
-    bool success = 1;
-}
-
-message UpdateSkuPriceRequest {
+message UpdateSkuRequest {
     int64 id = 1;
     double price = 2;
+    int64 stock_increment = 3;
+    int64 sales_increment = 4;
 }
 
-message UpdateSkuSalesRequest {
-    int64 id = 1;
-    int64 increment = 2;
-}
-
-message UpdateSkuSalesResponse {
-    bool success = 1;
-}
-
-message UpdateSkuPriceResponse {
+message UpdateSkuResponse {
     bool success = 1;
 }
 
@@ -321,18 +273,10 @@ message UpdateReviewRequest {
     int32 rating = 2;
     string content = 3;
     repeated string images = 4;
+    int64 status = 5;
 }
 
 message UpdateReviewResponse {
-    bool success = 1;
-}
-
-message ChangeReviewStatusRequest {
-    int64 id = 1;
-    int64 status = 2;
-}
-
-message ChangeReviewStatusResponse {
     bool success = 1;
 }
 

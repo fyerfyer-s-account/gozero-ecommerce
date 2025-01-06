@@ -172,7 +172,7 @@ type DeleteReviewReq struct {
 }
 
 type GetCategoriesResp struct {
-	Categories []Category `json:"names"`
+	Categories []Category `json:"categories"`
 }
 
 type GetProductReq struct {

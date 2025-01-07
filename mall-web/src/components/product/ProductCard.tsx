@@ -1,6 +1,8 @@
 import { Card, Button, Badge, message } from 'antd'
-import { Link } from 'react-router-dom'
-import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons'
+import { Link, useNavigate } from 'react-router-dom'
+import { ShoppingCartOutlined, HeartOutlined, EditOutlined } from '@ant-design/icons'
+import { useAuth } from '@/context/AuthContext';
+import goodsIcon from '@/icon/goods_icon.jpg';
 
 interface ProductCardProps {
   id: string | number
@@ -21,8 +23,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
   stock,
   status 
 }) => {
-  const handleAddToCart = () => {
-    message.success('Added to cart')
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const actions = [
+    <Button
+      key="addToCart"
+      type="primary"
+      icon={<ShoppingCartOutlined />}
+      disabled={stock === 0 || status !== 'ON_SALE'}
+    />,
+    <Button 
+      key="favorite"
+      icon={<HeartOutlined />} 
+    />
+  ];
+
+  // Add edit button for admin
+  if (user?.role === 'admin') {
+    actions.push(
+      <Button
+        key="edit"
+        icon={<EditOutlined />}
+        onClick={() => navigate(`/products/${id}/edit`)}
+      />
+    );
   }
 
   return (
@@ -33,53 +58,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Card
         hoverable
         cover={
-          <Link to={`/products/${id}`}>
-            <img 
-              alt={name} 
-              src={image} 
-              className="h-48 w-full object-cover"
-            />
-          </Link>
-        }
-        actions={[
-          <Button 
-            key="addToCart"
-            type="primary" 
-            icon={<ShoppingCartOutlined />}
-            onClick={handleAddToCart}
-            disabled={stock === 0 || status !== 'ON_SALE'}
-          >
-            Add to Cart
-          </Button>,
-          <Button 
-            key="favorite"
-            icon={<HeartOutlined />} 
+          <img
+            alt={name}
+            src={image || goodsIcon}
+            className="h-48 object-cover"
           />
-        ]}
+        }
+        actions={actions}
       >
         <Card.Meta
-          title={
-            <Link to={`/products/${id}`} className="text-lg font-medium">
-              {name}
-            </Link>
-          }
+          title={<div className="text-lg font-bold">{name}</div>}
           description={
-            <div className="mt-2">
-              <p className="text-gray-500 line-clamp-2">{description}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-lg font-bold text-red-500">
-                  ${price.toFixed(2)}
-                </span>
-                <span className={`text-sm ${stock > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {stock > 0 ? `${stock} in stock` : 'Out of stock'}
-                </span>
-              </div>
+            <div>
+              <div className="text-red-500 font-bold">¥{price}</div>
+              <div className="text-gray-500 truncate">{description}</div>
             </div>
           }
         />
       </Card>
     </Badge.Ribbon>
-  )
-}
+  );
+};
 
 export default ProductCard

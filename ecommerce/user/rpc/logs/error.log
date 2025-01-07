@@ -204,3 +204,9 @@
 {"@timestamp":"2025-01-05T11:03:02.685Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
 {"@timestamp":"2025-01-05T11:06:32.705Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
 {"@timestamp":"2025-01-05T11:09:46.179Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-07T10:22:39.328Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-07T14:49:12.658Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-07T14:56:12.713Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-07T14:59:37.733Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-07T15:04:42.767Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}
+{"@timestamp":"2025-01-07T15:04:47.767Z","caller":"trace/agent.go:148","content":"[otel] error: Post \"http://127.0.0.1:14268/api/traces\": dial tcp 127.0.0.1:14268: connect: connection refused","level":"error"}

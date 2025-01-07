@@ -8,6 +8,7 @@ import SignUpPage from './pages/user/SignUpPage'
 import CreatePage from './pages/product/CreatePage'
 import CategoryPage from './pages/product/CategoryPage'
 import { useAuth } from './hooks/useAuth'
+import EditPage from './pages/product/EditPage'
 
 // Add auth guard component
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
@@ -64,6 +65,10 @@ export const router = createBrowserRouter([
       {
         path: '/categories/create',
         element: <RequireAuth><CategoryPage /></RequireAuth>
+      },
+      {
+        path: '/products/:id/edit',
+        element: <EditPage />
       }
     ]
   }

@@ -44,4 +44,16 @@ export const productApi = {
     const response = await api.post<CreateCategoryResp>('/api/admin/categories', data);
     return response.data;
   },
+
+  updateProduct: async (id: number, data: UpdateProductReq): Promise<void> => {
+    await api.put(`/api/admin/products/${id}`, data);
+  },
+
+  updateSku: async (id: number, data: any): Promise<void> => {
+    await api.put(`/api/admin/products/skus/${id}`, data);
+  },
+
+  updateCategory: async (id: number, data: any): Promise<void> => {
+    await api.put(`/api/admin/categories/${id}`, data);
+  }
 };

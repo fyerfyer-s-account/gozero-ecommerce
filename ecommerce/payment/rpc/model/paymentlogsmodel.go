@@ -1,6 +1,9 @@
 package model
 
-import "github.com/zeromicro/go-zero/core/stores/sqlx"
+import (
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+)
 
 var _ PaymentLogsModel = (*customPaymentLogsModel)(nil)
 
@@ -9,7 +12,6 @@ type (
 	// and implement the added methods in customPaymentLogsModel.
 	PaymentLogsModel interface {
 		paymentLogsModel
-		withSession(session sqlx.Session) PaymentLogsModel
 	}
 
 	customPaymentLogsModel struct {
@@ -18,12 +20,8 @@ type (
 )
 
 // NewPaymentLogsModel returns a model for the database table.
-func NewPaymentLogsModel(conn sqlx.SqlConn) PaymentLogsModel {
+func NewPaymentLogsModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) PaymentLogsModel {
 	return &customPaymentLogsModel{
-		defaultPaymentLogsModel: newPaymentLogsModel(conn),
+		defaultPaymentLogsModel: newPaymentLogsModel(conn, c, opts...),
 	}
-}
-
-func (m *customPaymentLogsModel) withSession(session sqlx.Session) PaymentLogsModel {
-	return NewPaymentLogsModel(sqlx.NewSqlConnFromSession(session))
 }

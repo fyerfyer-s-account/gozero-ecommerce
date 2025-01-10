@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +26,23 @@ func NewSelectItemLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Select
 
 // 商品选择
 func (l *SelectItemLogic) SelectItem(in *cart.SelectItemRequest) (*cart.SelectItemResponse, error) {
-	// todo: add your logic here and delete this line
+    if in.UserId <= 0 || in.ProductId <= 0 || in.SkuId <= 0 {
+        return nil, zeroerr.ErrInvalidParam
+    }
 
-	return &cart.SelectItemResponse{}, nil
+    // Update selected status
+    err := l.svcCtx.CartItemsModel.UpdateSelected(l.ctx, uint64(in.UserId), uint64(in.ProductId), uint64(in.SkuId), 1)
+    if err != nil {
+        return nil, zeroerr.ErrSelectFailed
+    }
+
+    // Recalculate cart stats
+    err = l.svcCtx.CartStatsModel.RecalculateStats(l.ctx, uint64(in.UserId))
+    if err != nil {
+        return nil, zeroerr.ErrStatsUpdateFailed
+    }
+
+    return &cart.SelectItemResponse{
+        Success: true,
+    }, nil
 }

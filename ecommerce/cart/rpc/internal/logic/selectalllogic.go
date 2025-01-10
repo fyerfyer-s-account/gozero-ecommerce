@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,23 @@ func NewSelectAllLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SelectA
 }
 
 func (l *SelectAllLogic) SelectAll(in *cart.SelectAllRequest) (*cart.SelectAllResponse, error) {
-	// todo: add your logic here and delete this line
+    if in.UserId <= 0 {
+        return nil, zeroerr.ErrInvalidParam
+    }
 
-	return &cart.SelectAllResponse{}, nil
+    // Update all items to selected
+    err := l.svcCtx.CartItemsModel.UpdateAllSelected(l.ctx, uint64(in.UserId), 1)
+    if err != nil {
+        return nil, zeroerr.ErrSelectAllFailed
+    }
+
+    // Recalculate cart statistics
+    err = l.svcCtx.CartStatsModel.RecalculateStats(l.ctx, uint64(in.UserId))
+    if err != nil {
+        return nil, zeroerr.ErrStatsUpdateFailed
+    }
+
+    return &cart.SelectAllResponse{
+        Success: true,
+    }, nil
 }

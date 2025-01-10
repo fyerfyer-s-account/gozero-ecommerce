@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,21 @@ func NewUnselectItemLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Unse
 }
 
 func (l *UnselectItemLogic) UnselectItem(in *cart.UnselectItemRequest) (*cart.UnselectItemResponse, error) {
-	// todo: add your logic here and delete this line
+    if in.UserId <= 0 || in.ProductId <= 0 || in.SkuId <= 0 {
+        return nil, zeroerr.ErrInvalidParam
+    }
 
-	return &cart.UnselectItemResponse{}, nil
+    err := l.svcCtx.CartItemsModel.UpdateSelected(l.ctx, uint64(in.UserId), uint64(in.ProductId), uint64(in.SkuId), 0)
+    if err != nil {
+        return nil, zeroerr.ErrDeselectFailed
+    }
+
+    err = l.svcCtx.CartStatsModel.RecalculateStats(l.ctx, uint64(in.UserId))
+    if err != nil {
+        return nil, zeroerr.ErrStatsUpdateFailed
+    }
+
+    return &cart.UnselectItemResponse{
+        Success: true,
+    }, nil
 }

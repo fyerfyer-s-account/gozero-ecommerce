@@ -280,7 +280,7 @@ type PaymentOrder struct {
 }
 
 type PaymentStatusReq struct {
-	PaymentNo string `json:"paymentNo"`
+	PaymentNo string `path:"paymentNo"`
 }
 
 type PaymentStatusResp struct {
@@ -350,7 +350,7 @@ type RefundResp struct {
 }
 
 type RefundStatusReq struct {
-	RefundNo string `json:"refundNo"`
+	RefundNo string `path:"refundNo"`
 }
 
 type RefundStatusResp struct {

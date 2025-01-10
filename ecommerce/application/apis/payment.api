@@ -29,6 +29,14 @@ type (
         QrCode    string `json:"qrCode,optional"`    // 二维码链接
     }
 
+    PaymentStatusReq {
+        PaymentNo string `path:"paymentNo"`
+    }
+
+    RefundStatusReq {
+        RefundNo string `path:"refundNo"`
+    }
+
     // 退款
     RefundReq {
         PaymentNo string  `json:"paymentNo"`
@@ -67,21 +75,11 @@ type (
         Message string `json:"message"`
     }
 
-    // 查询支付状态
-    PaymentStatusReq {
-        PaymentNo string `json:"paymentNo"`
-    }
-
     PaymentStatusResp {
         Status    int32   `json:"status"`
         Amount    float64 `json:"amount"`
         PayTime   int64   `json:"payTime,optional"`
         ErrorMsg  string  `json:"errorMsg,optional"`
-    }
-
-    // 查询退款状态
-    RefundStatusReq {
-        RefundNo string `json:"refundNo"`
     }
 
     RefundStatusResp {

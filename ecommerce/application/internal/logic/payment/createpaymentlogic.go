@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/types"
+	payment "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/payment"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,6 +26,23 @@ func NewCreatePaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 
 func (l *CreatePaymentLogic) CreatePayment(req *types.CreatePaymentReq) (resp *types.CreatePaymentResp, err error) {
 	// todo: add your logic here and delete this line
+	userId := l.ctx.Value("userId").(int64)
 
-	return
+    res, err := l.svcCtx.PaymentRpc.CreatePayment(l.ctx, &payment.CreatePaymentRequest{
+        OrderNo:   req.OrderNo,
+        UserId:    userId,
+        Amount:    req.Amount,
+        Channel:   int64(req.PaymentType),
+        NotifyUrl: req.NotifyUrl,
+        ReturnUrl: req.ReturnUrl,
+    })
+
+    if err != nil {
+        return nil, err
+    }
+
+    return &types.CreatePaymentResp{
+        PaymentNo: res.PaymentNo,
+        PayUrl:    res.PayUrl,
+    }, nil
 }

@@ -1,5 +1,11 @@
 package zeroerr
 
+// API Common Errors
+var (
+    ErrInvalidParameter = NewCodeError(100001, "invalid parameter")
+    ErrPaymentNoEmpty   = NewCodeError(100002, "payment number cannot be empty")
+)
+
 // Common Payment Errors
 var (
     ErrInvalidPaymentAmount        = NewCodeError(103001, "无效的支付金额")

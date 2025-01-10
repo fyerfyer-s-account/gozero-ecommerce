@@ -191,10 +191,10 @@ service mall-api {
 	post /api/payments (CreatePaymentReq) returns (CreatePaymentResp)
 
 	@handler GetPaymentStatus
-	get /api/payments/:paymentNo/status returns (PaymentStatusResp)
+	get /api/payments/:paymentNo/status (PaymentStatusReq) returns (PaymentStatusResp)
 
 	@handler GetRefundStatus
-	get /api/refunds/:refundNo/status returns (RefundStatusResp)
+	get /api/refunds/:refundNo/status (RefundStatusReq) returns (RefundStatusResp)
 }
 
 @server (

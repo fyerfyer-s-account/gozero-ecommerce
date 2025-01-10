@@ -3,7 +3,7 @@ package svc
 import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/middleware"
-	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cartclient"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cartclient"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketingclient"
 	// "github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/messageservice"
@@ -28,7 +28,7 @@ type ServiceContext struct {
 
 	UserRpc    userclient.User
 	ProductRpc productservice.ProductService
-	// CartRpc      cartclient.Cart
+	CartRpc      cartclient.Cart
 	// OrderRpc     orderservice.OrderService
 	PaymentRpc paymentclient.Payment
 	// InventoryRpc inventoryclient.Inventory
@@ -57,7 +57,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ProductRpc:     productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
 		AdminAuth:      middleware.NewAdminAuthMiddleware(c).Handle,
 		Auth:           middleware.NewAuthMiddleware(c).Handle,
-		// CartRpc:      cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
+		CartRpc:      cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
 		// OrderRpc:     orderservice.NewOrderService(zrpc.MustNewClient(c.OrderRpc)),
 		PaymentRpc:     paymentclient.NewPayment(zrpc.MustNewClient(c.PaymentRpc)),
 		// InventoryRpc: inventoryclient.NewInventory(zrpc.MustNewClient(c.InventoryRpc)),

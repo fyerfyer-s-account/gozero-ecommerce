@@ -50,11 +50,11 @@ ProductRpc:
       - 127.0.0.1:2379
     Key: product.rpc
 
-# CartRpc:
-#   Etcd:
-#     Hosts:
-#       - 127.0.0.1:2379
-#     Key: cart.rpc
+CartRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: cart.rpc
 
 # OrderRpc:
 #   Etcd:

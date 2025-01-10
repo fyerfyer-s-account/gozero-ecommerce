@@ -1,6 +1,9 @@
 package model
 
-import "github.com/zeromicro/go-zero/core/stores/sqlx"
+import (
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+)
 
 var _ CartStatisticsModel = (*customCartStatisticsModel)(nil)
 
@@ -9,7 +12,6 @@ type (
 	// and implement the added methods in customCartStatisticsModel.
 	CartStatisticsModel interface {
 		cartStatisticsModel
-		withSession(session sqlx.Session) CartStatisticsModel
 	}
 
 	customCartStatisticsModel struct {
@@ -18,12 +20,8 @@ type (
 )
 
 // NewCartStatisticsModel returns a model for the database table.
-func NewCartStatisticsModel(conn sqlx.SqlConn) CartStatisticsModel {
+func NewCartStatisticsModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) CartStatisticsModel {
 	return &customCartStatisticsModel{
-		defaultCartStatisticsModel: newCartStatisticsModel(conn),
+		defaultCartStatisticsModel: newCartStatisticsModel(conn, c, opts...),
 	}
-}
-
-func (m *customCartStatisticsModel) withSession(session sqlx.Session) CartStatisticsModel {
-	return NewCartStatisticsModel(sqlx.NewSqlConnFromSession(session))
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/payment"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,7 +25,33 @@ func NewListPaymentChannelsLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *ListPaymentChannelsLogic) ListPaymentChannels(in *payment.ListPaymentChannelsRequest) (*payment.ListPaymentChannelsResponse, error) {
-	// todo: add your logic here and delete this line
+    var channels []*model.PaymentChannels
+    var err error
 
-	return &payment.ListPaymentChannelsResponse{}, nil
+    if in.Status > 0 {
+        channels, err = l.svcCtx.PaymentChannelsModel.FindManyByStatus(l.ctx, int64(in.Status))
+    } else {
+        channels, err = l.svcCtx.PaymentChannelsModel.FindAll(l.ctx)
+    }
+
+    if err != nil {
+        return nil, err
+    }
+
+    var protoChannels []*payment.PaymentChannel
+    for _, ch := range channels {
+        protoChannels = append(protoChannels, &payment.PaymentChannel{
+            Id:        int64(ch.Id),
+            Name:      ch.Name,
+            Channel:   ch.Channel,
+            Config:    ch.Config,
+            Status:    int32(ch.Status),
+            CreatedAt: ch.CreatedAt.Unix(),
+            UpdatedAt: ch.UpdatedAt.Unix(),
+        })
+    }
+
+    return &payment.ListPaymentChannelsResponse{
+        Channels: protoChannels,
+    }, nil
 }

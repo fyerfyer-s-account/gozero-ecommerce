@@ -1432,3 +1432,5 @@
 {"@timestamp":"2025-01-07T15:04:42.979Z","caller":"sqlx/stmt.go:274","content":"sql query: select count(*) from `products`","duration":"0.4ms","level":"info","span":"68acce2633162c09","trace":"1e26d37ebe864f57ff133f5ed414879e"}
 {"@timestamp":"2025-01-07T15:04:42.979Z","caller":"sqlx/stmt.go:274","content":"sql query: select `id`,`name`,`brief`,`description`,`category_id`,`brand`,`images`,`price`,`sales`,`status`,`created_at`,`updated_at` from `products` limit 0,10","duration":"0.5ms","level":"info","span":"41b5b3af48027f1c","trace":"1e26d37ebe864f57ff133f5ed414879e"}
 {"@timestamp":"2025-01-07T15:04:42.980Z","caller":"serverinterceptors/statinterceptor.go:90","content":"10.0.1.64:42988 - /product.ProductService/ListProducts - {\"page\":1}","duration":"1.2ms","level":"info","span":"2d57e4ff9a1c46f5","trace":"1e26d37ebe864f57ff133f5ed414879e"}
+{"@timestamp":"2025-01-09T12:28:53.546Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}
+{"@timestamp":"2025-01-10T00:48:17.987Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9081","level":"info"}

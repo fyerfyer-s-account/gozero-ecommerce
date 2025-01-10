@@ -1,6 +1,76 @@
 Name: payment.rpc
 ListenOn: 0.0.0.0:8084
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  Exchanges:
+    PaymentEvent:
+      Name: payment.events
+      Type: topic
+      Durable: true
+  Queues:
+    PaymentStatus:
+      Name: payment.status
+      RoutingKey: payment.#
+      Durable: true
+    RefundStatus:
+      Name: refund.status
+      RoutingKey: refund.#
+      Durable: true
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_payment?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+# Payment specific settings
+PaymentTimeout: 7200      # Payment expiration time in seconds (2 hours)
+RefundTimeout: 604800     # Refund timeout in seconds (7 days)
+MaxRetries: 3            # Maximum payment/refund retry attempts
+DefaultPageSize: 10      # Default page size for listings
+MaxAmount: 100000        # Maximum payment amount
+MinAmount: 0.01         # Minimum payment amount
+
+Log:
+  ServiceName: payment-rpc
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9084
+  Path: /metrics
+
+Telemetry:
+  Name: payment.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: payment.rpc
+
+# RPC Service Endpoints
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+
+OrderRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: order.rpc

@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/payment"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,22 @@ func NewGetPaymentStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *GetPaymentStatusLogic) GetPaymentStatus(in *payment.GetPaymentStatusRequest) (*payment.GetPaymentStatusResponse, error) {
-	// todo: add your logic here and delete this line
+    if in.PaymentNo == "" {
+        return nil, zeroerr.ErrInvalidParam
+    }
 
-	return &payment.GetPaymentStatusResponse{}, nil
+    paymentOrder, err := l.svcCtx.PaymentOrdersModel.FindOneByPaymentNo(l.ctx, in.PaymentNo)
+    if err != nil {
+        return nil, zeroerr.ErrPaymentNotFound
+    }
+
+    var channelData string
+    if paymentOrder.ChannelData.Valid {
+        channelData = paymentOrder.ChannelData.String
+    }
+
+    return &payment.GetPaymentStatusResponse{
+        Status:      int32(paymentOrder.Status),
+        ChannelData: channelData,
+    }, nil
 }

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/zeromicro/go-zero/core/stores/sqlx"
+import (
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+)
 
 var _ OrderPaymentsModel = (*customOrderPaymentsModel)(nil)
 
@@ -9,7 +12,6 @@ type (
 	// and implement the added methods in customOrderPaymentsModel.
 	OrderPaymentsModel interface {
 		orderPaymentsModel
-		withSession(session sqlx.Session) OrderPaymentsModel
 	}
 
 	customOrderPaymentsModel struct {
@@ -18,12 +20,8 @@ type (
 )
 
 // NewOrderPaymentsModel returns a model for the database table.
-func NewOrderPaymentsModel(conn sqlx.SqlConn) OrderPaymentsModel {
+func NewOrderPaymentsModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) OrderPaymentsModel {
 	return &customOrderPaymentsModel{
-		defaultOrderPaymentsModel: newOrderPaymentsModel(conn),
+		defaultOrderPaymentsModel: newOrderPaymentsModel(conn, c, opts...),
 	}
-}
-
-func (m *customOrderPaymentsModel) withSession(session sqlx.Session) OrderPaymentsModel {
-	return NewOrderPaymentsModel(sqlx.NewSqlConnFromSession(session))
 }

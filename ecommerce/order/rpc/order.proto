@@ -54,7 +54,7 @@ message OrderItem {
     string product_name = 5;
     string sku_name = 6;
     double price = 7;
-    int32 quantity = 8;
+    int64 quantity = 8;
     double total_amount = 9;
 }
 

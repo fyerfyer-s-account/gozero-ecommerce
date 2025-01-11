@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,25 @@ func NewCancelOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cance
 }
 
 func (l *CancelOrderLogic) CancelOrder(in *order.CancelOrderRequest) (*order.CancelOrderResponse, error) {
-	// todo: add your logic here and delete this line
+    if len(in.OrderNo) == 0 {
+        return nil, zeroerr.ErrOrderInvalidParam
+    }
 
-	return &order.CancelOrderResponse{}, nil
+    orderInfo, err := l.svcCtx.OrdersModel.FindOneByOrderNo(l.ctx, in.OrderNo)
+    if err != nil {
+        return nil, err
+    }
+
+    if orderInfo.Status != 1 {
+        return nil, zeroerr.ErrOrderStatusInvalid
+    }
+
+    err = l.svcCtx.OrdersModel.UpdateStatus(l.ctx, orderInfo.Id, 5) // 5: Canceled
+    if err != nil {
+        return nil, err
+    }
+
+    return &order.CancelOrderResponse{
+        Success: true,
+    }, nil
 }

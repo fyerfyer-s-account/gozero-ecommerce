@@ -32,9 +32,9 @@ type BatchOperateReq struct {
 type CartInfo struct {
 	Items         []CartItem `json:"items"`
 	TotalPrice    float64    `json:"totalPrice"`
-	TotalQuantity int32      `json:"totalQuantity"`
+	TotalQuantity int64      `json:"totalQuantity"`
 	SelectedPrice float64    `json:"selectedPrice"`
-	SelectedCount int32      `json:"selectedCount"`
+	SelectedCount int64      `json:"selectedCount"`
 }
 
 type CartItem struct {
@@ -45,7 +45,7 @@ type CartItem struct {
 	SkuName     string  `json:"skuName"`
 	Image       string  `json:"image"`
 	Price       float64 `json:"price"`
-	Quantity    int32   `json:"quantity"`
+	Quantity    int64   `json:"quantity"`
 	Selected    bool    `json:"selected"`
 	Stock       int32   `json:"stock"`
 	CreatedAt   int64   `json:"createdAt"`
@@ -54,7 +54,7 @@ type CartItem struct {
 type CartItemReq struct {
 	ProductId int64 `json:"productId"`
 	SkuId     int64 `json:"skuId"`
-	Quantity  int32 `json:"quantity"`
+	Quantity  int64 `json:"quantity"`
 }
 
 type Category struct {
@@ -156,6 +156,11 @@ type DeleteAddressReq struct {
 
 type DeleteCategoryReq struct {
 	Id int64 `json:"id"`
+}
+
+type DeleteItemReq struct {
+	Id    int64 `path:"id"`
+	SkuId int64 `json:"skuId"`
 }
 
 type DeleteProductReq struct {
@@ -422,7 +427,7 @@ type SearchResp struct {
 type SelectedItemsResp struct {
 	Items         []CartItem `json:"items"`
 	TotalPrice    float64    `json:"totalPrice"`
-	TotalQuantity int32      `json:"totalQuantity"`
+	TotalQuantity int64      `json:"totalQuantity"`
 	ValidStock    bool       `json:"validStock"` // 库存是否足够
 }
 

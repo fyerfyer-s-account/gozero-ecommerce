@@ -141,7 +141,7 @@ service mall-api {
 	put /api/cart/items/:id (CartItemReq)
 
 	@handler DeleteCartItem
-	delete /api/cart/items/:id
+	delete /api/cart/items/:id (DeleteItemReq)
 
 	@handler GetCart
 	get /api/cart returns (CartInfo)

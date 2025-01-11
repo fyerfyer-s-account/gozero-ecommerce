@@ -17,6 +17,10 @@ type Cart struct {
 	mock.Mock
 }
 
+func (_m *Cart) On(s string, param any, request *cart.GetSelectedItemsRequest) {
+	panic("unimplemented")
+}
+
 type Cart_Expecter struct {
 	mock *mock.Mock
 }

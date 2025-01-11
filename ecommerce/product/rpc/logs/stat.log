@@ -4053,3 +4053,35 @@
 {"@timestamp":"2025-01-10T07:43:05.800Z","caller":"stat/usage.go:61","content":"CPU: 349m, MEMORY: Alloc=3.8Mi, TotalAlloc=239.6Mi, Sys=17.3Mi, NumGC=75","level":"stat"}
 {"@timestamp":"2025-01-10T07:43:05.808Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 349, total: 0, pass: 0, drop: 0","level":"stat"}
 {"@timestamp":"2025-01-10T07:43:19.336Z","caller":"stat/metrics.go:210","content":"(product.rpc) - qps: 0.0/s, drops: 0, avg time: 0.0ms, med: 0.0ms, 90th: 0.0ms, 99th: 0.0ms, 99.9th: 0.0ms","level":"stat"}
+{"@timestamp":"2025-01-10T12:30:41.549Z","caller":"stat/usage.go:61","content":"CPU: 61m, MEMORY: Alloc=3.7Mi, TotalAlloc=8.3Mi, Sys=13.1Mi, NumGC=4","level":"stat"}
+{"@timestamp":"2025-01-10T12:30:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 58, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:31:41.550Z","caller":"stat/usage.go:61","content":"CPU: 5m, MEMORY: Alloc=4.7Mi, TotalAlloc=11.5Mi, Sys=13.3Mi, NumGC=5","level":"stat"}
+{"@timestamp":"2025-01-10T12:31:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 5, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:32:41.549Z","caller":"stat/usage.go:61","content":"CPU: 6m, MEMORY: Alloc=5.3Mi, TotalAlloc=14.4Mi, Sys=13.3Mi, NumGC=6","level":"stat"}
+{"@timestamp":"2025-01-10T12:32:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 6, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:33:41.549Z","caller":"stat/usage.go:61","content":"CPU: 236m, MEMORY: Alloc=3.5Mi, TotalAlloc=17.3Mi, Sys=13.3Mi, NumGC=8","level":"stat"}
+{"@timestamp":"2025-01-10T12:33:41.563Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 224, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:34:41.550Z","caller":"stat/usage.go:61","content":"CPU: 5m, MEMORY: Alloc=4.1Mi, TotalAlloc=20.3Mi, Sys=13.3Mi, NumGC=9","level":"stat"}
+{"@timestamp":"2025-01-10T12:34:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 5, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:35:41.549Z","caller":"stat/usage.go:61","content":"CPU: 23m, MEMORY: Alloc=4.7Mi, TotalAlloc=23.1Mi, Sys=13.3Mi, NumGC=10","level":"stat"}
+{"@timestamp":"2025-01-10T12:35:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 22, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:36:41.550Z","caller":"stat/usage.go:61","content":"CPU: 6m, MEMORY: Alloc=5.3Mi, TotalAlloc=26.1Mi, Sys=13.3Mi, NumGC=11","level":"stat"}
+{"@timestamp":"2025-01-10T12:36:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 6, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:37:41.549Z","caller":"stat/usage.go:61","content":"CPU: 32m, MEMORY: Alloc=5.2Mi, TotalAlloc=29.0Mi, Sys=17.3Mi, NumGC=12","level":"stat"}
+{"@timestamp":"2025-01-10T12:37:41.563Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 32, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:38:41.549Z","caller":"stat/usage.go:61","content":"CPU: 6m, MEMORY: Alloc=5.0Mi, TotalAlloc=31.9Mi, Sys=17.3Mi, NumGC=13","level":"stat"}
+{"@timestamp":"2025-01-10T12:38:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 6, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:39:41.549Z","caller":"stat/usage.go:61","content":"CPU: 4m, MEMORY: Alloc=4.8Mi, TotalAlloc=34.8Mi, Sys=17.3Mi, NumGC=14","level":"stat"}
+{"@timestamp":"2025-01-10T12:39:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 4, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:40:41.550Z","caller":"stat/usage.go:61","content":"CPU: 27m, MEMORY: Alloc=4.7Mi, TotalAlloc=37.7Mi, Sys=17.3Mi, NumGC=15","level":"stat"}
+{"@timestamp":"2025-01-10T12:40:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 27, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:41:41.549Z","caller":"stat/usage.go:61","content":"CPU: 7m, MEMORY: Alloc=4.5Mi, TotalAlloc=40.6Mi, Sys=17.3Mi, NumGC=16","level":"stat"}
+{"@timestamp":"2025-01-10T12:41:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 7, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:42:41.550Z","caller":"stat/usage.go:61","content":"CPU: 161m, MEMORY: Alloc=4.3Mi, TotalAlloc=43.5Mi, Sys=17.3Mi, NumGC=17","level":"stat"}
+{"@timestamp":"2025-01-10T12:42:41.565Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 161, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:43:41.550Z","caller":"stat/usage.go:61","content":"CPU: 4m, MEMORY: Alloc=4.0Mi, TotalAlloc=46.4Mi, Sys=17.3Mi, NumGC=18","level":"stat"}
+{"@timestamp":"2025-01-10T12:43:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 4, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:44:41.549Z","caller":"stat/usage.go:61","content":"CPU: 7m, MEMORY: Alloc=3.8Mi, TotalAlloc=49.3Mi, Sys=17.3Mi, NumGC=19","level":"stat"}
+{"@timestamp":"2025-01-10T12:44:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 7, total: 0, pass: 0, drop: 0","level":"stat"}
+{"@timestamp":"2025-01-10T12:45:41.549Z","caller":"stat/usage.go:61","content":"CPU: 4m, MEMORY: Alloc=3.6Mi, TotalAlloc=52.2Mi, Sys=17.3Mi, NumGC=20","level":"stat"}
+{"@timestamp":"2025-01-10T12:45:41.564Z","caller":"load/sheddingstat.go:61","content":"(rpc) shedding_stat [1m], cpu: 4, total: 0, pass: 0, drop: 0","level":"stat"}

@@ -21,6 +21,10 @@ RabbitMQ:
       Name: inventory.stock.alert
       RoutingKey: alert.#
       Durable: true
+    StockLock:
+      Name: inventory.stock.lock
+      RoutingKey: lock.#
+      Durable: true
 
 Mysql:
   DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_inventory?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci

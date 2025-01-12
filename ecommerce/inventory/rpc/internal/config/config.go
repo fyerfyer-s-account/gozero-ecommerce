@@ -34,12 +34,18 @@ type Config struct {
 				Name       string
 				RoutingKey string
 				Durable    bool
+				}
+			StockLock struct {
+				Name       string
+				RoutingKey string
+				Durable    bool
 			}
 		}
 	}
-	StockLockTimeout int   `json:",default=1800"`
-	MaxBatchSize     int   `json:",default=100"`
-	AlertThreshold   int   `json:",default=10"`
-	DefaultWarehouse int64 `json:",default=1"`
-	PageSize         int   `json:",default=20"`
+	StockLockTimeout int   
+	MaxBatchSize     int  
+	AlertThreshold   int  
+	DefaultWarehouse int64
+	PageSize         int   
+	MessageRpc       zrpc.RpcClientConf
 }

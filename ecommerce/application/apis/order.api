@@ -4,11 +4,6 @@ type (
     // 创建订单
     CreateOrderReq {
         AddressId    int64         `json:"addressId"`
-        CartItemIds  []int64       `json:"cartItemIds,optional"`  // 从购物车创建
-        Products     []OrderProduct `json:"products,optional"`     // 直接购买
-        CouponId     int64         `json:"couponId,optional"`
-        UsePoints    bool          `json:"usePoints,optional"`
-        PaymentType  int32         `json:"paymentType"`           // 1:微信 2:支付宝 3:余额
         Note         string        `json:"note,optional"`
     }
 
@@ -16,6 +11,18 @@ type (
         ProductId int64 `json:"productId"`
         SkuId    int64 `json:"skuId"`
         Quantity int32 `json:"quantity"`
+    }
+
+    CancelOrderReq {
+        Id      int64   `path:"id"`
+    }
+
+    ConfirmOrderReq {
+        Id      int64   `path:"id"`
+    }
+
+    GetOrderReq {
+        Id      int64   `path:"id"`
     }
 
     // 订单信息
@@ -34,6 +41,7 @@ type (
         Address       Address     `json:"address"`
         Payment       Payment     `json:"payment"`
         Shipping      Shipping    `json:"shipping"`
+        Note         string      `json:"note"`
         CreatedAt     int64      `json:"createdAt"`
         PayTime       int64      `json:"payTime,optional"`
         ShipTime      int64      `json:"shipTime,optional"`
@@ -85,8 +93,8 @@ type (
 
     // 售后相关
     CreateRefundReq {
-        OrderId  int64    `json:"orderId"`
-        Type     int32    `json:"type"`      // 1:仅退款 2:退货退款
+        Id       int64    `path:"id"`
+        OrderNo  string   `json:"orderNo"`
         Reason   string   `json:"reason"`
         Amount   float64  `json:"amount"`
         Desc     string   `json:"desc,optional"`
@@ -97,7 +105,6 @@ type (
         Id        int64    `json:"id"`
         OrderId   int64    `json:"orderId"`
         RefundNo  string   `json:"refundNo"`
-        Type      int32    `json:"type"`
         Status    int32    `json:"status"`    // 0:待处理 1:已同意 2:已拒绝 3:已退款
         Amount    float64  `json:"amount"`
         Reason    string   `json:"reason"`

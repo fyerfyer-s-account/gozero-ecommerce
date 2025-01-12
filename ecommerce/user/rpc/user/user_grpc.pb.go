@@ -24,6 +24,7 @@ const (
 	User_Logout_FullMethodName           = "/user.User/Logout"
 	User_GetUserInfo_FullMethodName      = "/user.User/GetUserInfo"
 	User_GetUserAddresses_FullMethodName = "/user.User/GetUserAddresses"
+	User_GetAddress_FullMethodName       = "/user.User/GetAddress"
 	User_GetTransactions_FullMethodName  = "/user.User/GetTransactions"
 	User_UpdateUserInfo_FullMethodName   = "/user.User/UpdateUserInfo"
 	User_ChangePassword_FullMethodName   = "/user.User/ChangePassword"
@@ -46,10 +47,12 @@ type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// 用户登录
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	// 用户登出
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 	// 获取用户信息
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
 	GetUserAddresses(ctx context.Context, in *GetUserAddressesRequest, opts ...grpc.CallOption) (*GetUserAddressesResponse, error)
+	GetAddress(ctx context.Context, in *GetAddressRequest, opts ...grpc.CallOption) (*GetAddressResponse, error)
 	GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error)
 	// 更新用户信息
 	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error)
@@ -119,6 +122,16 @@ func (c *userClient) GetUserAddresses(ctx context.Context, in *GetUserAddressesR
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUserAddressesResponse)
 	err := c.cc.Invoke(ctx, User_GetUserAddresses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetAddress(ctx context.Context, in *GetAddressRequest, opts ...grpc.CallOption) (*GetAddressResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAddressResponse)
+	err := c.cc.Invoke(ctx, User_GetAddress_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -235,10 +248,12 @@ type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// 用户登录
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	// 用户登出
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	// 获取用户信息
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error)
 	GetUserAddresses(context.Context, *GetUserAddressesRequest) (*GetUserAddressesResponse, error)
+	GetAddress(context.Context, *GetAddressRequest) (*GetAddressResponse, error)
 	GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error)
 	// 更新用户信息
 	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error)
@@ -278,6 +293,9 @@ func (UnimplementedUserServer) GetUserInfo(context.Context, *GetUserInfoRequest)
 }
 func (UnimplementedUserServer) GetUserAddresses(context.Context, *GetUserAddressesRequest) (*GetUserAddressesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserAddresses not implemented")
+}
+func (UnimplementedUserServer) GetAddress(context.Context, *GetAddressRequest) (*GetAddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAddress not implemented")
 }
 func (UnimplementedUserServer) GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransactions not implemented")
@@ -416,6 +434,24 @@ func _User_GetUserAddresses_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).GetUserAddresses(ctx, req.(*GetUserAddressesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetAddress(ctx, req.(*GetAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -626,6 +662,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserAddresses",
 			Handler:    _User_GetUserAddresses_Handler,
+		},
+		{
+			MethodName: "GetAddress",
+			Handler:    _User_GetAddress_Handler,
 		},
 		{
 			MethodName: "GetTransactions",

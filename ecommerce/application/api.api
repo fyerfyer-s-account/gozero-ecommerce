@@ -166,16 +166,16 @@ service mall-api {
 	post /api/orders (CreateOrderReq) returns (Order)
 
 	@handler GetOrder
-	get /api/orders/:id returns (Order)
+	get /api/orders/:id (GetOrderReq) returns (Order)
 
 	@handler ListOrders
 	get /api/orders (OrderListReq) returns (OrderListResp)
 
 	@handler CancelOrder
-	post /api/orders/:id/cancel
+	post /api/orders/:id/cancel (CancelOrderReq)
 
 	@handler ConfirmReceived
-	post /api/orders/:id/confirm
+	post /api/orders/:id/confirm (ConfirmOrderReq)
 
 	@handler CreateRefund
 	post /api/orders/:id/refund (CreateRefundReq) returns (RefundInfo)

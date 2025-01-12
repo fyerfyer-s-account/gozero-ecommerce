@@ -2,8 +2,12 @@ package order
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/application/internal/types"
+	order "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -21,8 +25,20 @@ func NewConfirmReceivedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 	}
 }
 
-func (l *ConfirmReceivedLogic) ConfirmReceived() error {
-	// todo: add your logic here and delete this line
+func (l *ConfirmReceivedLogic) ConfirmReceived(req *types.ConfirmOrderReq) error {
+    orderId := strconv.FormatInt(req.Id, 10)
 
-	return nil
+    // Get order details first
+    orderResp, err := l.svcCtx.OrderRpc.GetOrder(l.ctx, &order.GetOrderRequest{
+        OrderNo: orderId,
+    })
+    if err != nil {
+        return err
+    }
+	
+    _, err = l.svcCtx.OrderRpc.ReceiveOrder(l.ctx, &order.ReceiveOrderRequest{
+        OrderNo: orderResp.Order.OrderNo,
+    })
+
+    return err
 }

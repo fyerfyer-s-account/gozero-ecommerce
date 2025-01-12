@@ -40,4 +40,5 @@ type Config struct {
 	ProductRpc zrpc.RpcClientConf
 	PaymentRpc zrpc.RpcClientConf
 	CartRpc    zrpc.RpcClientConf
+	OrderRpc   zrpc.RpcClientConf
 }

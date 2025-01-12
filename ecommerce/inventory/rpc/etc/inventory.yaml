@@ -1,6 +1,62 @@
 Name: inventory.rpc
 ListenOn: 0.0.0.0:8085
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  Exchanges:
+    InventoryEvent:
+      Name: inventory.events
+      Type: topic
+      Durable: true
+  Queues:
+    StockUpdate:
+      Name: inventory.stock.update
+      RoutingKey: stock.#
+      Durable: true
+    StockAlert:
+      Name: inventory.stock.alert
+      RoutingKey: alert.#
+      Durable: true
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_inventory?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+# Inventory specific settings
+StockLockTimeout: 1800    # Stock lock timeout in seconds
+MaxBatchSize: 100         # Maximum items in batch operations
+AlertThreshold: 10        # Low stock alert threshold
+DefaultWarehouseId: 1     # Default warehouse ID
+PageSize: 20              # Default page size
+
+Log:
+  ServiceName: inventory-rpc
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9085
+  Path: /metrics
+
+Telemetry:
+  Name: inventory.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: inventory.rpc

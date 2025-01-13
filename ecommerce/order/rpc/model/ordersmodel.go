@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -22,6 +23,7 @@ type (
         CountByUserIdAndStatus(ctx context.Context, userId uint64, status int64) (int64, error)
         BatchUpdateStatus(ctx context.Context, ids []uint64, status int64) error
         CreateOrder(ctx context.Context, order *Orders) (uint64, error)
+        FindByOrderNo(ctx context.Context, orderNo string) (*Orders, error)
     }
 
     customOrdersModel struct {
@@ -116,4 +118,18 @@ func (m *customOrdersModel) CreateOrder(ctx context.Context, order *Orders) (uin
 
     id, err := result.LastInsertId()
     return uint64(id), err
+}
+
+func (m *customOrdersModel) FindByOrderNo(ctx context.Context, orderNo string) (*Orders, error) {
+	var resp Orders
+    query := fmt.Sprintf("select %s from %s where `order_no` = ? limit 1", ordersRows, m.table)
+	err := m.QueryRowNoCacheCtx(ctx, &resp, query, orderNo)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
 }

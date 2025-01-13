@@ -1,13 +1,14 @@
 package svc
 
 import (
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cartclient"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/config"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/productservice"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/userclient"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"github.com/zeromicro/go-zero/zrpc"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cartclient"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/config"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/productservice"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/userclient"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer" 
+    "github.com/zeromicro/go-zero/core/stores/sqlx"
+    "github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -23,11 +24,15 @@ type ServiceContext struct {
     CartRpc            cartclient.Cart
     ProductRpc         productservice.ProductService
 
-    // OrderEventProducer *rabbitmq.Producer
+    OrderEventProducer *producer.Producer
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-    conn := sqlx.NewMysql(c.Mysql.DataSource)  
+    conn := sqlx.NewMysql(c.Mysql.DataSource) 
+    orderEventProducer, err := producer.NewProducer(&c.RabbitMQ)
+    if err != nil {
+        panic(err)
+    } 
     // orderEventProducer := rabbitmq.New.NewProducer(
     //     []string{c.RabbitMQ.Host}, 
     //     c.RabbitMQ.Username, 
@@ -47,6 +52,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
         UserRpc:            userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
         CartRpc:            cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
         ProductRpc:         productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
-        // OrderEventProducer: orderEventProducer,
+        OrderEventProducer: orderEventProducer,
     }
 }

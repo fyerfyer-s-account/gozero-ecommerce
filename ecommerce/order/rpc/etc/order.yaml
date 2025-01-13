@@ -4,7 +4,7 @@ ListenOn: 0.0.0.0:8083
 RabbitMQ:
   Host: localhost
   Port: 5672
-  Username: guest
+  Username: guest 
   Password: guest
   VHost: /
   Exchanges:
@@ -15,11 +15,11 @@ RabbitMQ:
   Queues:
     OrderStatus:
       Name: order.status
-      RoutingKey: order.#
+      RoutingKey: order.*
       Durable: true
-    ShippingStatus:
-      Name: shipping.status
-      RoutingKey: shipping.#
+    OrderAlert:
+      Name: order.alert  
+      RoutingKey: order.alert.*
       Durable: true
 
 Mysql:

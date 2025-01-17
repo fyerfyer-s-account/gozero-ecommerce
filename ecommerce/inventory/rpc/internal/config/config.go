@@ -34,7 +34,7 @@ type Config struct {
 				Name       string
 				RoutingKey string
 				Durable    bool
-				}
+			}
 			StockLock struct {
 				Name       string
 				RoutingKey string
@@ -42,10 +42,10 @@ type Config struct {
 			}
 		}
 	}
-	StockLockTimeout int   
-	MaxBatchSize     int  
-	AlertThreshold   int  
-	DefaultWarehouse int64
-	PageSize         int   
-	MessageRpc       zrpc.RpcClientConf
+	StockLockTimeout   int
+	MaxBatchSize       int
+	AlertThreshold     int
+	DefaultWarehouseId int64
+	PageSize           int
+	MessageRpc         zrpc.RpcClientConf
 }

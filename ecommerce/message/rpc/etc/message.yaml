@@ -1,6 +1,55 @@
 Name: message.rpc
 ListenOn: 0.0.0.0:8088
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  Exchanges:
+    MessageEvent:
+      Name: message.events
+      Type: topic
+      Durable: true
+  Queues:
+    NotificationQueue:
+      Name: message.notification
+      RoutingKey: notification.#
+      Durable: true
+    TemplateQueue:
+      Name: message.template
+      RoutingKey: template.#
+      Durable: true
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_message?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+Log:
+  ServiceName: message-rpc
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9088
+  Path: /metrics
+
+Telemetry:
+  Name: message.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: message.rpc

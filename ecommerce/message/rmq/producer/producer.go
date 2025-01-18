@@ -22,10 +22,16 @@ type Producer struct {
     notifyClose  chan *amqp.Error
 }
 
-func NewProducer(cfg config.RabbitMQConfig) *Producer {
-    return &Producer{
+func NewProducer(cfg config.RabbitMQConfig) (*Producer, error) {
+    p := &Producer{
         config: cfg,
     }
+    
+    if err := p.Start(); err != nil {
+        return nil, err
+    }
+    
+    return p, nil
 }
 
 func (p *Producer) Start() error {

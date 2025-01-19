@@ -1,6 +1,80 @@
 Name: marketing.rpc
 ListenOn: 0.0.0.0:8086
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  Exchanges:
+    MarketingEvent:
+      Name: marketing.events
+      Type: topic
+      Durable: true
+  Queues:
+    CouponEvent:
+      Name: marketing.coupon
+      RoutingKey: coupon.#
+      Durable: true
+    PromotionEvent:
+      Name: marketing.promotion
+      RoutingKey: promotion.#
+      Durable: true
+    PointsEvent:
+      Name: marketing.points
+      RoutingKey: points.#
+      Durable: true
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_marketing?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+# Marketing specific settings
+CouponLimits:
+  MaxPerUser: 10          # Maximum coupons per user
+  MaxActive: 100          # Maximum active coupons
+  BatchSize: 1000        # Batch processing size
+
+PromotionLimits:
+  MaxActive: 50          # Maximum active promotions
+  MaxRules: 10          # Maximum rules per promotion
+
+PointsLimits:
+  MaxPoints: 1000000    # Maximum points per user
+  MinPoints: 0          # Minimum points balance
+  ExpireDays: 365      # Points expiration in days
+
+Log:
+  ServiceName: marketing-rpc
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9086
+  Path: /metrics
+
+Telemetry:
+  Name: marketing.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+MessageRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: message.rpc
+
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: marketing.rpc

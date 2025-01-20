@@ -40,7 +40,7 @@ message Coupon {
     int32 total = 10;           // 发行总量
     int32 received = 11;        // 已领取数量
     int32 used = 12;            // 已使用数量
-    bool per_limit = 13;        // 是否限制每人领取数量
+    int64 per_limit = 13;        // 是否限制每人领取数量
     int32 user_limit = 14;      // 每人限领数量
     int64 created_at = 15;
     int64 updated_at = 16;
@@ -78,7 +78,7 @@ message CreateCouponRequest {
     int64 start_time = 5;
     int64 end_time = 6;
     int32 total = 7;
-    bool per_limit = 8;
+    int64 per_limit = 8;
     int32 user_limit = 9;
 }
 

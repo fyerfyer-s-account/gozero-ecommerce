@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +26,22 @@ func NewGetUserPointsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 // 积分系统
 func (l *GetUserPointsLogic) GetUserPoints(in *marketing.GetUserPointsRequest) (*marketing.GetUserPointsResponse, error) {
-	// todo: add your logic here and delete this line
+    if in.UserId <= 0 {
+        return nil, zeroerr.ErrInvalidMarketingParam
+    }
 
-	return &marketing.GetUserPointsResponse{}, nil
+    points, err := l.svcCtx.UserPointsModel.GetBalance(l.ctx, in.UserId)
+    if err != nil {
+        if err == zeroerr.ErrNotFound {
+            return &marketing.GetUserPointsResponse{
+                Points: 0,
+            }, nil
+        }
+        l.Logger.Errorf("Failed to get user points: %v", err)
+        return nil, err
+    }
+
+    return &marketing.GetUserPointsResponse{
+        Points: points,
+    }, nil
 }

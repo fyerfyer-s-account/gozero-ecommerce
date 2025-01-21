@@ -14,6 +14,9 @@ const (
 	EventTypeOrderCancelled EventType = "order.cancelled"
 	EventTypeOrderShipped   EventType = "order.shipped"
 	EventTypeOrderCompleted EventType = "order.completed"
+	EventTypeRefundCreated  EventType = "order.refund.created"
+	EventTypeRefundProcessed EventType = "order.refund.processed"
+	EventTypeRefundCompleted EventType = "order.refund.completed"
 )
 
 type OrderEvent struct {
@@ -67,6 +70,26 @@ type OrderShippedData struct {
     Company    string `json:"company"`
 }
 
+type RefundCreatedData struct {
+    OrderNo     string  `json:"orderNo"`
+    OrderId     int64   `json:"orderId"`
+    RefundNo    string  `json:"refundNo"`
+    Amount      float64 `json:"amount"`
+    Reason      string  `json:"reason"`
+    Images      string  `json:"images,omitempty"`
+    Description string  `json:"description,omitempty"`
+}
+
+type RefundProcessedData struct {
+    OrderNo     string    `json:"orderNo"`
+    OrderId     int64     `json:"orderId"`
+    RefundNo    string    `json:"refundNo"`
+    Amount      float64   `json:"amount"`
+    Status      int64     `json:"status"` // 1: approved, 2: rejected
+    Reply       string    `json:"reply"`
+    ProcessTime time.Time `json:"processTime"`
+}
+
 // Validate validates the event
 func (e *OrderEvent) Validate() error {
     if e.ID == "" {
@@ -90,7 +113,10 @@ func (e *OrderEvent) Validate() error {
 // IsRetryable determines if the event can be retried
 func (e *OrderEvent) IsRetryable() bool {
     switch e.Type {
-    case EventTypeOrderCreated, EventTypeOrderPaid:
+    case EventTypeOrderCreated, 
+         EventTypeOrderPaid,
+         EventTypeRefundCreated,
+         EventTypeRefundProcessed:
         return true
     default:
         return false

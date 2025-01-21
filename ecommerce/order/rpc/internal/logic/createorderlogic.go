@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -95,6 +98,28 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 	if err != nil {
 		return nil, zeroerr.ErrOrderCreateFailed
 	}
+
+	// After order creation success, publish event
+    event := producer.CreateOrderEvent(
+        uuid.New().String(),
+        types.EventTypeOrderCreated,
+        &types.OrderCreatedData{
+            OrderNo:     orderNo,
+            UserID:      in.UserId,
+            TotalAmount: totalAmount,
+            Items:      convertToEventItems(orderItems),
+        },
+        types.Metadata{
+            Source:  "order.service",
+            UserID:  in.UserId,
+            TraceID: l.ctx.Value("trace_id").(string),
+        },
+    )
+
+    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
+        logx.Errorf("failed to publish order created event: %v", err)
+        // Don't return error as order is already created
+    }
 
 	return &order.CreateOrderResponse{
 		OrderNo:   orderNo,

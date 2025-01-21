@@ -3,12 +3,16 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -70,6 +74,27 @@ func (l *ShipOrderLogic) ShipOrder(in *order.ShipOrderRequest) (*order.ShipOrder
 	if err != nil {
 		return nil, err
 	}
+
+	// After shipping record creation, publish event
+    event := producer.CreateOrderEvent(
+        uuid.New().String(),
+        types.EventTypeOrderShipped,
+        &types.OrderShippedData{
+            OrderNo:    orderInfo.OrderNo,
+            OrderId:    int64(orderInfo.Id),
+            ShippingNo: in.ShippingNo,
+            Company:    in.Company,
+        },
+        types.Metadata{
+            Source:  "order.service",
+            UserID:  int64(orderInfo.UserId),
+            TraceID: l.ctx.Value("trace_id").(string),
+        },
+    )
+
+    if err := l.svcCtx.Producer.PublishEventSync(event); err != nil {
+        return nil, fmt.Errorf("failed to publish shipping event: %w", err)
+    }
 
 	return &order.ShipOrderResponse{
 		Success: true,

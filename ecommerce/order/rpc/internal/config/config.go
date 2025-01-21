@@ -20,7 +20,7 @@ type Config struct {
 	DefaultPageSize int
 	MaxOrderItems   int
 
-	RabbitMQ   rmqconfig.RabbitMQConfig
+	RabbitMQ rmqconfig.RabbitMQConfig
 
 	UserRpc    zrpc.RpcClientConf
 	CartRpc    zrpc.RpcClientConf

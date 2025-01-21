@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -67,6 +70,27 @@ func (l *PayOrderLogic) PayOrder(in *order.PayOrderRequest) (*order.PayOrderResp
         payURL = fmt.Sprintf("https://alipay.com/%s", paymentNo)
     case 3:
         payURL = fmt.Sprintf("https://balance.pay.com/%s", paymentNo)
+    }
+
+    event := producer.CreateOrderEvent(
+        uuid.New().String(),
+        types.EventTypeOrderPaid,
+        &types.OrderPaidData{
+            OrderNo:       orderInfo.OrderNo,
+            PaymentNo:     paymentNo,
+            PayAmount:     orderInfo.PayAmount,
+            PaymentMethod: int32(in.PaymentMethod),
+            PayTime:      time.Now(),
+        },
+        types.Metadata{
+            Source:  "order.service",
+            UserID:  int64(orderInfo.UserId),
+            TraceID: l.ctx.Value("trace_id").(string),
+        },
+    )
+
+    if err := l.svcCtx.Producer.PublishEventSync(event); err != nil {
+        return nil, err
     }
 
     return &order.PayOrderResponse{

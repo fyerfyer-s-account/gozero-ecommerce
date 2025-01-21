@@ -3,30 +3,39 @@ package config
 import "fmt"
 
 type RabbitMQConfig struct {
-	Host      string          `yaml:"Host"`
-	Port      int             `yaml:"Port"`
-	Username  string          `yaml:"Username"`
-	Password  string          `yaml:"Password"`
-	VHost     string          `yaml:"VHost"`
-	Exchanges ExchangeConfigs `yaml:"Exchanges"`
-	Queues    QueueConfigs    `yaml:"Queues"`
-	Retry     struct {
-		MaxAttempts     int     `yaml:"MaxAttempts"`
-		InitialInterval int     `yaml:"InitialInterval"` // milliseconds
-		MaxInterval     int     `yaml:"MaxInterval"`     // milliseconds
-		BackoffFactor   float64 `yaml:"BackoffFactor"`
-	} `yaml:"Retry"`
+    Host      string          `yaml:"Host"`
+    Port      int             `yaml:"Port"`
+    Username  string          `yaml:"Username"`
+    Password  string          `yaml:"Password"`
+    VHost     string          `yaml:"VHost"`
+    Exchanges ExchangeConfigs `yaml:"Exchanges"`
+    Queues    QueueConfigs    `yaml:"Queues"`
 
-	Batch struct {
-		Size          int `yaml:"Size"`
-		FlushInterval int `yaml:"FlushInterval"` // milliseconds
-		Workers       int `yaml:"Workers"`
-	} `yaml:"Batch"`
+    // New configurations
+    Retry struct {
+        MaxAttempts     int     `yaml:"MaxAttempts"`
+        InitialInterval int     `yaml:"InitialInterval"` // milliseconds
+        MaxInterval     int     `yaml:"MaxInterval"`     // milliseconds
+        BackoffFactor   float64 `yaml:"BackoffFactor"`
+        Jitter         bool    `yaml:"Jitter"`
+    } `yaml:"Retry"`
 
-	DeadLetter struct {
-		Exchange string `yaml:"Exchange"`
-		Queue    string `yaml:"Queue"`
-	} `yaml:"DeadLetter"`
+    Batch struct {
+        Size          int `yaml:"Size"`
+        FlushInterval int `yaml:"FlushInterval"` // milliseconds
+        Workers       int `yaml:"Workers"`
+    } `yaml:"Batch"`
+
+    DeadLetter struct {
+        Exchange     string `yaml:"Exchange"`
+        Queue       string `yaml:"Queue"`
+        RoutingKey  string `yaml:"RoutingKey"`
+    } `yaml:"DeadLetter"`
+
+    Middleware struct {
+        EnableRecovery bool `yaml:"EnableRecovery"`
+        EnableLogging  bool `yaml:"EnableLogging"`
+    } `yaml:"Middleware"`
 }
 
 type ExchangeConfigs struct {

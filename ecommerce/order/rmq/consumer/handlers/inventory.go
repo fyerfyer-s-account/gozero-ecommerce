@@ -1,33 +1,44 @@
 package handlers
 
 import (
-    "context"
-    "fmt"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
+	"context"
+	"fmt"
+
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/middleware"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
 )
 
 type InventoryHandler struct {
+    BaseHandler
     inventoryRpc inventoryclient.Inventory
 }
 
-func NewInventoryHandler(inventoryRpc inventoryclient.Inventory) *InventoryHandler {
+func NewInventoryHandler(logger middleware.Logger, inventoryRpc inventoryclient.Inventory) *InventoryHandler {
     return &InventoryHandler{
+        BaseHandler:   NewBaseHandler(logger),
         inventoryRpc: inventoryRpc,
     }
 }
 
 func (h *InventoryHandler) Handle(event *types.OrderEvent) error {
+    h.LogEvent(event, "handling inventory event")
+    
+    var err error
     switch event.Type {
     case types.EventTypeOrderCreated:
-        return h.handleOrderCreated(event)
+        err = h.handleOrderCreated(event)
     case types.EventTypeOrderCancelled:
-        return h.handleOrderCancelled(event)
+        err = h.handleOrderCancelled(event)
     case types.EventTypeOrderPaid:
-        return h.handleOrderPaid(event)
-    default:
-        return nil
+        err = h.handleOrderPaid(event)
     }
+
+    if err != nil {
+        h.LogError(event, err)
+        return types.NewRetryableError(err)
+    }
+    return nil
 }
 
 func (h *InventoryHandler) handleOrderCreated(event *types.OrderEvent) error {

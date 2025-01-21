@@ -5,21 +5,29 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/middleware"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/paymentclient"
 )
 
 type PaymentHandler struct {
+	BaseHandler
 	paymentRpc         paymentclient.Payment
 	orderModel         model.OrdersModel
 	orderRefundsModel  model.OrderRefundsModel
 	orderPaymentsModel model.OrderPaymentsModel
 }
 
-func NewPaymentHandler(paymentRpc paymentclient.Payment, orderModel model.OrdersModel,
-	orderRefundsModel model.OrderRefundsModel, orderPaymentsModel model.OrderPaymentsModel) *PaymentHandler {
+func NewPaymentHandler(
+	logger middleware.Logger,
+	paymentRpc paymentclient.Payment,
+	orderModel model.OrdersModel,
+	orderRefundsModel model.OrderRefundsModel,
+	orderPaymentsModel model.OrderPaymentsModel,
+) *PaymentHandler {
 	return &PaymentHandler{
+		BaseHandler:        NewBaseHandler(logger),
 		paymentRpc:         paymentRpc,
 		orderModel:         orderModel,
 		orderRefundsModel:  orderRefundsModel,
@@ -28,14 +36,21 @@ func NewPaymentHandler(paymentRpc paymentclient.Payment, orderModel model.Orders
 }
 
 func (h *PaymentHandler) Handle(event *types.OrderEvent) error {
+	h.LogEvent(event, "handling payment event")
+
+	var err error
 	switch event.Type {
 	case types.EventTypeOrderPaid:
-		return h.handleOrderPaid(event)
+		err = h.handleOrderPaid(event)
 	case types.EventTypeOrderCancelled:
-		return h.handleOrderCancelled(event)
-	default:
-		return nil
+		err = h.handleOrderCancelled(event)
 	}
+
+	if err != nil {
+		h.LogError(event, err)
+		return types.NewRetryableError(err)
+	}
+	return nil
 }
 
 func (h *PaymentHandler) handleOrderPaid(event *types.OrderEvent) error {
@@ -61,21 +76,21 @@ func (h *PaymentHandler) handleOrderPaid(event *types.OrderEvent) error {
 }
 
 func (h *PaymentHandler) handleOrderCancelled(event *types.OrderEvent) error {
-    data, ok := event.Data.(*types.OrderCancelledData)
-    if !ok {
-        return fmt.Errorf("invalid event data type")
-    }
+	data, ok := event.Data.(*types.OrderCancelledData)
+	if !ok {
+		return fmt.Errorf("invalid event data type")
+	}
 
-    refund := &model.OrderRefunds{
-        OrderId:     uint64(data.OrderId),
-        RefundNo:    fmt.Sprintf("R%d", time.Now().UnixNano()),
-        Amount:      data.Amount,
-        Reason:      data.Reason,
-        Status:      0,
-        CreatedAt:   time.Now(),
-        UpdatedAt:   time.Now(),
-    }
+	refund := &model.OrderRefunds{
+		OrderId:   uint64(data.OrderId),
+		RefundNo:  fmt.Sprintf("R%d", time.Now().UnixNano()),
+		Amount:    data.Amount,
+		Reason:    data.Reason,
+		Status:    0,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
 
-    _, err := h.orderRefundsModel.Insert(context.Background(), refund)
-    return err
+	_, err := h.orderRefundsModel.Insert(context.Background(), refund)
+	return err
 }

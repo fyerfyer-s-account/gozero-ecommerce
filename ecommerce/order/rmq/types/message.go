@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/json"
+	"strconv"
 	"time"
 )
 
@@ -63,4 +65,53 @@ type OrderShippedData struct {
     OrderId    int64  `json:"orderId"`
     ShippingNo string `json:"shippingNo"`
     Company    string `json:"company"`
+}
+
+// Validate validates the event
+func (e *OrderEvent) Validate() error {
+    if e.ID == "" {
+        return ErrEmptyEventID
+    }
+    if e.Type == "" {
+        return ErrEmptyEventType
+    }
+    if e.Timestamp.IsZero() {
+        return ErrEmptyTimestamp
+    }
+    if e.Data == nil {
+        return ErrEmptyEventData
+    }
+    if e.Metadata.TraceID == "" {
+        return ErrEmptyTraceID
+    }
+    return nil
+}
+
+// IsRetryable determines if the event can be retried
+func (e *OrderEvent) IsRetryable() bool {
+    switch e.Type {
+    case EventTypeOrderCreated, EventTypeOrderPaid:
+        return true
+    default:
+        return false
+    }
+}
+
+// GetRetryCount gets the retry count from metadata
+func (e *OrderEvent) GetRetryCount() int {
+    if count, ok := e.Metadata.Tags["retry_count"]; ok {
+        if v, err := strconv.Atoi(count); err == nil {
+            return v
+        }
+    }
+    return 0
+}
+
+func (e *OrderEvent) Marshal() ([]byte, error) {
+    return json.Marshal(e)
+}
+
+// Unmarshal deserializes the event from JSON
+func (e *OrderEvent) Unmarshal(data []byte) error {
+    return json.Unmarshal(data, e)
 }

@@ -2,11 +2,15 @@ package logic
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -47,6 +51,23 @@ func (l *ClearCartLogic) ClearCart(in *cart.ClearCartRequest) (*cart.ClearCartRe
     err = l.svcCtx.CartStatsModel.Upsert(l.ctx, stats)
     if err != nil {
         return nil, zeroerr.ErrCartUpdateFailed
+    }
+
+    event := &types.CartEvent{
+        ID:        uuid.New().String(),
+        Type:      types.EventTypeCartCleared,
+        Timestamp: time.Now(),
+        Data: &types.CartClearedData{
+            UserID: in.UserId,
+        },
+        Metadata: types.EventMetadata{
+            TraceID: l.ctx.Value("trace_id").(string),
+            UserID:  fmt.Sprint(in.UserId),
+        },
+    }
+
+    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
+        logx.Errorf("Failed to publish cart.cleared event: %v", err)
     }
 
     return &cart.ClearCartResponse{

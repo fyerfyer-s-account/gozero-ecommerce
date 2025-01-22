@@ -2,10 +2,14 @@ package logic
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,6 +49,24 @@ func (l *RemoveItemLogic) RemoveItem(in *cart.RemoveItemRequest) (*cart.RemoveIt
     err = l.svcCtx.CartStatsModel.RecalculateStats(l.ctx, uint64(in.UserId))
     if err != nil {
         return nil, zeroerr.ErrStatsUpdateFailed
+    }
+
+    event := &types.CartEvent{
+        ID:        uuid.New().String(),
+        Type:      types.EventTypeItemRemoved,
+        Timestamp: time.Now(),
+        Data: &types.CartItemRemovedData{
+            UserID:    in.UserId,
+            ProductID: in.ProductId,
+        },
+        Metadata: types.EventMetadata{
+            TraceID: l.ctx.Value("trace_id").(string),
+            UserID:  fmt.Sprint(in.UserId),
+        },
+    }
+
+    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
+        logx.Errorf("Failed to publish cart.item.removed event: %v", err)
     }
 
     return &cart.RemoveItemResponse{

@@ -1,33 +1,21 @@
 package config
 
 import (
+	rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rmq/config"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
 	zrpc.RpcServerConf
+
 	Mysql struct {
 		DataSource string
 	}
-	CacheRedis cache.CacheConf
-	RabbitMQ   struct {
-		Host      string
-		Port      int
-		Username  string
-		Password  string
-		VHost     string
-		Exchanges map[string]struct {
-			Name    string
-			Type    string
-			Durable bool
-		}
-		Queues map[string]struct {
-			Name       string
-			RoutingKey string
-			Durable    bool
-		}
-	}
+
+	CacheRedis         cache.CacheConf
+
+	RabbitMQ           rmqconfig.RabbitMQConfig
 	
 	ProductRpc         zrpc.RpcClientConf
 	MaxItemsPerCart    int64

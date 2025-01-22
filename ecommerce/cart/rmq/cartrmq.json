@@ -16,29 +16,29 @@
     "policies": [],
     "queues": [
         {
-            "name": "order.status",
+            "name": "cart.status",
             "vhost": "/",
             "durable": true,
             "auto_delete": false,
             "arguments": {
-                "x-dead-letter-exchange": "order.deadletter",
+                "x-dead-letter-exchange": "cart.deadletter",
                 "x-dead-letter-routing-key": "deadletter",
                 "x-message-ttl": 300000
             }
         },
         {
-            "name": "order.alert",
+            "name": "cart.inventory",
             "vhost": "/",
             "durable": true,
             "auto_delete": false,
             "arguments": {
-                "x-dead-letter-exchange": "order.deadletter",
+                "x-dead-letter-exchange": "cart.deadletter",
                 "x-dead-letter-routing-key": "deadletter",
                 "x-message-ttl": 300000
             }
         },
         {
-            "name": "order.deadletter.queue",
+            "name": "cart.deadletter.queue",
             "vhost": "/",
             "durable": true,
             "auto_delete": false,
@@ -47,7 +47,7 @@
     ],
     "exchanges": [
         {
-            "name": "order.events",
+            "name": "cart.events",
             "vhost": "/",
             "type": "topic",
             "durable": true,
@@ -56,7 +56,7 @@
             "arguments": {}
         },
         {
-            "name": "order.deadletter",
+            "name": "cart.deadletter",
             "vhost": "/",
             "type": "direct",
             "durable": true,
@@ -67,25 +67,25 @@
     ],
     "bindings": [
         {
-            "source": "order.events",
+            "source": "cart.events",
             "vhost": "/",
-            "destination": "order.status",
+            "destination": "cart.status",
             "destination_type": "queue",
-            "routing_key": "order.*",
+            "routing_key": "cart.*",
             "arguments": {}
         },
         {
-            "source": "order.events",
+            "source": "cart.events",
             "vhost": "/",
-            "destination": "order.alert",
+            "destination": "cart.inventory",
             "destination_type": "queue",
-            "routing_key": "order.alert.*",
+            "routing_key": "cart.item.*",
             "arguments": {}
         },
         {
-            "source": "order.deadletter",
+            "source": "cart.deadletter",
             "vhost": "/",
-            "destination": "order.deadletter.queue",
+            "destination": "cart.deadletter.queue",
             "destination_type": "queue",
             "routing_key": "deadletter",
             "arguments": {}

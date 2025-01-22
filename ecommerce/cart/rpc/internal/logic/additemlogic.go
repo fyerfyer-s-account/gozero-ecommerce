@@ -3,12 +3,16 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"time"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
+	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -102,6 +106,28 @@ func (l *AddItemLogic) AddItem(in *cart.AddItemRequest) (*cart.AddItemResponse, 
     }
     if err != nil {
         return nil, err
+    }
+    
+    event := &types.CartEvent{
+        ID:        uuid.New().String(),
+        Type:      types.EventTypeItemAdded,
+        Timestamp: time.Now(),
+        Data: &types.CartItemAddedData{
+            CartItemData: types.CartItemData{
+                UserID:    in.UserId,
+                ProductID: in.ProductId,
+                Quantity:  int32(in.Quantity),
+            },
+        },
+        Metadata: types.EventMetadata{
+            TraceID: l.ctx.Value("trace_id").(string),
+            UserID:  fmt.Sprint(in.UserId),
+        },
+    }
+
+    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
+        logx.Errorf("Failed to publish cart.item.added event: %v", err)
+        // Continue execution as this is not critical
     }
 
     return &cart.AddItemResponse{

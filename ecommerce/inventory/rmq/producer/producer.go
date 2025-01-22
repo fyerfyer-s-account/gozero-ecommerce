@@ -1,69 +1,65 @@
 package producer
 
 import (
-	"context"
-	"encoding/json"
-	"errors"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/config"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
-	"github.com/streadway/amqp"
-	"sync"
+    "context"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/config"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/producer/async"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/producer/batch"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
+    "github.com/streadway/amqp"
+    "time"
 )
 
 type Producer struct {
-	config   *config.RabbitMQConfig
-	conn     *amqp.Connection
-	channel  *amqp.Channel
-	exchange string
-	mu       sync.RWMutex
+    conn            *amqp.Connection
+    channel         *amqp.Channel
+    config          *config.RabbitMQConfig
+    batchCollector  *batch.Collector
+    asyncDispatcher *async.Dispatcher
+    sender          *batch.Sender
 }
 
 func NewProducer(cfg *config.RabbitMQConfig) (*Producer, error) {
-	p := &Producer{
-		config:   cfg,
-		exchange: cfg.Exchanges.InventoryEvent.Name,
-	}
+    conn, err := amqp.Dial(cfg.GetDSN())
+    if err != nil {
+        return nil, err
+    }
 
-	if err := p.connect(); err != nil {
-		return nil, err
-	}
+    ch, err := conn.Channel()
+    if err != nil {
+        conn.Close()
+        return nil, err
+    }
 
-	return p, nil
+    p := &Producer{
+        conn:    conn,
+        channel: ch,
+        config:  cfg,
+        batchCollector: batch.NewCollector(
+            cfg.Batch.Size,
+            time.Duration(cfg.Batch.FlushInterval)*time.Millisecond,
+        ),
+        asyncDispatcher: async.NewDispatcher(cfg.Batch.Workers),
+        sender:         batch.NewSender(ch, cfg.Exchanges.InventoryEvent.Name),
+    }
+
+    if err := p.setup(); err != nil {
+        return nil, err
+    }
+
+    return p, nil
 }
 
-func (p *Producer) connect() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	conn, err := amqp.Dial(p.config.GetDSN())
-	if err != nil {
-		return err
-	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		conn.Close()
-		return err
-	}
-
-	err = ch.ExchangeDeclare(
-		p.exchange,
-		p.config.Exchanges.InventoryEvent.Type,
-		p.config.Exchanges.InventoryEvent.Durable,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		ch.Close()
-		conn.Close()
-		return err
-	}
-
-	p.conn = conn
-	p.channel = ch
-	return nil
+func (p *Producer) setup() error {
+    return p.channel.ExchangeDeclare(
+        p.config.Exchanges.InventoryEvent.Name,
+        p.config.Exchanges.InventoryEvent.Type,
+        p.config.Exchanges.InventoryEvent.Durable,
+        false,
+        false,
+        false,
+        nil,
+    )
 }
 
 func (p *Producer) PublishStockUpdate(ctx context.Context, data *types.StockUpdateData, userId int64) error {
@@ -87,58 +83,21 @@ func (p *Producer) PublishStockUnlock(ctx context.Context, data *types.StockLock
 }
 
 func (p *Producer) publishEvent(ctx context.Context, event *types.InventoryEvent) error {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
+    return p.asyncDispatcher.Dispatch(func() error {
+        return p.batchCollector.Add(event, p.sender.SendBatch)
+    })
+}
 
-	data, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
-	done := make(chan error, 1)
-
-	// Launch a goroutine to perform the publish operation
-	go func() {
-		done <- p.channel.Publish(
-			p.exchange,
-			string(event.Type),
-			false,
-			false,
-			amqp.Publishing{
-				ContentType: "application/json",
-				Body:        data,
-			},
-		)
-	}()
-
-	// Wait for the operation to complete or the context to be done
-	select {
-	case <-ctx.Done():
-		return errors.New("publish operation canceled or timed out")
-	case err := <-done:
-		return err
-	}
+func (p *Producer) publishEventSync(ctx context.Context, event *types.InventoryEvent) error {
+    return p.asyncDispatcher.DispatchSync(func() error {
+        return p.sender.SendBatch([]*types.InventoryEvent{event})
+    })
 }
 
 func (p *Producer) Close() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	var errs []error
-	if p.channel != nil {
-		if err := p.channel.Close(); err != nil {
-			errs = append(errs, err)
-		}
-	}
-
-	if p.conn != nil {
-		if err := p.conn.Close(); err != nil {
-			errs = append(errs, err)
-		}
-	}
-
-	if len(errs) > 0 {
-		return errs[0]
-	}
-	return nil
+    p.asyncDispatcher.Wait()
+    if err := p.channel.Close(); err != nil {
+        return err
+    }
+    return p.conn.Close()
 }

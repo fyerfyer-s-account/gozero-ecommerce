@@ -1,194 +1,228 @@
 package consumer
 
 import (
-	"encoding/json"
-	"log"
-	"sync"
-
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/config"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/consumer/handlers"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/messageservice"
-	"github.com/streadway/amqp"
+    "context"
+    "encoding/json"
+    "fmt"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/config"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/consumer/retry"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/middleware"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/messageservice"
+    "github.com/streadway/amqp"
+    "time"
 )
 
+type EventHandler interface {
+    Handle(event *types.InventoryEvent) error
+}
+
 type Consumer struct {
-	config       *config.RabbitMQConfig
-	conn         *amqp.Connection
-	channel      *amqp.Channel
-	handlers     map[types.EventType]func(*types.InventoryEvent) error
-	mu           sync.RWMutex
-	inventoryRpc inventoryclient.Inventory    
-	messageRpc   messageservice.MessageService
+    conn          *amqp.Connection
+    channel       *amqp.Channel
+    config        *config.RabbitMQConfig
+    handlers      map[types.EventType][]EventHandler
+    retrier       *retry.Retrier
+    middleware    []middleware.Middleware
+    logger        middleware.Logger
+    inventoryRpc  inventoryclient.Inventory
+    messageRpc    messageservice.MessageService
 }
 
 func NewConsumer(
-	cfg *config.RabbitMQConfig,
-	inventoryRpc inventoryclient.Inventory,
-	messageRpc messageservice.MessageService,
+    config *config.RabbitMQConfig,
+    logger middleware.Logger,
+    inventoryRpc inventoryclient.Inventory,
+    messageRpc messageservice.MessageService,
 ) (*Consumer, error) {
-	c := &Consumer{
-		config:       cfg,
-		handlers:     make(map[types.EventType]func(*types.InventoryEvent) error),
-		inventoryRpc: inventoryRpc,
-		messageRpc:   messageRpc,
-	}
+    conn, err := amqp.Dial(config.GetDSN())
+    if err != nil {
+        return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
+    }
 
-	if err := c.connect(); err != nil {
-		return nil, err
-	}
+    channel, err := conn.Channel()
+    if err != nil {
+        return nil, fmt.Errorf("failed to open channel: %v", err)
+    }
 
-	c.registerHandlers()
-	return c, nil
+    backoff := retry.NewExponentialBackoff(
+        time.Duration(config.Retry.InitialInterval)*time.Millisecond,
+        time.Duration(config.Retry.MaxInterval)*time.Millisecond,
+        config.Retry.BackoffFactor,
+        config.Retry.Jitter,
+    )
+    retrier := retry.NewRetrier(config.Retry.MaxAttempts, backoff)
+
+    c := &Consumer{
+        conn:          conn,
+        channel:       channel,
+        config:        config,
+        handlers:      make(map[types.EventType][]EventHandler),
+        retrier:       retrier,
+        logger:        logger,
+        inventoryRpc:  inventoryRpc,
+        messageRpc:    messageRpc,
+    }
+
+    if config.Middleware.EnableRecovery {
+        c.Use(middleware.NewRecoveryMiddleware(logger))
+    }
+    if config.Middleware.EnableLogging {
+        c.Use(middleware.NewLoggerMiddleware(logger))
+    }
+
+    return c, nil
 }
 
-func (c *Consumer) connect() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	conn, err := amqp.Dial(c.config.GetDSN())
-	if err != nil {
-		return err
-	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		conn.Close()
-		return err
-	}
-
-	err = ch.ExchangeDeclare(
-		c.config.Exchanges.InventoryEvent.Name,
-		c.config.Exchanges.InventoryEvent.Type,
-		c.config.Exchanges.InventoryEvent.Durable,
-		false, // auto-delete
-		false, // internal
-		false, // no-wait
-		nil,   // arguments
-	)
-	if err != nil {
-		ch.Close()
-		conn.Close()
-		return err
-	}
-
-	c.conn = conn
-	c.channel = ch
-	return nil
+func (c *Consumer) Use(m middleware.Middleware) {
+    c.middleware = append(c.middleware, m)
 }
 
-func (c *Consumer) registerHandlers() {
-	stockUpdateHandler := handlers.NewStockUpdateHandler(c.inventoryRpc)
-	stockAlertHandler := handlers.NewStockAlertHandler(c.inventoryRpc, c.messageRpc)
-	stockLockHandler := handlers.NewStockLockHandler(c.inventoryRpc)
-
-	c.handlers[types.EventTypeStockUpdated] = stockUpdateHandler.Handle
-	c.handlers[types.EventTypeStockAlert] = stockAlertHandler.Handle
-	c.handlers[types.EventTypeStockLocked] = stockLockHandler.Handle
-	c.handlers[types.EventTypeStockUnlocked] = stockLockHandler.Handle
+func (c *Consumer) Subscribe(eventType types.EventType, handler EventHandler) {
+    c.handlers[eventType] = append(c.handlers[eventType], handler)
 }
 
 func (c *Consumer) Start() error {
-	queues := []struct {
-		name       string
-		routingKey string
-	}{
-		{
-			name:       c.config.Queues.StockUpdate.Name,
-			routingKey: c.config.Queues.StockUpdate.RoutingKey,
-		},
-		{
-			name:       c.config.Queues.StockAlert.Name,
-			routingKey: c.config.Queues.StockAlert.RoutingKey,
-		},
-		{
-			name:       c.config.Queues.StockLock.Name,
-			routingKey: c.config.Queues.StockLock.RoutingKey,
-		},
-	}
+    err := c.setupExchangesAndQueues()
+    if err != nil {
+        return err
+    }
 
-	for _, q := range queues {
-		queue, err := c.channel.QueueDeclare(
-			q.name,
-			true,  // durable
-			false, // auto-delete
-			false, // exclusive
-			false, // no-wait
-			nil,   // arguments
-		)
-		if err != nil {
-			return err
-		}
+    for _, queueConfig := range []config.QueueConfig{
+        c.config.Queues.StockUpdate,
+        c.config.Queues.StockAlert,
+        c.config.Queues.StockLock,
+    } {
+        msgs, err := c.channel.Consume(
+            queueConfig.Name,
+            "",    // consumer
+            false, // auto-ack
+            false, // exclusive
+            false, // no-local
+            false, // no-wait
+            nil,   // args
+        )
+        if err != nil {
+            return fmt.Errorf("failed to register a consumer for queue %s: %v", queueConfig.Name, err)
+        }
 
-		err = c.channel.QueueBind(
-			queue.Name,
-			q.routingKey,
-			c.config.Exchanges.InventoryEvent.Name,
-			false,
-			nil,
-		)
-		if err != nil {
-			return err
-		}
+        go c.handleMessages(msgs)
+    }
 
-		msgs, err := c.channel.Consume(
-			queue.Name,
-			"",    // consumer
-			false, // auto-ack
-			false, // exclusive
-			false, // no-local
-			false, // no-wait
-			nil,   // args
-		)
-		if err != nil {
-			return err
-		}
-
-		go c.handle(msgs)
-	}
-
-	return nil
+    return nil
 }
 
-func (c *Consumer) handle(msgs <-chan amqp.Delivery) {
-	for msg := range msgs {
-		var event types.InventoryEvent
-		if err := json.Unmarshal(msg.Body, &event); err != nil {
-			log.Printf("Error unmarshaling message: %v", err)
-			msg.Nack(false, true) // requeue message
-			continue
-		}
+func (c *Consumer) setupExchangesAndQueues() error {
+    err := c.channel.ExchangeDeclare(
+        c.config.Exchanges.InventoryEvent.Name,
+        c.config.Exchanges.InventoryEvent.Type,
+        c.config.Exchanges.InventoryEvent.Durable,
+        false,
+        false,
+        false,
+        nil,
+    )
+    if err != nil {
+        return fmt.Errorf("failed to declare exchange: %v", err)
+    }
 
-		if handler, ok := c.handlers[event.Type]; ok {
-			if err := handler(&event); err != nil {
-				log.Printf("Error handling message: %v", err)
-				msg.Nack(false, true)
-				continue
-			}
-			msg.Ack(false)
-		} else {
-			log.Printf("No handler for event type: %s", event.Type)
-			msg.Nack(false, false) // don't requeue unknown events
-		}
-	}
+    for _, queueConfig := range []config.QueueConfig{
+        c.config.Queues.StockUpdate,
+        c.config.Queues.StockAlert,
+        c.config.Queues.StockLock,
+    } {
+        _, err = c.channel.QueueDeclare(
+            queueConfig.Name,
+            queueConfig.Durable,
+            false,
+            false,
+            false,
+            nil,
+        )
+        if err != nil {
+            return fmt.Errorf("failed to declare queue %s: %v", queueConfig.Name, err)
+        }
+
+        err = c.channel.QueueBind(
+            queueConfig.Name,
+            queueConfig.RoutingKey,
+            c.config.Exchanges.InventoryEvent.Name,
+            false,
+            nil,
+        )
+        if err != nil {
+            return fmt.Errorf("failed to bind queue %s: %v", queueConfig.Name, err)
+        }
+    }
+
+    return nil
+}
+
+func (c *Consumer) handleMessages(msgs <-chan amqp.Delivery) {
+    for msg := range msgs {
+        handler := c.createHandlerChain(func(msg amqp.Delivery) error {
+            var event types.InventoryEvent
+            if err := json.Unmarshal(msg.Body, &event); err != nil {
+                return &types.RetryableError{Err: err}
+            }
+
+            handlers, exists := c.handlers[event.Type]
+            if !exists {
+                return nil
+            }
+
+            for _, h := range handlers {
+                if err := c.retrier.DoWithContext(context.Background(), func() error {
+                    return h.Handle(&event)
+                }); err != nil {
+                    return err
+                }
+            }
+            return nil
+        })
+
+        if err := handler(msg); err != nil {
+            c.handleFailedMessage(msg, err)
+            msg.Nack(false, false)
+        } else {
+            msg.Ack(false)
+        }
+    }
+}
+
+func (c *Consumer) createHandlerChain(handler middleware.HandlerFunc) middleware.HandlerFunc {
+    chain := handler
+    for i := len(c.middleware) - 1; i >= 0; i-- {
+        chain = c.middleware[i](chain)
+    }
+    return chain
+}
+
+func (c *Consumer) handleFailedMessage(msg amqp.Delivery, err error) {
+    if err := c.channel.Publish(
+        c.config.DeadLetter.Exchange,
+        c.config.DeadLetter.RoutingKey,
+        false,
+        false,
+        amqp.Publishing{
+            ContentType: msg.ContentType,
+            Body:       msg.Body,
+            MessageId:  msg.MessageId,
+            Timestamp:  time.Now(),
+            Headers:    map[string]interface{}{"error": err.Error()},
+        },
+    ); err != nil {
+        c.logger.Error("failed to publish to dead letter exchange",
+            "error", err,
+            "message_id", msg.MessageId,
+        )
+    }
 }
 
 func (c *Consumer) Close() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.channel != nil {
-		if err := c.channel.Close(); err != nil {
-			log.Printf("Error closing channel: %v", err)
-		}
-	}
-
-	if c.conn != nil {
-		if err := c.conn.Close(); err != nil {
-			log.Printf("Error closing connection: %v", err)
-		}
-	}
-
-	return nil
+    if err := c.channel.Close(); err != nil {
+        return err
+    }
+    return c.conn.Close()
 }

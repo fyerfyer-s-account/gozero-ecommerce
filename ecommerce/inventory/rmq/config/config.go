@@ -1,8 +1,6 @@
 package config
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type RabbitMQConfig struct {
     Host      string          `yaml:"Host"`
@@ -12,6 +10,35 @@ type RabbitMQConfig struct {
     VHost     string         `yaml:"VHost"`
     Exchanges ExchangeConfigs `yaml:"Exchanges"`
     Queues    QueueConfigs    `yaml:"Queues"`
+
+    // Retry configuration
+    Retry struct {
+        MaxAttempts     int     `yaml:"MaxAttempts"`
+        InitialInterval int     `yaml:"InitialInterval"` // milliseconds
+        MaxInterval     int     `yaml:"MaxInterval"`     // milliseconds
+        BackoffFactor   float64 `yaml:"BackoffFactor"`
+        Jitter         bool    `yaml:"Jitter"`
+    } `yaml:"Retry"`
+
+    // Batch processing configuration
+    Batch struct {
+        Size          int `yaml:"Size"`
+        FlushInterval int `yaml:"FlushInterval"` // milliseconds
+        Workers       int `yaml:"Workers"`
+    } `yaml:"Batch"`
+
+    // Dead letter configuration
+    DeadLetter struct {
+        Exchange     string `yaml:"Exchange"`
+        Queue       string `yaml:"Queue"`
+        RoutingKey  string `yaml:"RoutingKey"`
+    } `yaml:"DeadLetter"`
+
+    // Middleware configuration
+    Middleware struct {
+        EnableRecovery bool `yaml:"EnableRecovery"`
+        EnableLogging  bool `yaml:"EnableLogging"`
+    } `yaml:"Middleware"`
 }
 
 type ExchangeConfigs struct {

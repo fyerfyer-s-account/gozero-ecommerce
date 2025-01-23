@@ -11,7 +11,6 @@ type RabbitMQConfig struct {
     Exchanges ExchangeConfigs `yaml:"Exchanges"`
     Queues    QueueConfigs    `yaml:"Queues"`
 
-    // Retry configuration
     Retry struct {
         MaxAttempts     int     `yaml:"MaxAttempts"`
         InitialInterval int     `yaml:"InitialInterval"` // milliseconds
@@ -20,21 +19,18 @@ type RabbitMQConfig struct {
         Jitter         bool    `yaml:"Jitter"`
     } `yaml:"Retry"`
 
-    // Batch processing configuration
     Batch struct {
         Size          int `yaml:"Size"`
         FlushInterval int `yaml:"FlushInterval"` // milliseconds
         Workers       int `yaml:"Workers"`
     } `yaml:"Batch"`
 
-    // Dead letter configuration
     DeadLetter struct {
         Exchange     string `yaml:"Exchange"`
         Queue       string `yaml:"Queue"`
         RoutingKey  string `yaml:"RoutingKey"`
     } `yaml:"DeadLetter"`
 
-    // Middleware configuration
     Middleware struct {
         EnableRecovery bool `yaml:"EnableRecovery"`
         EnableLogging  bool `yaml:"EnableLogging"`
@@ -55,6 +51,7 @@ type QueueConfigs struct {
     StockUpdate QueueConfig `yaml:"StockUpdate"`
     StockAlert  QueueConfig `yaml:"StockAlert"`
     StockLock   QueueConfig `yaml:"StockLock"`
+    OrderEvents QueueConfig `yaml:"OrderEvents"` // New: Order events queue
 }
 
 type QueueConfig struct {

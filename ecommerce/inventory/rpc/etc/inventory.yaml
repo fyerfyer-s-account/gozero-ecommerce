@@ -25,6 +25,10 @@ RabbitMQ:
       Name: inventory.stock.lock
       RoutingKey: lock.#
       Durable: true
+    OrderEvents:
+      Name: inventory.order.events
+      RoutingKey: order.*
+      Durable: true
   Retry:
     MaxAttempts: 3
     InitialInterval: 1000

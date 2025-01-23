@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/consumer"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/consumer/handlers"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/producer"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
@@ -15,32 +17,32 @@ import (
 )
 
 type ServiceContext struct {
-    Config            config.Config
-    StocksModel       model.StocksModel
-    StockLocksModel   model.StockLocksModel
-    StockRecordsModel model.StockRecordsModel
-    WarehousesModel   model.WarehousesModel
-    Producer          *producer.Producer
-    Consumer          *consumer.Consumer
-    MessageRpc        messageservice.MessageService
+	Config            config.Config
+	StocksModel       model.StocksModel
+	StockLocksModel   model.StockLocksModel
+	StockRecordsModel model.StockRecordsModel
+	WarehousesModel   model.WarehousesModel
+	Producer          *producer.Producer
+	Consumer          *consumer.Consumer
+	MessageRpc        messageservice.MessageService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-    conn := sqlx.NewMysql(c.Mysql.DataSource)
+	conn := sqlx.NewMysql(c.Mysql.DataSource)
 
-    // Initialize RPC clients
-    messageRpc := messageservice.NewMessageService(zrpc.MustNewClient(c.MessageRpc))
+	// Initialize RPC clients
+	messageRpc := messageservice.NewMessageService(zrpc.MustNewClient(c.MessageRpc))
 
-    // Initialize producer
-    prod, err := producer.NewProducer(&c.RabbitMQ)
-    if err != nil {
-        panic(err)
-    }
+	// Initialize producer
+	prod, err := producer.NewProducer(&c.RabbitMQ)
+	if err != nil {
+		panic(err)
+	}
 
 	inventoryRpc := inventoryclient.NewInventory(zrpc.MustNewClient(c.Etcd.RpcClientConf))
 	logger := &logWrapper{Logger: logx.WithContext(context.TODO())}
-    // Initialize consumer with logger and RPC clients
-    cons, err := consumer.NewConsumer(
+	// Initialize consumer with logger and RPC clients
+	cons, err := consumer.NewConsumer(
 		&c.RabbitMQ,
 		logger,
 		inventoryRpc,
@@ -50,23 +52,28 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-    svcCtx := &ServiceContext{
-        Config:            c,
-        StocksModel:       model.NewStocksModel(conn, c.CacheRedis),
-        StockLocksModel:   model.NewStockLocksModel(conn, c.CacheRedis),
-        StockRecordsModel: model.NewStockRecordsModel(conn, c.CacheRedis),
-        WarehousesModel:   model.NewWarehousesModel(conn, c.CacheRedis),
-        Producer:          prod,
-        Consumer:          cons,
-        MessageRpc:        messageRpc,
-    }
+	cons.Subscribe(types.EventTypeOrderCreated, handlers.NewOrderEventHandler(logger, inventoryRpc))
+	cons.Subscribe(types.EventTypeOrderCancelled, handlers.NewOrderEventHandler(logger, inventoryRpc))
+	cons.Subscribe(types.EventTypeOrderPaid, handlers.NewOrderEventHandler(logger, inventoryRpc))
+	cons.Subscribe(types.EventTypeOrderRefunded, handlers.NewOrderEventHandler(logger, inventoryRpc))
 
-    // Start consumer
-    if err := cons.Start(); err != nil {
-        panic(err)
-    }
+	svcCtx := &ServiceContext{
+		Config:            c,
+		StocksModel:       model.NewStocksModel(conn, c.CacheRedis),
+		StockLocksModel:   model.NewStockLocksModel(conn, c.CacheRedis),
+		StockRecordsModel: model.NewStockRecordsModel(conn, c.CacheRedis),
+		WarehousesModel:   model.NewWarehousesModel(conn, c.CacheRedis),
+		Producer:          prod,
+		Consumer:          cons,
+		MessageRpc:        messageRpc,
+	}
 
-    return svcCtx
+	// Start consumer
+	if err := cons.Start(); err != nil {
+		panic(err)
+	}
+
+	return svcCtx
 }
 
 type logWrapper struct {

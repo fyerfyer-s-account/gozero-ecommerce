@@ -35,26 +35,4 @@ type Config struct {
 	MinPasswordLength int
 	MaxAddressCount   int
 	InitialPoints     int64
-
-	RabbitMQ struct {
-		Host      string
-		Port      int
-		Username  string
-		Password  string
-		VHost     string
-		Exchanges struct {
-			UserEvent struct {
-				Name    string
-				Type    string
-				Durable bool
-			}
-		}
-		Queues struct {
-			UserNotification struct {
-				Name       string
-				RoutingKey string
-				Durable    bool
-			}
-		}
-	}
 }

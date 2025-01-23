@@ -22,26 +22,4 @@ type Config struct {
 	MinReviewLength     int `json:",default=5"`
 	MaxReviewLength     int `json:",default=500"`
 	PageSize            int `json:",default=10"`
-
-	RabbitMQ struct {
-		Host      string
-		Port      int
-		Username  string
-		Password  string
-		VHost     string
-		Exchanges struct {
-			ProductEvent struct {
-				Name    string
-				Type    string
-				Durable bool
-			}
-		}
-		Queues struct {
-			ProductUpdate struct {
-				Name       string
-				RoutingKey string
-				Durable    bool
-			}
-		}
-	}
 }

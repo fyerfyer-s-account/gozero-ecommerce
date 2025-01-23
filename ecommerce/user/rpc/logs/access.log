@@ -1153,3 +1153,4 @@
 {"@timestamp":"2025-01-11T02:22:17.893Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9080","level":"info"}
 {"@timestamp":"2025-01-11T04:17:53.694Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9080","level":"info"}
 {"@timestamp":"2025-01-21T12:49:57.840Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9080","level":"info"}
+{"@timestamp":"2025-01-23T12:39:50.086Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9080","level":"info"}

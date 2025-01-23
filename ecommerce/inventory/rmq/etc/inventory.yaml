@@ -1,5 +1,23 @@
-Name: inventory.rpc
-ListenOn: 0.0.0.0:8085
+Name: inventory.rmq
+ListenOn: 0.0.0.0:9085
+
+MessageRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:2379
+    Key: message.rpc
+  NonBlock: true
+  Timeout: 5000
+
+InventoryRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:2379
+    Key: inventory.rpc
+  NonBlock: true
+  Timeout: 5000
+
+# ... existing RabbitMQ config ...
 
 RabbitMQ:
   Host: localhost
@@ -63,47 +81,7 @@ RabbitMQ:
       Enabled: true
       Port: 9086
 
-Mysql:
-  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_inventory?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
-
-CacheRedis:
-  - Host: 172.17.0.3:6379
-    Pass: 
-    Type: node
-
-# Inventory specific settings
-StockLockTimeout: 1800    # Stock lock timeout in seconds
-MaxBatchSize: 100         # Maximum items in batch operations
-AlertThreshold: 10        # Low stock alert threshold
-DefaultWarehouseId: 1     # Default warehouse ID
-PageSize: 20              # Default page size
-
-Log:
-  ServiceName: inventory-rpc
-  Mode: file
-  Path: logs
-  Level: info
-  Compress: false
-  KeepDays: 7
-
-Prometheus:
-  Host: 0.0.0.0
-  Port: 9085
-  Path: /metrics
-
-Telemetry:
-  Name: inventory.rpc
-  Endpoint: http://127.0.0.1:14268/api/traces
-  Sampler: 1.0
-  Batcher: jaeger
-
-MessageRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: message.rpc
-
 Etcd:
   Hosts:
     - 127.0.0.1:2379
-  Key: inventory.rpc
+  Key: inventory.rmq

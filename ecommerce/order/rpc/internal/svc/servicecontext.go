@@ -1,12 +1,17 @@
 package svc
 
 import (
+	"context"
+
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cartclient"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/consumer"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/config"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zerolog"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/productservice"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/user/rpc/userclient"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -25,18 +30,25 @@ type ServiceContext struct {
 	ProductRpc productservice.ProductService
 
 	Producer *producer.Producer
+	Consumer *consumer.Consumer // Add consumer field for RMQ server
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	conn := sqlx.NewMysql(c.Mysql.DataSource)
+	logger := &zerolog.LogWrapper{Logger: logx.WithContext(context.TODO())}
 
-	// Create logger middleware
-	// logger := middleware.NewLogger(logx.WithContext(context.Background()))
-
-	// Initialize order event producer with retry and batch processing
-	producer, err := producer.NewProducer(&c.RabbitMQ)
+	prod, err := producer.NewProducer(&c.RabbitMQ)
 	if err != nil {
 		panic(err)
+	}
+
+	// Initialize consumer if in RMQ server mode
+	var cons *consumer.Consumer
+	if c.RabbitMQ.Server.Mode != "" {
+		cons, err = consumer.NewConsumer(&c.RabbitMQ, logger)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return &ServiceContext{
@@ -51,6 +63,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserRpc:    userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 		CartRpc:    cartclient.NewCart(zrpc.MustNewClient(c.CartRpc)),
 		ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
-		Producer:   producer,
+		Producer:   prod,
+		Consumer:   cons,
 	}
 }

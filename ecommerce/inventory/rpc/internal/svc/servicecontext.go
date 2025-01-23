@@ -8,7 +8,6 @@ import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/producer"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/internal/config"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/messageservice"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -29,6 +28,7 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	conn := sqlx.NewMysql(c.Mysql.DataSource)
+	logger := &logWrapper{Logger: logx.WithContext(context.TODO())}
 
 	// Initialize RPC clients
 	messageRpc := messageservice.NewMessageService(zrpc.MustNewClient(c.MessageRpc))
@@ -39,23 +39,21 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-	inventoryRpc := inventoryclient.NewInventory(zrpc.MustNewClient(c.Etcd.RpcClientConf))
-	logger := &logWrapper{Logger: logx.WithContext(context.TODO())}
-	// Initialize consumer with logger and RPC clients
-	cons, err := consumer.NewConsumer(
-		&c.RabbitMQ,
-		logger,
-		inventoryRpc,
-		messageRpc,
-	)
-	if err != nil {
-		panic(err)
-	}
+	// Initialize consumer if in RMQ server mode
+	var cons *consumer.Consumer
+	if c.RabbitMQ.Server.Mode != "" {
+		cons, err = consumer.NewConsumer(&c.RabbitMQ, logger, nil, messageRpc)
+		if err != nil {
+			panic(err)
+		}
 
-	cons.Subscribe(types.EventTypeOrderCreated, handlers.NewOrderEventHandler(logger, inventoryRpc))
-	cons.Subscribe(types.EventTypeOrderCancelled, handlers.NewOrderEventHandler(logger, inventoryRpc))
-	cons.Subscribe(types.EventTypeOrderPaid, handlers.NewOrderEventHandler(logger, inventoryRpc))
-	cons.Subscribe(types.EventTypeOrderRefunded, handlers.NewOrderEventHandler(logger, inventoryRpc))
+		// Register handlers only in RMQ server mode
+		orderHandler := handlers.NewOrderEventHandler(logger, nil)
+		cons.Subscribe(types.EventTypeOrderCreated, orderHandler)
+		cons.Subscribe(types.EventTypeOrderCancelled, orderHandler)
+		cons.Subscribe(types.EventTypeOrderPaid, orderHandler)
+		cons.Subscribe(types.EventTypeOrderRefunded, orderHandler)
+	}
 
 	svcCtx := &ServiceContext{
 		Config:            c,
@@ -69,8 +67,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	// Start consumer
-	if err := cons.Start(); err != nil {
-		panic(err)
+	if cons != nil {
+		if err := cons.Start(); err != nil {
+			panic(err)
+		}
 	}
 
 	return svcCtx

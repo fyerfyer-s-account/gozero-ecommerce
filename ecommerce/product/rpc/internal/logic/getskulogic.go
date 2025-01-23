@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventory"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
@@ -37,21 +38,30 @@ func (l *GetSkuLogic) GetSku(in *product.GetSkuRequest) (*product.GetSkuResponse
 		return nil, zeroerr.ErrSkuNotFound
 	}
 
+	inventory, err := l.svcCtx.InventoryRpc.GetStock(l.ctx, &inventory.GetStockRequest{
+		SkuId: int64(sku.Id),
+		WarehouseId: l.svcCtx.Config.DefaultWarehouseId,
+	})
+
+	if err != nil {
+		return nil, zeroerr.ErrProductNotFound
+	}
+
 	// Convert to proto message
 	pbSku := &product.Sku{
 		Id:        int64(sku.Id),
 		ProductId: int64(sku.ProductId),
 		SkuCode:   sku.SkuCode,
 		Price:     sku.Price,
-		Stock:     sku.Stock,
+		Stock:     int64(inventory.Stock.Available),
 		CreatedAt: sku.CreatedAt.Unix(),
 		UpdatedAt: sku.UpdatedAt.Unix(),
 	}
 
 	// Parse attributes JSON
-	if sku.Attributes.Valid {
+	if sku.Attributes != "" {
 		var attrs []*product.SkuAttribute
-		if err := json.Unmarshal([]byte(sku.Attributes.String), &attrs); err == nil {
+		if err := json.Unmarshal([]byte(sku.Attributes), &attrs); err == nil {
 			pbSku.Attributes = attrs
 		}
 	}

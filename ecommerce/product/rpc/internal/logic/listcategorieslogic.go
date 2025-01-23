@@ -38,7 +38,7 @@ func (l *ListCategoriesLogic) ListCategories(in *product.ListCategoriesRequest) 
 		pbCategory := &product.Category{
 			Id:       int64(category.Id),
 			Name:     category.Name,
-			ParentId: int64(category.ParentId.Int64),
+			ParentId: int64(category.ParentId),
 			Level:    category.Level,
 			Sort:     category.Sort,
 			Icon:     category.Icon.String,

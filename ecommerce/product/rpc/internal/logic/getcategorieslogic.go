@@ -40,7 +40,7 @@ func (l *GetCategoriesLogic) GetCategories(in *product.Empty) (*product.GetCateg
         resp = append(resp, &product.Category{
             Id:       int64(c.Id),
             Name:     c.Name,
-            ParentId: c.ParentId.Int64,
+            ParentId: int64(c.ParentId),
             Level:    c.Level,
             Sort:     c.Sort,
             Icon:     c.Icon.String,

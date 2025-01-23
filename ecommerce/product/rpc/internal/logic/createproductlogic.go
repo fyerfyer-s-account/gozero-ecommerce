@@ -106,11 +106,7 @@ func generateSkus(productId uint64, basePrice float64, attrs []*product.SkuAttri
 		ProductId:  productId,
 		SkuCode:    fmt.Sprintf("SKU-%d-1", productId),
 		Price:      basePrice,
-		Stock:      0,
-		Attributes: sql.NullString {
-			String: string(attrJSON),
-			Valid:  true,
-		},
+		Attributes: string(attrJSON),
 	}
 
 	return skus

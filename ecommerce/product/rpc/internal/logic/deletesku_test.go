@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"flag"
 	"testing"
@@ -46,11 +45,7 @@ func TestDeleteSkuLogic_DeleteSku(t *testing.T) {
 		ProductId:  uint64(productId),
 		SkuCode:    "TEST-SKU-001",
 		Price:      99.99,
-		Stock:      100,
-		Attributes: sql.NullString {
-			String: string(attrsJSON),
-			Valid:  true,
-		},
+		Attributes: string(attrsJSON),
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}

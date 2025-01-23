@@ -56,7 +56,7 @@ func (l *CreateCategoryLogic) CreateCategory(in *product.CreateCategoryRequest) 
     // Create category
     category := &model.Categories{
         Name:     in.Name,
-        ParentId: sql.NullInt64{Int64: in.ParentId, Valid: in.ParentId != 0},
+        ParentId: uint64(in.ParentId),
         Level:    level,
         Sort:     in.Sort,
         Icon:     sql.NullString{String: in.Icon, Valid: in.Icon != ""},

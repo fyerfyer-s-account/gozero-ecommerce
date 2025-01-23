@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
@@ -64,11 +63,7 @@ func (l *CreateSkuLogic) CreateSku(in *product.CreateSkuRequest) (*product.Creat
 		ProductId:  uint64(in.ProductId),
 		SkuCode:    in.SkuCode,
 		Price:      in.Price,
-		Stock:      in.Stock,
-		Attributes: sql.NullString {
-			String: string(attrsJSON),
-			Valid:  true,
-		},
+		Attributes: string(attrsJSON),
 		Sales:      0,
 	}
 

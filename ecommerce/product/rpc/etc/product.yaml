@@ -37,7 +37,15 @@ Telemetry:
   Sampler: 1.0
   Batcher: jaeger
 
+InventoryRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: inventory.rpc
+
 Etcd:
   Hosts:
     - 127.0.0.1:2379
   Key: product.rpc
+
+DefaultWarehouseId: 1     # Default warehouse ID

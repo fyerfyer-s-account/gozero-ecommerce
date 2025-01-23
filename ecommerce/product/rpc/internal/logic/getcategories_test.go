@@ -26,14 +26,14 @@ func TestGetCategoriesLogic_GetCategories(t *testing.T) {
     testCategories := []*model.Categories{
         {
             Name:     "Category 1",
-            ParentId: sql.NullInt64{Int64: 0, Valid: true},
+            ParentId: 0,
             Level:    1,
             Sort:     1,
             Icon:     sql.NullString{String: "icon1.jpg", Valid: true},
         },
         {
             Name:     "Category 2",
-            ParentId: sql.NullInt64{Int64: 0, Valid: true},
+            ParentId: 0,
             Level:    1,
             Sort:     2,
             Icon:     sql.NullString{String: "icon2.jpg", Valid: true},

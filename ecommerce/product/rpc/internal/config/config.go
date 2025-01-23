@@ -14,6 +14,8 @@ type Config struct {
 
 	CacheRedis cache.CacheConf
 
+	DefaultWarehouseId int64
+
 	// Product specific settings
 	MaxCategoryLevel    int `json:",default=3"`
 	MaxSkusPerProduct   int `json:",default=100"`
@@ -22,4 +24,6 @@ type Config struct {
 	MinReviewLength     int `json:",default=5"`
 	MaxReviewLength     int `json:",default=500"`
 	PageSize            int `json:",default=10"`
+
+	InventoryRpc zrpc.RpcClientConf
 }

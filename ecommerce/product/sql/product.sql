@@ -41,7 +41,6 @@ CREATE TABLE `skus` (
     `sku_code` varchar(64) NOT NULL COMMENT 'SKU编码',
     `attributes` json NOT NULL COMMENT 'SKU属性',
     `price` decimal(10,2) NOT NULL COMMENT 'SKU价格',
-    `stock` int NOT NULL DEFAULT '0' COMMENT '库存',
     `sales` int NOT NULL DEFAULT '0' COMMENT '销量',
     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

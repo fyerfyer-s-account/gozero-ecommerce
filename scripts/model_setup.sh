@@ -1,0 +1,1 @@
+goctl model mysql datasource -url="root:pa55word@tcp(172.17.0.2:3306)/mall_product" -table="*" -dir=./ecommerce/product/rpc/model -c

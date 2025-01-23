@@ -62,8 +62,8 @@ func (m *customSkusModel) BatchInsert(ctx context.Context, data []*Skus) error {
 	values := make([]string, 0, len(data))
 	args := make([]interface{}, 0, len(data)*6)
 	for _, sku := range data {
-		values = append(values, "(?, ?, ?, ?, ?, ?)")
-		args = append(args, sku.ProductId, sku.SkuCode, sku.Attributes, sku.Price, sku.Stock, sku.Sales)
+		values = append(values, "(?, ?, ?, ?, ?)")
+		args = append(args, sku.ProductId, sku.SkuCode, sku.Attributes, sku.Price, sku.Sales)
 	}
 
 	query := fmt.Sprintf("insert into %s (%s) values %s",

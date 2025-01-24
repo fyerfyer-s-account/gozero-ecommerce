@@ -1,3 +1,0 @@
-{"@timestamp":"2025-01-11T02:22:04.360Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9082","level":"info"}
-{"@timestamp":"2025-01-11T04:24:16.416Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9082","level":"info"}
-{"@timestamp":"2025-01-21T12:50:26.420Z","caller":"prometheus/agent.go:40","content":"Starting prometheus agent at 0.0.0.0:9082","level":"info"}

@@ -1,0 +1,74 @@
+Name: order.rmq
+ListenOn: 0.0.0.0:9083
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_order?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+  PrefetchCount: 1
+  PrefetchGlobal: false
+
+  # Exchange definitions
+  Exchanges:
+    - Name: order.events
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+
+  # Queue definitions  
+  Queues:
+    - Name: order.status
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: order.events
+          RoutingKey: order.status.*
+
+    - Name: order.alert
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: order.events
+          RoutingKey: order.alert.*
+
+Log:
+  ServiceName: order-rmq
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9183
+  Path: /metrics
+
+Telemetry:
+  Name: order.rmq
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: order.rmq

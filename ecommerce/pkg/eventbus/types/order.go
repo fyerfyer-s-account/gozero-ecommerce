@@ -5,13 +5,12 @@ import "time"
 type OrderEventType string
 
 const (
-	OrderCreated       OrderEventType = "order.created"
-	OrderPaid          OrderEventType = "order.paid"
-	OrderCancelled     OrderEventType = "order.cancelled"
-	OrderShipped       OrderEventType = "order.shipped"
-	OrderCompleted     OrderEventType = "order.completed"
-	OrderRefunded      OrderEventType = "order.refunded"
-	OrderStatusChanged OrderEventType = "order.status.changed"
+	OrderCreated   OrderEventType = "order.created"
+	OrderPaid      OrderEventType = "order.paid"
+	OrderCancelled OrderEventType = "order.cancelled"
+	OrderShipped   OrderEventType = "order.shipped"
+	OrderCompleted OrderEventType = "order.completed"
+	OrderRefunded  OrderEventType = "order.refunded"
 )
 
 // OrderEvent represents the base order event structure
@@ -57,20 +56,43 @@ type OrderCancelledEvent struct {
 
 // OrderShippedEvent represents order shipping event
 type OrderShippedEvent struct {
-    OrderEvent
-    ShippingNo string `json:"shipping_no"`
-    Company    string `json:"company"`
+	OrderEvent
+	ShippingNo string `json:"shipping_no"`
+	Company    string `json:"company"`
 }
 
 // OrderCompletedEvent represents order completion event
 type OrderCompletedEvent struct {
-    OrderEvent
-    ReceiveTime time.Time `json:"receive_time"`
+	OrderEvent
+	ReceiveTime time.Time `json:"receive_time"`
 }
 
-// OrderStatusChangedEvent represents order status change event
+type OrderAlertEvent struct {
+	OrderEvent
+	AlertType  string `json:"alert_type"`
+	AlertLevel string `json:"alert_level"`
+	Message    string `json:"message"`
+}
+
+// OrderStatusEventType represents the specific type of status change
+type OrderStatusEventType string
+
+const (
+	OrderStatusPaid      OrderStatusEventType = "order.status.paid"
+	OrderStatusShipped   OrderStatusEventType = "order.status.shipped"
+	OrderStatusReceived  OrderStatusEventType = "order.status.received"
+	OrderStatusCanceled  OrderStatusEventType = "order.status.canceled"
+	OrderStatusRefunding OrderStatusEventType = "order.status.refunding"
+)
+
+// Enhanced OrderStatusChangedEvent
 type OrderStatusChangedEvent struct {
-    OrderEvent
-    OldStatus int32 `json:"old_status"`
-    NewStatus int32 `json:"new_status"`
+	OrderEvent
+	OldStatus  int32                `json:"old_status"`
+	NewStatus  int32                `json:"new_status"`
+	EventType  OrderStatusEventType `json:"event_type"`
+	PaymentNo  string               `json:"payment_no,omitempty"`
+	ShippingNo string               `json:"shipping_no,omitempty"`
+	RefundNo   string               `json:"refund_no,omitempty"`
+	Reason     string               `json:"reason,omitempty"`
 }

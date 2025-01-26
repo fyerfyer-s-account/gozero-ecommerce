@@ -5,12 +5,13 @@ import "time"
 type OrderEventType string
 
 const (
-	OrderCreated   OrderEventType = "order.created"
-	OrderPaid      OrderEventType = "order.paid"
-	OrderCancelled OrderEventType = "order.cancelled"
-	OrderShipped   OrderEventType = "order.shipped"
-	OrderCompleted OrderEventType = "order.completed"
-	OrderRefunded  OrderEventType = "order.refunded"
+	OrderCreated       OrderEventType = "order.created"
+	OrderPaid          OrderEventType = "order.paid"
+	OrderCancelled     OrderEventType = "order.cancelled"
+	OrderShipped       OrderEventType = "order.shipped"
+	OrderCompleted     OrderEventType = "order.completed"
+	OrderRefunded      OrderEventType = "order.refunded"
+	OrderStatusChanged OrderEventType = "order.status.changed"
 )
 
 // OrderEvent represents the base order event structure
@@ -52,4 +53,24 @@ type OrderPaidEvent struct {
 type OrderCancelledEvent struct {
 	OrderEvent
 	Reason string `json:"reason"`
+}
+
+// OrderShippedEvent represents order shipping event
+type OrderShippedEvent struct {
+    OrderEvent
+    ShippingNo string `json:"shipping_no"`
+    Company    string `json:"company"`
+}
+
+// OrderCompletedEvent represents order completion event
+type OrderCompletedEvent struct {
+    OrderEvent
+    ReceiveTime time.Time `json:"receive_time"`
+}
+
+// OrderStatusChangedEvent represents order status change event
+type OrderStatusChangedEvent struct {
+    OrderEvent
+    OldStatus int32 `json:"old_status"`
+    NewStatus int32 `json:"new_status"`
 }

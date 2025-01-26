@@ -7,37 +7,35 @@ RabbitMQ:
   Username: guest 
   Password: guest
   VHost: /
-  Exchanges:
-    OrderEvent:
-      Name: order.events
-      Type: topic
-      Durable: true
-  Queues:
-    OrderStatus:
-      Name: order.status
-      RoutingKey: order.*
-      Durable: true
-    OrderAlert:
-      Name: order.alert  
-      RoutingKey: order.alert.*
-      Durable: true
-  Retry:
-    MaxAttempts: 3
-    InitialInterval: 1000
-    MaxInterval: 10000
-    BackoffFactor: 2.0
-    Jitter: true
-  Batch:
-    Size: 100
-    FlushInterval: 1000
-    Workers: 5
-  DeadLetter:
-    Exchange: order.deadletter
-    Queue: order.deadletter.queue
-    RoutingKey: deadletter
-  Middleware:
-    EnableRecovery: true
-    EnableLogging: true
+  Exchange: order.events
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+  # Queues:
+  #   OrderStatus:
+  #     Name: order.status
+  #     RoutingKey: order.*
+  #     Durable: true
+  #   OrderAlert:
+  #     Name: order.alert  
+  #     RoutingKey: order.alert.*
+  #     Durable: true
+  # Retry:
+  #   MaxAttempts: 3
+  #   InitialInterval: 1000
+  #   MaxInterval: 10000
+  #   BackoffFactor: 2.0
+  #   Jitter: true
+  # Batch:
+  #   Size: 100
+  #   FlushInterval: 1000
+  #   Workers: 5
+  # DeadLetter:
+  #   Exchange: order.deadletter
+  #   Queue: order.deadletter.queue
+  #   RoutingKey: deadletter
+  # Middleware:
+  #   EnableRecovery: true
+  #   EnableLogging: true
 
 Mysql:
   DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_order?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci

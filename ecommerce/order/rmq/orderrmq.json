@@ -23,7 +23,8 @@
             "arguments": {
                 "x-dead-letter-exchange": "order.deadletter",
                 "x-dead-letter-routing-key": "deadletter",
-                "x-message-ttl": 300000
+                "x-message-ttl": 300000,
+                "x-max-retries": 3
             }
         },
         {
@@ -34,7 +35,8 @@
             "arguments": {
                 "x-dead-letter-exchange": "order.deadletter",
                 "x-dead-letter-routing-key": "deadletter",
-                "x-message-ttl": 300000
+                "x-message-ttl": 300000,
+                "x-max-retries": 3
             }
         },
         {
@@ -71,7 +73,7 @@
             "vhost": "/",
             "destination": "order.status",
             "destination_type": "queue",
-            "routing_key": "order.*",
+            "routing_key": "order.status.*",
             "arguments": {}
         },
         {

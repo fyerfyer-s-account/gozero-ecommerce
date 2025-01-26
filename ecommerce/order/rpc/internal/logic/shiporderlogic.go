@@ -3,16 +3,13 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
-	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -75,28 +72,42 @@ func (l *ShipOrderLogic) ShipOrder(in *order.ShipOrderRequest) (*order.ShipOrder
 		return nil, err
 	}
 
-	// After shipping record creation, publish event
-    event := producer.CreateOrderEvent(
-        uuid.New().String(),
-        types.EventTypeOrderShipped,
-        &types.OrderShippedData{
-            OrderNo:    orderInfo.OrderNo,
-            OrderId:    int64(orderInfo.Id),
-            ShippingNo: in.ShippingNo,
-            Company:    in.Company,
+	// After shipping record creation, publish events
+    // 1. Ship event
+    shippedEvent := &types.OrderShippedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderShipped,
+            OrderNo:   orderInfo.OrderNo,
+            UserID:    int64(orderInfo.UserId),
+            Timestamp: time.Now(),
         },
-        types.Metadata{
-            Source:  "order.service",
-            UserID:  int64(orderInfo.UserId),
-            TraceID: l.ctx.Value("trace_id").(string),
-        },
-    )
+        ShippingNo: in.ShippingNo,
+        Company:    in.Company,
+    }
 
-    if err := l.svcCtx.Producer.PublishEventSync(event); err != nil {
-        return nil, fmt.Errorf("failed to publish shipping event: %w", err)
+    if err := l.svcCtx.Producer.PublishOrderShipped(l.ctx, shippedEvent); err != nil {
+        logx.Errorf("failed to publish order shipped event: %v", err)
+    }
+
+    // 2. Status change event
+    statusEvent := &types.OrderStatusChangedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderEventType(types.OrderStatusShipped),
+            OrderNo:   orderInfo.OrderNo,
+            UserID:    int64(orderInfo.UserId),
+            Timestamp: time.Now(),
+        },
+        OldStatus:  2, // Paid
+        NewStatus:  3, // Shipped
+        EventType:  types.OrderStatusShipped,
+        ShippingNo: in.ShippingNo,
+    }
+
+    if err := l.svcCtx.Producer.PublishStatusChanged(l.ctx, statusEvent); err != nil {
+        logx.Errorf("failed to publish status change event: %v", err)
     }
 
 	return &order.ShipOrderResponse{
-		Success: true,
-	}, nil
+        Success: true,
+    }, nil
 }

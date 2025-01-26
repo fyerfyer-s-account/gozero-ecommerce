@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
-	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -99,30 +97,57 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 		return nil, zeroerr.ErrOrderCreateFailed
 	}
 
-	// After order creation success, publish event
-    event := producer.CreateOrderEvent(
-        uuid.New().String(),
-        types.EventTypeOrderCreated,
-        &types.OrderCreatedData{
-            OrderNo:     orderNo,
-            UserID:      in.UserId,
-            TotalAmount: totalAmount,
-            Items:      convertToEventItems(orderItems),
-        },
-        types.Metadata{
-            Source:  "order.service",
-            UserID:  in.UserId,
-            TraceID: l.ctx.Value("trace_id").(string),
-        },
-    )
+	// After order creation success, publish events
+    // 1. Create order event
+    items := make([]types.OrderItem, 0, len(orderItems))
+    for _, item := range orderItems {
+        items = append(items, types.OrderItem{
+            ProductID: int64(item.ProductId),
+            SkuID:     int64(item.SkuId),
+            Quantity:  int32(item.Quantity),
+            Price:     float64(item.Price),
+        })
+    }
 
-    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
+    createdEvent := &types.OrderCreatedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderCreated,
+            OrderNo:   orderNo,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
+        Items:       items,
+        TotalAmount: totalAmount,
+        PayAmount:   totalAmount,
+        Address:     in.Address,
+        Receiver:    in.Receiver,
+        Phone:       in.Phone,
+    }
+
+    if err := l.svcCtx.Producer.PublishOrderCreated(l.ctx, createdEvent); err != nil {
         logx.Errorf("failed to publish order created event: %v", err)
         // Don't return error as order is already created
     }
 
-	return &order.CreateOrderResponse{
-		OrderNo:   orderNo,
-		PayAmount: totalAmount,
-	}, nil
+    // 2. Status change event
+    statusEvent := &types.OrderStatusChangedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderEventType(types.OrderStatusPaid),
+            OrderNo:   orderNo,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
+        OldStatus:  0, // New order
+        NewStatus:  1, // Pending payment
+        EventType:  types.OrderStatusPaid,
+    }
+
+    if err := l.svcCtx.Producer.PublishStatusChanged(l.ctx, statusEvent); err != nil {
+        logx.Errorf("failed to publish order status event: %v", err)
+    }
+
+    return &order.CreateOrderResponse{
+        OrderNo:   orderNo,
+        PayAmount: totalAmount,
+    }, nil
 }

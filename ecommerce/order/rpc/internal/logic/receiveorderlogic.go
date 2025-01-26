@@ -7,6 +7,7 @@ import (
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -60,6 +61,40 @@ func (l *ReceiveOrderLogic) ReceiveOrder(in *order.ReceiveOrderRequest) (*order.
     err = l.svcCtx.OrderShippingModel.Update(l.ctx, shipping)
     if err != nil {
         return nil, err
+    }
+
+    // After status updates, publish events
+    // 1. Order completed event
+    completedEvent := &types.OrderCompletedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderCompleted,
+            OrderNo:   orderInfo.OrderNo,
+            UserID:    int64(orderInfo.UserId),
+            Timestamp: time.Now(),
+        },
+        ReceiveTime: shipping.ReceiveTime.Time,
+    }
+
+    if err := l.svcCtx.Producer.PublishOrderCompleted(l.ctx, completedEvent); err != nil {
+        logx.Errorf("failed to publish order completed event: %v", err)
+    }
+
+    // 2. Status change event
+    statusEvent := &types.OrderStatusChangedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderEventType(types.OrderStatusReceived),
+            OrderNo:   orderInfo.OrderNo,
+            UserID:    int64(orderInfo.UserId),
+            Timestamp: time.Now(),
+        },
+        OldStatus:  3, // Shipped
+        NewStatus:  4, // Completed
+        EventType:  types.OrderStatusReceived,
+        ShippingNo: shipping.ShippingNo.String,
+    }
+
+    if err := l.svcCtx.Producer.PublishStatusChanged(l.ctx, statusEvent); err != nil {
+        logx.Errorf("failed to publish status change event: %v", err)
     }
 
     return &order.ReceiveOrderResponse{

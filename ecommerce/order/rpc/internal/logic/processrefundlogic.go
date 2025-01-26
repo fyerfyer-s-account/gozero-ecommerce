@@ -2,15 +2,12 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
-	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -76,29 +73,39 @@ func (l *ProcessRefundLogic) ProcessRefund(in *order.ProcessRefundRequest) (*ord
 			return nil, err
 		}
 
-		// After refund processing, publish event
-		event := producer.CreateOrderEvent(
-			uuid.New().String(),
-			types.EventTypeRefundProcessed,
-			&types.RefundProcessedData{
-				OrderNo:  o.OrderNo,
-				OrderId:  int64(refund.OrderId),
-				RefundNo: refund.RefundNo,
-				Amount:   refund.Amount,
-				Status:   newStatus,
-				Reply:    in.Reply,
-			},
-			types.Metadata{
-				Source:  "order.service",
-				UserID:  int64(o.UserId),
-				TraceID: l.ctx.Value("trace_id").(string),
-			},
-		)
+		// 1. Use OrderCompletedEvent for refund completion
+        completedEvent := &types.OrderCompletedEvent{
+            OrderEvent: types.OrderEvent{
+                Type:      types.OrderCompleted,
+                OrderNo:   o.OrderNo,
+                UserID:    int64(o.UserId),
+                Timestamp: time.Now(),
+            },
+            ReceiveTime: time.Now(),
+        }
 
-		if err := l.svcCtx.Producer.PublishEventSync(event); err != nil {
-			return nil, fmt.Errorf("failed to publish refund processed event: %w", err)
-		}
-	}
+        if err := l.svcCtx.Producer.PublishOrderCompleted(l.ctx, completedEvent); err != nil {
+            logx.Errorf("failed to publish completed event: %v", err)
+        }
+
+        // 2. Publish status change event
+        statusEvent := &types.OrderStatusChangedEvent{
+            OrderEvent: types.OrderEvent{
+                Type:      types.OrderEventType(types.OrderStatusRefunding),
+                OrderNo:   o.OrderNo,
+                UserID:    int64(o.UserId),
+                Timestamp: time.Now(),
+            },
+            OldStatus:  int32(o.Status),
+            NewStatus:  7, // Refunded
+            EventType:  types.OrderStatusRefunding,
+            RefundNo:   refund.RefundNo,
+        }
+
+        if err := l.svcCtx.Producer.PublishStatusChanged(l.ctx, statusEvent); err != nil {
+            logx.Errorf("failed to publish status change event: %v", err)
+        }
+    }
 
 	return &order.ProcessRefundResponse{
 		Success: true,

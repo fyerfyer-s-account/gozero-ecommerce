@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/order"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
-	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -72,25 +70,41 @@ func (l *PayOrderLogic) PayOrder(in *order.PayOrderRequest) (*order.PayOrderResp
         payURL = fmt.Sprintf("https://balance.pay.com/%s", paymentNo)
     }
 
-    event := producer.CreateOrderEvent(
-        uuid.New().String(),
-        types.EventTypeOrderPaid,
-        &types.OrderPaidData{
-            OrderNo:       orderInfo.OrderNo,
-            PaymentNo:     paymentNo,
-            PayAmount:     orderInfo.PayAmount,
-            PaymentMethod: int32(in.PaymentMethod),
-            PayTime:      time.Now(),
+    // After payment record creation, publish events
+    // 1. Order paid event
+    paidEvent := &types.OrderPaidEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderPaid,
+            OrderNo:   orderInfo.OrderNo,
+            UserID:    int64(orderInfo.UserId),
+            Timestamp: time.Now(),
         },
-        types.Metadata{
-            Source:  "order.service",
-            UserID:  int64(orderInfo.UserId),
-            TraceID: l.ctx.Value("trace_id").(string),
-        },
-    )
+        PaymentNo:     paymentNo,
+        PaymentMethod: in.PaymentMethod,
+        PayAmount:     orderInfo.PayAmount,
+    }
 
-    if err := l.svcCtx.Producer.PublishEventSync(event); err != nil {
-        return nil, err
+    if err := l.svcCtx.Producer.PublishOrderPaid(l.ctx, paidEvent); err != nil {
+        logx.Errorf("failed to publish order paid event: %v", err)
+        // Don't return error as payment is already created
+    }
+
+    // 2. Status change event
+    statusEvent := &types.OrderStatusChangedEvent{
+        OrderEvent: types.OrderEvent{
+            Type:      types.OrderEventType(types.OrderStatusPaid),
+            OrderNo:   orderInfo.OrderNo,
+            UserID:    int64(orderInfo.UserId),
+            Timestamp: time.Now(),
+        },
+        OldStatus:  1, // Pending payment
+        NewStatus:  2, // Paid, waiting for shipment
+        EventType:  types.OrderStatusPaid,
+        PaymentNo:  paymentNo,
+    }
+
+    if err := l.svcCtx.Producer.PublishStatusChanged(l.ctx, statusEvent); err != nil {
+        logx.Errorf("failed to publish status change event: %v", err)
     }
 
     return &order.PayOrderResponse{

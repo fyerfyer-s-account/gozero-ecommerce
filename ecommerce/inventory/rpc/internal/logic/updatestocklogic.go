@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventory"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
@@ -71,35 +71,70 @@ func (l *UpdateStockLogic) UpdateStock(in *inventory.UpdateStockRequest) (*inven
 
 		// Create stock record
 		record := &model.StockRecords{
-			SkuId:       uint64(in.SkuId),
-			WarehouseId: uint64(in.WarehouseId),
-			Type:        1, // Stock update
-			Quantity:    int64(in.Quantity),
-			Remark:      sql.NullString{String: in.Remark, Valid: len(in.Remark) > 0},
-		}
-		_, err = l.svcCtx.StockRecordsModel.Insert(ctx, record)
-		if err != nil {
-			return err
-		}
+            SkuId:       uint64(in.SkuId),
+            WarehouseId: uint64(in.WarehouseId),
+            Type:        1, // Stock update
+            Quantity:    int64(in.Quantity),
+            Remark:      sql.NullString{String: in.Remark, Valid: len(in.Remark) > 0},
+        }
+        _, err = l.svcCtx.StockRecordsModel.Insert(ctx, record)
+        if err != nil {
+            return err
+        }
 
-		 // Publish stock update event
-		if l.svcCtx.Producer != nil {
-			if err := l.svcCtx.Producer.PublishStockUpdate(
-				ctx,
-				&types.StockUpdateData{
-					SkuID:       uint64(in.SkuId),
-					WarehouseID: uint64(in.WarehouseId),
-					Quantity:    in.Quantity,
-					Remark:      record.Remark.String,
-				},
-				0,
-			); err != nil {
-				l.Logger.Errorf("Failed to publish stock update message: %v", err)
-			}
-		}
+        // Publish stock update event
+        if l.svcCtx.Producer != nil {
+            // Stock update event
+            updateEvent := &types.StockUpdatedEvent{
+                InventoryEvent: types.InventoryEvent{
+                    Type:        types.StockUpdated,
+                    WarehouseID: int64(in.WarehouseId),
+                    Timestamp:   record.CreatedAt,
+                },
+                SkuID:       int64(in.SkuId),
+                OldQuantity: int32(stock.Available),
+                NewQuantity: int32(stock.Available + int64(in.Quantity)),
+                Reason:      in.Remark,
+            }
+            if err := l.svcCtx.Producer.PublishStockUpdated(ctx, updateEvent); err != nil {
+                l.Logger.Error("Failed to publish stock update event", err)
+            }
 
-		return nil
-	})
+            // Check stock level and send alerts
+            newQuantity := stock.Available + int64(in.Quantity)
+            if newQuantity <= 0 {
+                outOfStockEvent := &types.StockOutOfStockEvent{
+                    InventoryEvent: types.InventoryEvent{
+                        Type:        types.StockOutOfStock,
+                        WarehouseID: int64(in.WarehouseId),
+                        Timestamp:   record.CreatedAt,
+                    },
+                    SkuID:    int64(in.SkuId),
+                    Quantity: 0,
+                    Reason:   "Stock depleted after update",
+                }
+                if err := l.svcCtx.Producer.PublishStockOutOfStock(ctx, outOfStockEvent); err != nil {
+                    l.Logger.Error("Failed to publish stock out event", err)
+                }
+            } else if newQuantity <= stock.AlertQuantity {
+                lowStockEvent := &types.StockLowStockEvent{
+                    InventoryEvent: types.InventoryEvent{
+                        Type:        types.StockLowStock,
+                        WarehouseID: int64(in.WarehouseId),
+                        Timestamp:   record.CreatedAt,
+                    },
+                    SkuID:     int64(in.SkuId),
+                    Quantity:  int32(newQuantity),
+                    Threshold: int32(stock.AlertQuantity),
+                }
+                if err := l.svcCtx.Producer.PublishStockLowStock(ctx, lowStockEvent); err != nil {
+                    l.Logger.Error("Failed to publish stock alert event", err)
+                }
+            }
+        }
+
+        return nil
+    })
 
 	if err != nil {
 		return nil, err

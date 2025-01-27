@@ -3,11 +3,12 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventory"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -42,6 +43,9 @@ func (l *LockStockLogic) LockStock(in *inventory.LockStockRequest) (*inventory.L
 		// Process each item
 		lockRecords := make([]*model.StockLocks, 0, len(in.Items))
 		stockRecords := make([]*model.StockRecords, 0, len(in.Items))
+
+		// Create rmq message in advance
+		var rmqItems []types.StockItem
 
 		for _, item := range in.Items {
 			if item.SkuId <= 0 || item.Quantity <= 0 || item.WarehouseId <= 0 {
@@ -86,23 +90,10 @@ func (l *LockStockLogic) LockStock(in *inventory.LockStockRequest) (*inventory.L
 				Remark:      sql.NullString{String: "stock_lock", Valid: true},
 			}
 			stockRecords = append(stockRecords, stockRecord)
-
-			// Publish stock lock event if successful
-			if l.svcCtx.Producer != nil {
-				err = l.svcCtx.Producer.PublishStockUpdate(
-					ctx,
-					&types.StockUpdateData{
-						SkuID:       uint64(item.SkuId),
-						WarehouseID: uint64(item.WarehouseId),
-						Quantity:    item.Quantity,
-						Remark:      "stock_lock",
-					},
-					0,
-				)
-				if err != nil {
-					l.Logger.Errorf("Failed to publish stock lock message: %v", err)
-				}
-			}
+			rmqItems = append(rmqItems, types.StockItem{
+				SkuID:    item.SkuId,
+				Quantity: item.Quantity,
+			})
 		}
 
 		// Batch insert lock records
@@ -116,6 +107,23 @@ func (l *LockStockLogic) LockStock(in *inventory.LockStockRequest) (*inventory.L
 		if len(stockRecords) > 0 {
 			if err := l.svcCtx.StockRecordsModel.BatchInsert(ctx, stockRecords); err != nil {
 				return err
+			}
+		}
+
+		// Publish stock lock event if successful
+		if l.svcCtx.Producer != nil {
+			event := &types.StockLockedEvent{
+				InventoryEvent: types.InventoryEvent{
+					Type:        types.StockLocked,
+					WarehouseID: int64(lockRecords[0].WarehouseId), // Use first record's warehouse
+					Timestamp:   time.Now(),
+				},
+				OrderNo: in.OrderNo,
+				Items:   rmqItems,
+			}
+
+			if err := l.svcCtx.Producer.PublishStockLocked(ctx, event); err != nil {
+				l.Logger.Error("Failed to publish stock lock event", err)
 			}
 		}
 

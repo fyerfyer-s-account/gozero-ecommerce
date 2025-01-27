@@ -3,8 +3,9 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventory"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
@@ -63,23 +64,6 @@ func (l *UnlockStockLogic) UnlockStock(in *inventory.UnlockStockRequest) (*inven
                 Remark:      sql.NullString{String: "stock_unlock", Valid: true},
             }
             stockRecords = append(stockRecords, stockRecord)
-
-            // Publish stock update event
-            if l.svcCtx.Producer != nil {
-                err = l.svcCtx.Producer.PublishStockUpdate(
-                    ctx,
-                    &types.StockUpdateData{
-                        SkuID:       lock.SkuId,
-                        WarehouseID: lock.WarehouseId,
-                        Quantity:    int32(lock.Quantity),
-                        Remark:      "stock_unlock",
-                    },
-                    0,
-                )
-                if err != nil {
-                    l.Logger.Errorf("Failed to publish stock unlock message: %v", err)
-                }
-            }
         }
 
         // Batch insert stock records
@@ -87,6 +71,20 @@ func (l *UnlockStockLogic) UnlockStock(in *inventory.UnlockStockRequest) (*inven
             if err := l.svcCtx.StockRecordsModel.BatchInsert(ctx, stockRecords); err != nil {
                 return err
             }
+        }
+
+        // Create and publish stock unlock event
+        event := &types.StockUnlockedEvent{
+            InventoryEvent: types.InventoryEvent{
+                Type:        types.StockUnlocked,
+                WarehouseID: int64(locks[0].WarehouseId), // Use first lock's warehouse
+                Timestamp:   time.Now(),
+            },
+            OrderNo: in.OrderNo,
+        }
+
+        if err := l.svcCtx.Producer.PublishStockUnlocked(ctx, event); err != nil {
+            l.Logger.Error("Failed to publish stock unlock event", err)
         }
 
         // Delete lock records

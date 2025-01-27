@@ -1,6 +1,7 @@
 etcd/
 prometheus/
 default.etcd/
+**/default.etcd/
 node_modules/
 logs/
 **/logs/

@@ -23,4 +23,6 @@ type Broker interface {
     BindQueue(queue, exchange, routingKey string) error
     // IsConnected checks the connection status
     IsConnected() bool
+
+    Channel() (*amqp.Channel, error)
 }

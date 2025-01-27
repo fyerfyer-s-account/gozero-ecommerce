@@ -23,17 +23,29 @@ func NewRmqServer(ctx context.Context, svcCtx *svc.ServiceContext) *RmqServer {
 
 // Start implements service.Service
 func (s *RmqServer) Start() {
+    s.logger.Info(s.ctx, "Starting Order RMQ server...", nil)
+
+    // Ensure broker is connected
+    if !s.svcCtx.Broker.IsConnected() {
+        if err := s.svcCtx.Broker.Connect(s.ctx); err != nil {
+            s.logger.Error(s.ctx, "Failed to connect to RabbitMQ broker", err, nil)
+            panic(err)
+        }
+    }
+
     // Start the consumer
     if err := s.svcCtx.Consumer.Start(s.ctx); err != nil {
         s.logger.Error(s.ctx, "Failed to start consumer", err, nil)
-        panic(err) // In production you might want to handle this differently
+        panic(err)
     }
 
-    s.logger.Info(s.ctx, "Order RMQ server started", nil)
+    s.logger.Info(s.ctx, "Order RMQ server started successfully", nil)
 }
 
 // Stop implements service.Service
 func (s *RmqServer) Stop() {
+    s.logger.Info(s.ctx, "Stopping Order RMQ server...", nil)
+
     // Stop the consumer
     if err := s.svcCtx.Consumer.Stop(); err != nil {
         s.logger.Error(s.ctx, "Failed to stop consumer", err, nil)
@@ -44,10 +56,10 @@ func (s *RmqServer) Stop() {
         s.logger.Error(s.ctx, "Failed to close producer", err, nil)
     }
 
-    // Disconnect broker
-    if err := s.svcCtx.Broker.Disconnect(); err != nil {
-        s.logger.Error(s.ctx, "Failed to disconnect broker", err, nil)
+    // Close the broker
+    if err := s.svcCtx.Broker.Close(); err != nil {
+        s.logger.Error(s.ctx, "Failed to close broker", err, nil)
     }
 
-    s.logger.Info(s.ctx, "Order RMQ server stopped", nil)
+    s.logger.Info(s.ctx, "Order RMQ server stopped successfully", nil)
 }

@@ -195,6 +195,17 @@ func (b *AMQPBroker) BindQueue(queue, exchange, routingKey string) error {
     )
 }
 
+func (b *AMQPBroker) Channel() (*amqp.Channel, error) {
+    b.mu.RLock()
+    defer b.mu.RUnlock()
+
+    if !b.isReady {
+        return nil, fmt.Errorf("not connected to RabbitMQ")
+    }
+
+    return b.conn.Channel()
+}
+
 func (b *AMQPBroker) IsConnected() bool {
     b.mu.RLock()
     defer b.mu.RUnlock()

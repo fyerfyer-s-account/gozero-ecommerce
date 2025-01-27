@@ -1,106 +1,149 @@
 package svc
 
 import (
-	"context"
-	"log"
-	"time"
+    "context"
+    "fmt"
+    "log"
+    "time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/consumer"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/internal/config"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-	rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/config"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/broker"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/consumer"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/internal/config"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/broker"
+    rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/config"
+    "github.com/streadway/amqp"
+    "github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	Broker broker.Broker
+    Config  config.Config
+    Broker  broker.Broker
+    Channel *amqp.Channel
 
-	// Models
-	OrdersModel        model.OrdersModel
-	OrderItemsModel    model.OrderItemsModel
-	OrderShippingModel model.OrderShippingModel
-	OrderRefundsModel  model.OrderRefundsModel
-	OrderPaymentsModel model.OrderPaymentsModel
+    // Models
+    OrdersModel        model.OrdersModel
+    OrderItemsModel    model.OrderItemsModel
+    OrderShippingModel model.OrderShippingModel
+    OrderRefundsModel  model.OrderRefundsModel
+    OrderPaymentsModel model.OrderPaymentsModel
 
-	// RMQ Components
-	Producer *producer.OrderProducer
-	Consumer *consumer.OrderConsumer
+    // RMQ Components
+    Producer *producer.OrderProducer
+    Consumer *consumer.OrderConsumer
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	log.Println("Initializing ServiceContext...")
+    log.Println("Initializing ServiceContext...")
 
-	
-
-	// Connect to MySQL
-	log.Println("Connecting to MySQL...")
-	conn := sqlx.NewMysql(c.Mysql.DataSource)
-	log.Println("Connected to MySQL successfully.")
-
-	// Initialize RabbitMQ broker
-	log.Println("Initializing RabbitMQ broker...")
-	rmqConfig := convertToEventbusConfig(&c)
-	rmqBroker := broker.NewAMQPBroker(rmqConfig)
-	log.Println("Connecting to RabbitMQ broker...")
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
     defer cancel()
-    
-    log.Println("Connecting to RabbitMQ broker...")
-    if err := rmqBroker.Connect(ctx); err != nil {
-        log.Fatalf("Failed to connect to RabbitMQ broker: %v", err)
+
+    // Initialize database connection
+    conn := sqlx.NewMysql(c.Mysql.DataSource)
+
+    // Initialize RabbitMQ broker
+    rmqBroker := initializeBroker(ctx, &c)
+
+    // Initialize channel
+    ch, err := rmqBroker.Channel()
+    if err != nil {
+        log.Fatalf("Failed to create channel: %v", err)
     }
-	log.Println("RabbitMQ broker connected successfully.")
 
-	// Get RMQ channel
-	log.Println("Getting RabbitMQ channel...")
-	ch, err := rmqBroker.Channel()
-	if err != nil {
-		log.Fatalf("Failed to get RabbitMQ channel: %v", err)
-	}
-	log.Println("RabbitMQ channel acquired successfully.")
+    // Setup exchanges and queues
+    if err := setupRabbitMQ(ch, &c); err != nil {
+        log.Fatalf("Failed to setup RabbitMQ: %v", err)
+    }
 
-	// Initialize models
-	log.Println("Initializing models...")
-	ordersModel := model.NewOrdersModel(conn, c.CacheRedis)
-	log.Println("OrdersModel initialized.")
-	orderItemsModel := model.NewOrderItemsModel(conn, c.CacheRedis)
-	log.Println("OrderItemsModel initialized.")
-	orderShippingModel := model.NewOrderShippingModel(conn, c.CacheRedis)
-	log.Println("OrderShippingModel initialized.")
-	orderRefundsModel := model.NewOrderRefundsModel(conn, c.CacheRedis)
-	log.Println("OrderRefundsModel initialized.")
-	orderPaymentsModel := model.NewOrderPaymentsModel(conn, c.CacheRedis)
-	log.Println("OrderPaymentsModel initialized.")
+    // Initialize models
+    ordersModel := model.NewOrdersModel(conn, c.CacheRedis)
+    orderItemsModel := model.NewOrderItemsModel(conn, c.CacheRedis)
+    orderShippingModel := model.NewOrderShippingModel(conn, c.CacheRedis)
+    orderRefundsModel := model.NewOrderRefundsModel(conn, c.CacheRedis)
+    orderPaymentsModel := model.NewOrderPaymentsModel(conn, c.CacheRedis)
 
-	// Initialize producer and consumer
-	log.Println("Initializing producer...")
-	prod := producer.NewOrderProducer(ch, "order.events")
-	log.Println("OrderProducer initialized successfully.")
-	log.Println("Initializing consumer...")
-	cons := consumer.NewOrderConsumer(
-		ch,
-		ordersModel,
-		orderPaymentsModel,
-		orderShippingModel,
-		orderRefundsModel,
-	)
-	log.Println("OrderConsumer initialized successfully.")
+    // Initialize producer and consumer
+    prod := producer.NewOrderProducer(ch, "order.events")
+    cons := consumer.NewOrderConsumer(
+        ch,
+        ordersModel,
+        orderPaymentsModel,
+        orderShippingModel,
+        orderRefundsModel,
+    )
 
-	log.Println("ServiceContext initialization complete.")
-	return &ServiceContext{
-		Config:             c,
-		Broker:             rmqBroker,
-		OrdersModel:        ordersModel,
-		OrderItemsModel:    orderItemsModel,
-		OrderShippingModel: orderShippingModel,
-		OrderRefundsModel:  orderRefundsModel,
-		OrderPaymentsModel: orderPaymentsModel,
-		Producer:           prod,
-		Consumer:           cons,
-	}
+    return &ServiceContext{
+        Config:             c,
+        Broker:             rmqBroker,
+        Channel:            ch,
+        OrdersModel:        ordersModel,
+        OrderItemsModel:    orderItemsModel,
+        OrderShippingModel: orderShippingModel,
+        OrderRefundsModel:  orderRefundsModel,
+        OrderPaymentsModel: orderPaymentsModel,
+        Producer:           prod,
+        Consumer:           cons,
+    }
+}
+
+func initializeBroker(ctx context.Context, c *config.Config) broker.Broker {
+    rmqConfig := convertToEventbusConfig(c)
+    rmqBroker := broker.NewAMQPBroker(rmqConfig)
+
+    if err := rmqBroker.Connect(ctx); err != nil {
+        log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+    }
+
+    return rmqBroker
+}
+
+func setupRabbitMQ(ch *amqp.Channel, c *config.Config) error {
+    // Setup exchanges
+    for _, e := range c.RabbitMQ.Exchanges {
+        if err := ch.ExchangeDeclare(
+            e.Name,
+            e.Type,
+            e.Durable,
+            e.AutoDelete,
+            e.Internal,
+            e.NoWait,
+            nil,
+        ); err != nil {
+            return fmt.Errorf("failed to declare exchange %s: %w", e.Name, err)
+        }
+    }
+
+    // Setup queues and bindings
+    for _, q := range c.RabbitMQ.Queues {
+        queue, err := ch.QueueDeclare(
+            q.Name,
+            q.Durable,
+            q.AutoDelete,
+            q.Exclusive,
+            q.NoWait,
+            nil,
+        )
+        if err != nil {
+            return fmt.Errorf("failed to declare queue %s: %w", q.Name, err)
+        }
+
+        // Setup bindings
+        for _, b := range q.Bindings {
+            if err := ch.QueueBind(
+                queue.Name,
+                b.RoutingKey,
+                b.Exchange,
+                b.NoWait,
+                nil,
+            ); err != nil {
+                return fmt.Errorf("failed to bind queue %s to exchange %s: %w", 
+                    queue.Name, b.Exchange, err)
+            }
+        }
+    }
+
+    return nil
 }
 
 func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {

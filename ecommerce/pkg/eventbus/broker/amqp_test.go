@@ -89,3 +89,45 @@ func (s *BrokerTestSuite) TestPublishAndConsume() {
         s.T().Fatal("timeout waiting for message")
     }
 }
+
+func (s *BrokerTestSuite) TestChannelOperations() {
+    // Test getting new channel
+    ch1, err := s.broker.Channel()
+    require.NoError(s.T(), err)
+    require.NotNil(s.T(), ch1)
+    defer ch1.Close()
+
+    // Test getting another channel
+    ch2, err := s.broker.Channel()
+    require.NoError(s.T(), err)
+    require.NotNil(s.T(), ch2)
+    defer ch2.Close()
+
+    // Verify channels are different
+    require.NotEqual(s.T(), ch1, ch2)
+
+    // Test channel operations
+    err = ch1.ExchangeDeclare(
+        "test.channel.exchange",
+        "topic",
+        true,
+        false,
+        false,
+        false,
+        nil,
+    )
+    require.NoError(s.T(), err)
+
+    // Test publishing through channel
+    err = ch1.Publish(
+        "test.channel.exchange",
+        "test.key",
+        false,
+        false,
+        amqp.Publishing{
+            ContentType: "text/plain",
+            Body:       []byte("test message"),
+        },
+    )
+    require.NoError(s.T(), err)
+}

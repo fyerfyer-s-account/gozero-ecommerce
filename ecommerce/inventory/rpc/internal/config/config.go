@@ -7,84 +7,31 @@ import (
 
 type Config struct {
     zrpc.RpcServerConf
+
     Mysql struct {
         DataSource string
     }
-    CacheRedis         cache.CacheConf
-    StockLockTimeout   int
+
+    CacheRedis cache.CacheConf
+
+    // Inventory specific settings
+    StockLockTimeout   int64
     MaxBatchSize       int
-    AlertThreshold     int
+    AlertThreshold     int32
     DefaultWarehouseId int64
-    PageSize           int
-    RabbitMQ          struct {
-        Host      string
-        Port      int
-        Username  string
-        Password  string
-        VHost     string
-        Exchanges struct {
-            InventoryEvent struct {
-                Name    string
-                Type    string
-                Durable bool
-            }
-        }
-        Queues struct {
-            StockUpdate struct {
-                Name       string
-                RoutingKey string
-                Durable    bool
-            }
-            StockAlert struct {
-                Name       string
-                RoutingKey string
-                Durable    bool
-            }
-            StockLock struct {
-                Name       string
-                RoutingKey string
-                Durable    bool
-            }
-            OrderEvents struct {
-                Name       string
-                RoutingKey string
-                Durable    bool
-            }
-        }
-        Retry struct {
-            MaxAttempts     int
-            InitialInterval int
-            MaxInterval     int
-            BackoffFactor   float64
-            Jitter         bool
-        }
-        Batch struct {
-            Size          int
-            FlushInterval int
-            Workers       int
-        }
-        DeadLetter struct {
-            Exchange   string
-            Queue      string
-            RoutingKey string
-        }
-        Middleware struct {
-            EnableRecovery bool
-            EnableLogging  bool
-        }
-        Server struct {
-            Name      string
-            Mode      string
-            LogLevel  string
-            Consumers []struct {
-                Queue   string
-                Workers int
-            }
-            Monitor struct {
-                Enabled bool
-                Port    int
-            }
-        }
+    DefaultPageSize    int
+
+    // RabbitMQ Configuration
+    RabbitMQ struct {
+        Host              string
+        Port              int
+        Username          string
+        Password          string
+        VHost             string
+        Exchange          string
+        ConnectionTimeout int
+        HeartbeatInterval int
     }
+
     MessageRpc zrpc.RpcClientConf
 }

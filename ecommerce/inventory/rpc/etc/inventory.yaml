@@ -1,68 +1,6 @@
 Name: inventory.rpc
 ListenOn: 0.0.0.0:8085
 
-RabbitMQ:
-  Host: localhost
-  Port: 5672
-  Username: guest
-  Password: guest
-  VHost: /
-  Exchanges:
-    InventoryEvent:
-      Name: inventory.events
-      Type: topic
-      Durable: true
-  Queues:
-    StockUpdate:
-      Name: inventory.stock.update
-      RoutingKey: stock.#
-      Durable: true
-    StockAlert:
-      Name: inventory.stock.alert
-      RoutingKey: alert.#
-      Durable: true
-    StockLock:
-      Name: inventory.stock.lock
-      RoutingKey: lock.#
-      Durable: true
-    OrderEvents:
-      Name: inventory.order.events
-      RoutingKey: order.*
-      Durable: true
-  Retry:
-    MaxAttempts: 3
-    InitialInterval: 1000
-    MaxInterval: 10000
-    BackoffFactor: 2.0
-    Jitter: true
-  Batch:
-    Size: 100
-    FlushInterval: 1000
-    Workers: 5
-  DeadLetter:
-    Exchange: inventory.deadletter
-    Queue: inventory.deadletter.queue
-    RoutingKey: deadletter
-  Middleware:
-    EnableRecovery: true
-    EnableLogging: true
-  Server:
-    Name: inventory.rmq
-    Mode: standalone
-    LogLevel: info
-    Consumers:
-      - Queue: inventory.stock.update
-        Workers: 5
-      - Queue: inventory.stock.alert
-        Workers: 3
-      - Queue: inventory.stock.lock
-        Workers: 5
-      - Queue: inventory.order.events
-        Workers: 5
-    Monitor:
-      Enabled: true
-      Port: 9086
-
 Mysql:
   DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_inventory?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
@@ -71,12 +9,22 @@ CacheRedis:
     Pass: 
     Type: node
 
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  Exchange: inventory.events
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+
 # Inventory specific settings
-StockLockTimeout: 1800    # Stock lock timeout in seconds
+StockLockTimeout: 1800    # Stock lock timeout in seconds (30 minutes)
 MaxBatchSize: 100         # Maximum items in batch operations
 AlertThreshold: 10        # Low stock alert threshold
 DefaultWarehouseId: 1     # Default warehouse ID
-PageSize: 20              # Default page size
+DefaultPageSize: 20       # Default page size for listings
 
 Log:
   ServiceName: inventory-rpc

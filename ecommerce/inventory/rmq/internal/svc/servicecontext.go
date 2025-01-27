@@ -2,6 +2,7 @@ package svc
 
 import (
     "context"
+    "fmt"
     "log"
     "time"
 
@@ -9,14 +10,16 @@ import (
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/internal/config"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/producer"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
-    rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/config"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/broker"
+    rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/config"
+    "github.com/streadway/amqp"
     "github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
-    Config config.Config
-    Broker broker.Broker
+    Config  config.Config
+    Broker  broker.Broker
+    Channel *amqp.Channel
 
     // Models
     StocksModel       model.StocksModel
@@ -32,68 +35,111 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
     log.Println("Initializing ServiceContext...")
 
-    // Connect to MySQL
-    log.Println("Connecting to MySQL...")
-    conn := sqlx.NewMysql(c.Mysql.DataSource)
-    log.Println("Connected to MySQL successfully.")
-
-    // Initialize RabbitMQ broker
-    log.Println("Initializing RabbitMQ broker...")
-    rmqConfig := convertToEventbusConfig(&c)
-    rmqBroker := broker.NewAMQPBroker(rmqConfig)
-    log.Println("Connecting to RabbitMQ broker...")
     ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
     defer cancel()
-    
-    if err := rmqBroker.Connect(ctx); err != nil {
-        log.Fatalf("Failed to connect to RabbitMQ broker: %v", err)
-    }
-    log.Println("RabbitMQ broker connected successfully.")
 
-    // Get RMQ channel
-    log.Println("Getting RabbitMQ channel...")
+    // Initialize database connection
+    conn := sqlx.NewMysql(c.Mysql.DataSource)
+
+    // Initialize RabbitMQ broker
+    rmqBroker := initializeBroker(ctx, &c)
+
+    // Initialize channel
     ch, err := rmqBroker.Channel()
     if err != nil {
-        log.Fatalf("Failed to get RabbitMQ channel: %v", err)
+        log.Fatalf("Failed to create channel: %v", err)
     }
-    log.Println("RabbitMQ channel acquired successfully.")
+
+    // Setup exchanges and queues
+    if err := setupRabbitMQ(ch, &c); err != nil {
+        log.Fatalf("Failed to setup RabbitMQ: %v", err)
+    }
 
     // Initialize models
-    log.Println("Initializing models...")
     stocksModel := model.NewStocksModel(conn, c.CacheRedis)
-    log.Println("StocksModel initialized.")
     stockLocksModel := model.NewStockLocksModel(conn, c.CacheRedis)
-    log.Println("StockLocksModel initialized.")
     stockRecordsModel := model.NewStockRecordsModel(conn, c.CacheRedis)
-    log.Println("StockRecordsModel initialized.")
     warehousesModel := model.NewWarehousesModel(conn, c.CacheRedis)
-    log.Println("WarehousesModel initialized.")
 
     // Initialize producer and consumer
-    log.Println("Initializing producer...")
     prod := producer.NewInventoryProducer(ch, "inventory.events")
-    log.Println("InventoryProducer initialized successfully.")
-    log.Println("Initializing consumer...")
     cons := consumer.NewInventoryConsumer(
         ch,
         stocksModel,
         stockLocksModel,
         stockRecordsModel,
     )
-    log.Println("InventoryConsumer initialized successfully.")
 
     return &ServiceContext{
-        Config: c,
-        Broker: rmqBroker,
-
-        StocksModel:       stocksModel,
-        StockLocksModel:   stockLocksModel,
-        StockRecordsModel: stockRecordsModel,
-        WarehousesModel:   warehousesModel,
-
-        Producer: prod,
-        Consumer: cons,
+        Config:             c,
+        Broker:             rmqBroker,
+        Channel:            ch,
+        StocksModel:        stocksModel,
+        StockLocksModel:    stockLocksModel,
+        StockRecordsModel:  stockRecordsModel,
+        WarehousesModel:    warehousesModel,
+        Producer:           prod,
+        Consumer:           cons,
     }
+}
+
+func initializeBroker(ctx context.Context, c *config.Config) broker.Broker {
+    rmqConfig := convertToEventbusConfig(c)
+    rmqBroker := broker.NewAMQPBroker(rmqConfig)
+
+    if err := rmqBroker.Connect(ctx); err != nil {
+        log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+    }
+
+    return rmqBroker
+}
+
+func setupRabbitMQ(ch *amqp.Channel, c *config.Config) error {
+    // Setup exchanges
+    for _, e := range c.RabbitMQ.Exchanges {
+        if err := ch.ExchangeDeclare(
+            e.Name,
+            e.Type,
+            e.Durable,
+            e.AutoDelete,
+            e.Internal,
+            e.NoWait,
+            nil,
+        ); err != nil {
+            return fmt.Errorf("failed to declare exchange %s: %w", e.Name, err)
+        }
+    }
+
+    // Setup queues and bindings
+    for _, q := range c.RabbitMQ.Queues {
+        queue, err := ch.QueueDeclare(
+            q.Name,
+            q.Durable,
+            q.AutoDelete,
+            q.Exclusive,
+            q.NoWait,
+            nil,
+        )
+        if err != nil {
+            return fmt.Errorf("failed to declare queue %s: %w", q.Name, err)
+        }
+
+        // Setup bindings
+        for _, b := range q.Bindings {
+            if err := ch.QueueBind(
+                queue.Name,
+                b.RoutingKey,
+                b.Exchange,
+                b.NoWait,
+                nil,
+            ); err != nil {
+                return fmt.Errorf("failed to bind queue %s to exchange %s: %w", 
+                    queue.Name, b.Exchange, err)
+            }
+        }
+    }
+
+    return nil
 }
 
 func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
@@ -121,7 +167,7 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
             bindings[j] = rmqconfig.BindingConfig{
                 Exchange:   b.Exchange,
                 RoutingKey: b.RoutingKey,
-                NoWait:    b.NoWait,
+                NoWait:     b.NoWait,
             }
         }
         queues[i] = rmqconfig.QueueConfig{
@@ -129,7 +175,7 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
             Durable:    q.Durable,
             AutoDelete: q.AutoDelete,
             Exclusive:  q.Exclusive,
-            NoWait:    q.NoWait,
+            NoWait:     q.NoWait,
             Bindings:   bindings,
         }
     }

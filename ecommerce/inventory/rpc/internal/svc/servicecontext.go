@@ -1,6 +1,8 @@
 package svc
 
 import (
+    "context"
+    "fmt"
     "time"
 
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/producer"
@@ -24,6 +26,7 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+    // Initialize MySQL connection
     conn := sqlx.NewMysql(c.Mysql.DataSource)
 
     // Initialize RabbitMQ broker
@@ -37,11 +40,21 @@ func NewServiceContext(c config.Config) *ServiceContext {
         HeartbeatInterval: time.Duration(c.RabbitMQ.HeartbeatInterval) * time.Second,
     })
 
-    ch, err := rmqBroker.Channel()
-    if err != nil {
-        panic(err)
+    // Establish RabbitMQ connection
+    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    defer cancel()
+
+    if err := rmqBroker.Connect(ctx); err != nil {
+        panic(fmt.Sprintf("Failed to connect to RabbitMQ broker: %v", err))
     }
 
+    // Get RabbitMQ channel
+    ch, err := rmqBroker.Channel()
+    if err != nil {
+        panic(fmt.Sprintf("Failed to create RabbitMQ channel: %v", err))
+    }
+
+    // Initialize models and services
     return &ServiceContext{
         Config:            c,
         StocksModel:       model.NewStocksModel(conn, c.CacheRedis),

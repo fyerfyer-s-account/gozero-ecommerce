@@ -2,113 +2,223 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"fmt"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/middleware"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rmq/types"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/inventoryclient"
+
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/inventory/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zerolog"
+	"github.com/streadway/amqp"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
-type OrderEventHandler struct {
-	BaseHandler
-	inventoryRpc inventoryclient.Inventory
+type OrderHandler struct {
+    logger          *zerolog.Logger
+    stocksModel     model.StocksModel
+    stockLocksModel model.StockLocksModel
+    stockRecordsModel model.StockRecordsModel
 }
 
-func NewOrderEventHandler(logger middleware.Logger, inventoryRpc inventoryclient.Inventory) *OrderEventHandler {
-	return &OrderEventHandler{
-		BaseHandler:  NewBaseHandler(logger),
-		inventoryRpc: inventoryRpc,
-	}
+func NewOrderHandler(
+    stocksModel model.StocksModel,
+    stockLocksModel model.StockLocksModel,
+    stockRecordsModel model.StockRecordsModel,
+) *OrderHandler {
+    return &OrderHandler{
+        logger:          zerolog.GetLogger(),
+        stocksModel:     stocksModel,
+        stockLocksModel: stockLocksModel,
+        stockRecordsModel: stockRecordsModel,
+    }
 }
 
-func (h *OrderEventHandler) Handle(event *types.InventoryEvent) error {
-	h.LogEvent(event, "handling order event")
+func (h *OrderHandler) Handle(ctx context.Context, msg amqp.Delivery) error {
+    var event types.OrderEvent
+    if err := json.Unmarshal(msg.Body, &event); err != nil {
+        return err
+    }
 
-	var err error
-	switch event.Type {
-	case types.EventTypeOrderCreated:
-		err = h.handleOrderCreated(event)
-	case types.EventTypeOrderCancelled:
-		err = h.handleOrderCancelled(event)
-	case types.EventTypeOrderPaid:
-		err = h.handleOrderPaid(event)
-	case types.EventTypeOrderRefunded:
-		err = h.handleOrderRefunded(event)
-	default:
-		return fmt.Errorf("unknown event type: %s", event.Type)
-	}
+    fields := map[string]interface{}{
+        "order_no": event.OrderNo,
+        "type":     event.Type,
+    }
+    h.logger.Info(ctx, "Processing order event", fields)
 
-	if err != nil {
-		h.LogError(event, err)
-		return types.NewRetryableError(err)
-	}
-
-	h.LogEvent(event, "order event handled successfully")
-	return nil
+    switch event.Type {
+    case types.OrderCreated:
+        return h.handleOrderCreated(ctx, msg.Body)
+    case types.OrderCancelled:
+        return h.handleOrderCancelled(ctx, msg.Body)
+    case types.OrderPaid:
+        return h.handleOrderPaid(ctx, msg.Body)
+    case types.OrderRefunded:
+        return h.handleOrderRefunded(ctx, msg.Body)
+    default:
+        return nil
+    }
 }
 
-func (h *OrderEventHandler) handleOrderCreated(event *types.InventoryEvent) error {
-	data, ok := event.Data.(*types.OrderCreatedData)
-	if !ok {
-		return fmt.Errorf("invalid event data type")
-	}
+func (h *OrderHandler) handleOrderCreated(ctx context.Context, data []byte) error {
+    var event types.OrderCreatedEvent
+    if err := json.Unmarshal(data, &event); err != nil {
+        return err
+    }
 
-	items := make([]*inventoryclient.LockItem, len(data.Items))
-	for i, item := range data.Items {
-		items[i] = &inventoryclient.LockItem{
-			SkuId:       int64(item.SkuID),
-			WarehouseId: int64(item.WarehouseID),
-			Quantity:    item.Quantity,
-		}
-	}
+    // Lock stock for each item
+    return h.stocksModel.Trans(ctx, func(ctx context.Context, session sqlx.Session) error {
+        for _, item := range event.Items {
+            // Lock stock
+            err := h.stocksModel.Lock(ctx, session, uint64(item.SkuID), 1, int64(item.Quantity)) // use default warehouse
+            if err != nil {
+                return err
+            }
 
-	_, err := h.inventoryRpc.LockStock(context.Background(), &inventoryclient.LockStockRequest{
-		OrderNo: data.OrderNo,
-		Items:   items,
-	})
-	return err
+            // Create lock record
+            _, err = h.stockLocksModel.Insert(ctx, &model.StockLocks{
+                OrderNo:     event.OrderNo,
+                SkuId:      uint64(item.SkuID),
+                WarehouseId: 1, // Default warehouse
+                Quantity:   int64(item.Quantity),
+                Status:    1, // Locked
+            })
+            if err != nil {
+                return err
+            }
+
+            // Create stock record
+            _, err = h.stockRecordsModel.Insert(ctx, &model.StockRecords{
+                SkuId:      uint64(item.SkuID),
+                WarehouseId: 1,
+                Type:       3, // Lock
+                Quantity:   int64(item.Quantity),
+                OrderNo:    sql.NullString{String: event.OrderNo, Valid: true},
+            })
+            if err != nil {
+                return err
+            }
+        }
+        return nil
+    })
 }
 
-func (h *OrderEventHandler) handleOrderCancelled(event *types.InventoryEvent) error {
-	data, ok := event.Data.(*types.OrderCancelledData)
-	if !ok {
-		return fmt.Errorf("invalid event data type")
-	}
+func (h *OrderHandler) handleOrderCancelled(ctx context.Context, data []byte) error {
+    var event types.OrderCancelledEvent
+    if err := json.Unmarshal(data, &event); err != nil {
+        return err
+    }
 
-	_, err := h.inventoryRpc.UnlockStock(context.Background(), &inventoryclient.UnlockStockRequest{
-		OrderNo: data.OrderNo,
-	})
-	return err
+    // Find locked stocks
+    locks, err := h.stockLocksModel.FindByOrderNo(ctx, event.OrderNo)
+    if err != nil {
+        return err
+    }
+
+    // Unlock stocks
+    return h.stocksModel.Trans(ctx, func(ctx context.Context, session sqlx.Session) error {
+        for _, lock := range locks {
+            // Unlock stock
+            err := h.stocksModel.Unlock(ctx, session, lock.SkuId, lock.WarehouseId, lock.Quantity)
+            if err != nil {
+                return err
+            }
+
+            // Update lock status
+            lock.Status = 2 // Unlocked
+            err = h.stockLocksModel.Update(ctx, lock)
+            if err != nil {
+                return err
+            }
+
+            // Create stock record
+            _, err = h.stockRecordsModel.Insert(ctx, &model.StockRecords{
+                SkuId:      lock.SkuId,
+                WarehouseId: lock.WarehouseId,
+                Type:       4, // Unlock
+                Quantity:   lock.Quantity,
+                OrderNo:    sql.NullString{String: event.OrderNo, Valid: true},
+                Remark:     sql.NullString{String: event.Reason, Valid: true},
+            })
+            if err != nil {
+                return err
+            }
+        }
+        return nil
+    })
 }
 
-func (h *OrderEventHandler) handleOrderPaid(event *types.InventoryEvent) error {
-	data, ok := event.Data.(*types.OrderPaidData)
-	if !ok {
-		return fmt.Errorf("invalid event data type")
-	}
+func (h *OrderHandler) handleOrderPaid(ctx context.Context, data []byte) error {
+    var event types.OrderPaidEvent
+    if err := json.Unmarshal(data, &event); err != nil {
+        return err
+    }
 
-	_, err := h.inventoryRpc.DeductStock(context.Background(), &inventoryclient.DeductStockRequest{
-		OrderNo: data.OrderNo,
-	})
-	return err
+    // Find locked stocks
+    locks, err := h.stockLocksModel.FindByOrderNo(ctx, event.OrderNo)
+    if err != nil {
+        return err
+    }
+
+    // Deduct stocks
+    return h.stocksModel.Trans(ctx, func(ctx context.Context, session sqlx.Session) error {
+        for _, lock := range locks {
+            // Deduct stock
+            err := h.stocksModel.Deduct(ctx, session, lock.SkuId, lock.WarehouseId, lock.Quantity)
+            if err != nil {
+                return err
+            }
+
+            // Update lock status
+            lock.Status = 3 // Deducted
+            err = h.stockLocksModel.Update(ctx, lock)
+            if err != nil {
+                return err
+            }
+
+            // Create stock record
+            _, err = h.stockRecordsModel.Insert(ctx, &model.StockRecords{
+                SkuId:      lock.SkuId,
+                WarehouseId: lock.WarehouseId,
+                Type:       2, // Out
+                Quantity:   lock.Quantity,
+                OrderNo:    sql.NullString{String: event.OrderNo, Valid: true},
+            })
+            if err != nil {
+                return err
+            }
+        }
+        return nil
+    })
 }
 
-func (h *OrderEventHandler) handleOrderRefunded(event *types.InventoryEvent) error {
-	data, ok := event.Data.(*types.OrderRefundedData)
-	if !ok {
-		return fmt.Errorf("invalid event data type")
-	}
+func (h *OrderHandler) handleOrderRefunded(ctx context.Context, data []byte) error {
+    var event types.OrderRefundedEvent
+    if err := json.Unmarshal(data, &event); err != nil {
+        return err
+    }
 
-	// Return stock to inventory
-	for _, item := range data.Items {
-		_, err := h.inventoryRpc.UpdateStock(context.Background(), &inventoryclient.UpdateStockRequest{
-			SkuId:       int64(item.SkuID),
-			WarehouseId: int64(item.WarehouseID),
-			Quantity:    item.Quantity,
-			Remark:      fmt.Sprintf("Refund order: %s", data.OrderNo),
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+    // Return stock
+    return h.stocksModel.Trans(ctx, func(ctx context.Context, session sqlx.Session) error {
+        for _, item := range event.Items {
+            // Increment available stock
+            err := h.stocksModel.IncrAvailable(ctx, uint64(item.SkuID), 1, int64(item.Quantity))
+            if err != nil {
+                return err
+            }
+
+            // Create stock record
+            _, err = h.stockRecordsModel.Insert(ctx, &model.StockRecords{
+                SkuId:       uint64(item.SkuID),
+                WarehouseId: 1, // Default warehouse
+                Type:        1, // In
+                Quantity:    int64(item.Quantity),
+                OrderNo:     sql.NullString{String: event.OrderNo, Valid: true},
+                Remark:      sql.NullString{String: fmt.Sprintf("Order refund: %s", event.Reason), Valid: true},
+            })
+            if err != nil {
+                return err
+            }
+        }
+        return nil
+    })
 }

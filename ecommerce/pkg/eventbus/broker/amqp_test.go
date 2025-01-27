@@ -131,3 +131,32 @@ func (s *BrokerTestSuite) TestChannelOperations() {
     )
     require.NoError(s.T(), err)
 }
+
+func (s *BrokerTestSuite) TestDisconnect() {
+    // Setup new broker instance
+    cfg := config.DefaultConfig()
+    broker := NewAMQPBroker(cfg)
+    
+    // Connect
+    err := broker.Connect(s.ctx)
+    require.NoError(s.T(), err)
+    require.True(s.T(), broker.IsConnected())
+    
+    // Test disconnect
+    err = broker.Disconnect()
+    require.NoError(s.T(), err)
+    require.False(s.T(), broker.IsConnected())
+    
+    // Verify operations fail after disconnect
+    _, err = broker.DeclareQueue("test.disconnect.queue")
+    require.Error(s.T(), err)
+    
+    // Test multiple disconnects don't error
+    err = broker.Disconnect()
+    require.NoError(s.T(), err)
+    
+    // Test can reconnect after disconnect
+    err = broker.Connect(s.ctx)
+    require.NoError(s.T(), err)
+    require.True(s.T(), broker.IsConnected())
+}

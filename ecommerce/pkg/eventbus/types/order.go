@@ -96,3 +96,13 @@ type OrderStatusChangedEvent struct {
 	RefundNo   string               `json:"refund_no,omitempty"`
 	Reason     string               `json:"reason,omitempty"`
 }
+
+// OrderRefundedEvent represents order refund event
+type OrderRefundedEvent struct {
+    OrderEvent
+    Items      []OrderItem `json:"items"`
+    RefundNo   string      `json:"refund_no"`
+    RefundType int32       `json:"refund_type"`   
+    Amount     float64     `json:"amount"`
+    Reason     string      `json:"reason"`
+}

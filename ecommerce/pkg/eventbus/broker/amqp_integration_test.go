@@ -87,3 +87,31 @@ func TestFullMessageFlow(t *testing.T) {
         }
     }
 }
+
+func TestDisconnectReconnect(t *testing.T) {
+    ctx := context.Background()
+    cfg := config.DefaultConfig()
+    broker := NewAMQPBroker(cfg)
+    
+    // Initial connection
+    err := broker.Connect(ctx)
+    require.NoError(t, err)
+    require.True(t, broker.IsConnected())
+    
+    // Test disconnect
+    err = broker.Disconnect()
+    require.NoError(t, err)
+    require.False(t, broker.IsConnected())
+    
+    // Test reconnect
+    err = broker.Connect(ctx)
+    require.NoError(t, err)
+    require.True(t, broker.IsConnected())
+    
+    // Verify can perform operations after reconnect
+    err = broker.DeclareExchange("test.disconnect.reconnect", "topic")
+    require.NoError(t, err)
+    
+    // Cleanup
+    broker.Disconnect()
+}

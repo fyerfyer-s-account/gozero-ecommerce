@@ -1,23 +1,13 @@
 Name: inventory.rmq
 ListenOn: 0.0.0.0:9085
 
-MessageRpc:
-  Etcd:
-    Hosts:
-    - 127.0.0.1:2379
-    Key: message.rpc
-  NonBlock: true
-  Timeout: 5000
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_inventory?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
-InventoryRpc:
-  Etcd:
-    Hosts:
-    - 127.0.0.1:2379
-    Key: inventory.rpc
-  NonBlock: true
-  Timeout: 5000
-
-# ... existing RabbitMQ config ...
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
 
 RabbitMQ:
   Host: localhost
@@ -25,61 +15,80 @@ RabbitMQ:
   Username: guest
   Password: guest
   VHost: /
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+  PrefetchCount: 1
+  PrefetchGlobal: false
+
+  # Exchange definitions
   Exchanges:
-    InventoryEvent:
-      Name: inventory.events
+    - Name: inventory.events
       Type: topic
       Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+
+  # Queue definitions  
   Queues:
-    StockUpdate:
-      Name: inventory.stock.update
-      RoutingKey: stock.#
+    - Name: stock.update
       Durable: true
-    StockAlert:
-      Name: inventory.stock.alert
-      RoutingKey: alert.#
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: inventory.events
+          RoutingKey: inventory.stock.update.*
+          NoWait: false
+
+    - Name: stock.alert
       Durable: true
-    StockLock:
-      Name: inventory.stock.lock
-      RoutingKey: lock.#
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: inventory.events
+          RoutingKey: inventory.stock.alert.*
+          NoWait: false
+    
+    - Name: stock.lock
       Durable: true
-    OrderEvents:
-      Name: inventory.order.events
-      RoutingKey: order.*
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: inventory.events
+          RoutingKey: inventory.stock.lock.*
+          NoWait: false
+
+    - Name: order.events
       Durable: true
-  Retry:
-    MaxAttempts: 3
-    InitialInterval: 1000
-    MaxInterval: 10000
-    BackoffFactor: 2.0
-    Jitter: true
-  Batch:
-    Size: 100
-    FlushInterval: 1000
-    Workers: 5
-  DeadLetter:
-    Exchange: inventory.deadletter
-    Queue: inventory.deadletter.queue
-    RoutingKey: deadletter
-  Middleware:
-    EnableRecovery: true
-    EnableLogging: true
-  Server:
-    Name: inventory.rmq
-    Mode: standalone
-    LogLevel: info
-    Consumers:
-      - Queue: inventory.stock.update
-        Workers: 5
-      - Queue: inventory.stock.alert
-        Workers: 3
-      - Queue: inventory.stock.lock
-        Workers: 5
-      - Queue: inventory.order.events
-        Workers: 5
-    Monitor:
-      Enabled: true
-      Port: 9086
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: order.events
+          RoutingKey: order.*
+          NoWait: false
+
+Log:
+  ServiceName: inventory-rmq
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9184
+  Path: /metrics
+
+Telemetry:
+  Name: inventory.rmq
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
 
 Etcd:
   Hosts:

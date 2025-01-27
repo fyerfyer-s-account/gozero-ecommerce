@@ -12,6 +12,9 @@ const (
 	StockAlert       InventoryEventType = "inventory.stock.alert"
 	StockChecked     InventoryEventType = "inventory.stock.checked"
 	StockReserved    InventoryEventType = "inventory.stock.reserved"
+	StockUpdated     InventoryEventType = "inventory.stock.updated"
+    StockOutOfStock  InventoryEventType = "inventory.stock.out_of_stock"
+    StockLowStock    InventoryEventType = "inventory.stock.low_stock"
 )
 
 // InventoryEvent represents the base inventory event structure
@@ -80,6 +83,41 @@ func (e *StockLockedEvent) Validate() error {
             EventError: &EventError{
                 Code:    "INVALID_STOCK_LOCK_EVENT",
                 Message: "order_no and items are required",
+            },
+        }
+    }
+    return nil
+}
+
+type StockUpdatedEvent struct {
+    InventoryEvent
+    SkuID       int64  `json:"sku_id"`
+    OldQuantity int32  `json:"old_quantity"`
+    NewQuantity int32  `json:"new_quantity"`
+    Reason      string `json:"reason"`
+}
+
+type StockOutOfStockEvent struct {
+    InventoryEvent
+    SkuID    int64  `json:"sku_id"`
+    Quantity int32  `json:"quantity"`
+    Reason   string `json:"reason"`
+}
+
+type StockLowStockEvent struct {
+    InventoryEvent
+    SkuID     int64 `json:"sku_id"`
+    Quantity  int32 `json:"quantity"`
+    Threshold int32 `json:"threshold"`
+}
+
+// Add validation methods for new events
+func (e *StockUpdatedEvent) Validate() error {
+    if e.SkuID == 0 {
+        return &NonRetryableError{
+            EventError: &EventError{
+                Code:    "INVALID_STOCK_UPDATE_EVENT",
+                Message: "sku_id is required",
             },
         }
     }

@@ -211,3 +211,34 @@ func (b *AMQPBroker) IsConnected() bool {
     defer b.mu.RUnlock()
     return b.isReady
 }
+
+func (b *AMQPBroker) Disconnect() error {
+    b.mu.Lock()
+    defer b.mu.Unlock()
+
+    if !b.isReady {
+        return nil
+    }
+
+    // Signal reconnect goroutine to stop
+    close(b.done)
+
+    // Close channel if open
+    if b.channel != nil {
+        if err := b.channel.Close(); err != nil {
+            b.logger.Error(context.Background(), "Failed to close channel", err, nil)
+        }
+        b.channel = nil
+    }
+
+    // Close connection if open
+    if b.conn != nil {
+        if err := b.conn.Close(); err != nil {
+            b.logger.Error(context.Background(), "Failed to close connection", err, nil)
+        }
+        b.conn = nil
+    }
+
+    b.isReady = false
+    return nil
+}

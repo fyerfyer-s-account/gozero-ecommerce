@@ -2,6 +2,7 @@ package svc
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/consumer"
@@ -30,30 +31,55 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	log.Println("Initializing ServiceContext...")
+
+	
+
+	// Connect to MySQL
+	log.Println("Connecting to MySQL...")
 	conn := sqlx.NewMysql(c.Mysql.DataSource)
+	log.Println("Connected to MySQL successfully.")
 
 	// Initialize RabbitMQ broker
+	log.Println("Initializing RabbitMQ broker...")
 	rmqConfig := convertToEventbusConfig(&c)
 	rmqBroker := broker.NewAMQPBroker(rmqConfig)
-	if err := rmqBroker.Connect(context.Background()); err != nil {
-		panic(err)
-	}
+	log.Println("Connecting to RabbitMQ broker...")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    defer cancel()
+    
+    log.Println("Connecting to RabbitMQ broker...")
+    if err := rmqBroker.Connect(ctx); err != nil {
+        log.Fatalf("Failed to connect to RabbitMQ broker: %v", err)
+    }
+	log.Println("RabbitMQ broker connected successfully.")
 
 	// Get RMQ channel
+	log.Println("Getting RabbitMQ channel...")
 	ch, err := rmqBroker.Channel()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to get RabbitMQ channel: %v", err)
 	}
+	log.Println("RabbitMQ channel acquired successfully.")
 
 	// Initialize models
+	log.Println("Initializing models...")
 	ordersModel := model.NewOrdersModel(conn, c.CacheRedis)
+	log.Println("OrdersModel initialized.")
 	orderItemsModel := model.NewOrderItemsModel(conn, c.CacheRedis)
+	log.Println("OrderItemsModel initialized.")
 	orderShippingModel := model.NewOrderShippingModel(conn, c.CacheRedis)
+	log.Println("OrderShippingModel initialized.")
 	orderRefundsModel := model.NewOrderRefundsModel(conn, c.CacheRedis)
+	log.Println("OrderRefundsModel initialized.")
 	orderPaymentsModel := model.NewOrderPaymentsModel(conn, c.CacheRedis)
+	log.Println("OrderPaymentsModel initialized.")
 
 	// Initialize producer and consumer
+	log.Println("Initializing producer...")
 	prod := producer.NewOrderProducer(ch, "order.events")
+	log.Println("OrderProducer initialized successfully.")
+	log.Println("Initializing consumer...")
 	cons := consumer.NewOrderConsumer(
 		ch,
 		ordersModel,
@@ -61,7 +87,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		orderShippingModel,
 		orderRefundsModel,
 	)
+	log.Println("OrderConsumer initialized successfully.")
 
+	log.Println("ServiceContext initialization complete.")
 	return &ServiceContext{
 		Config:             c,
 		Broker:             rmqBroker,
@@ -76,8 +104,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 }
 
 func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
+	log.Println("Converting RabbitMQ configuration...")
+
 	exchanges := make([]rmqconfig.ExchangeConfig, len(c.RabbitMQ.Exchanges))
 	for i, e := range c.RabbitMQ.Exchanges {
+		log.Printf("Configuring exchange: %s", e.Name)
 		exchanges[i] = rmqconfig.ExchangeConfig{
 			Name:       e.Name,
 			Type:       e.Type,
@@ -90,8 +121,10 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
 
 	queues := make([]rmqconfig.QueueConfig, len(c.RabbitMQ.Queues))
 	for i, q := range c.RabbitMQ.Queues {
+		log.Printf("Configuring queue: %s", q.Name)
 		bindings := make([]rmqconfig.BindingConfig, len(q.Bindings))
 		for j, b := range q.Bindings {
+			log.Printf("Configuring binding: Exchange=%s, RoutingKey=%s", b.Exchange, b.RoutingKey)
 			bindings[j] = rmqconfig.BindingConfig{
 				Exchange:   b.Exchange,
 				RoutingKey: b.RoutingKey,
@@ -108,6 +141,7 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
 		}
 	}
 
+	log.Println("RabbitMQ configuration conversion complete.")
 	return &rmqconfig.RabbitMQConfig{
 		Host:              c.RabbitMQ.Host,
 		Port:              c.RabbitMQ.Port,

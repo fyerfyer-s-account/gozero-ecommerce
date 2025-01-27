@@ -39,6 +39,7 @@ RabbitMQ:
       Bindings:
         - Exchange: order.events
           RoutingKey: order.status.*
+          NoWait: false
 
     - Name: order.alert
       Durable: true
@@ -48,6 +49,7 @@ RabbitMQ:
       Bindings:
         - Exchange: order.events
           RoutingKey: order.alert.*
+          NoWait: false
 
 Log:
   ServiceName: order-rmq

@@ -5,26 +5,22 @@ import (
     "github.com/streadway/amqp"
 )
 
-// Broker defines the interface for message brokers
+// Broker defines the interface for a message broker
 type Broker interface {
-    // Connect establishes connection to the broker
+    // Connect connects to the message queue
     Connect(ctx context.Context) error
-    
-    // Disconnect closes the connection to the broker
-    Disconnect() error
-    
-    // Channel creates a new channel
-    Channel() (*amqp.Channel, error)
-    
+    // Close closes the connection
+    Close() error
+    // Publish publishes a message
+    Publish(exchange, routingKey string, msg amqp.Publishing) error
+    // Consume consumes messages from a queue
+    Consume(queue string, autoAck bool) (<-chan amqp.Delivery, error)
     // DeclareExchange declares an exchange
-    DeclareExchange(name, kind string, durable, autoDelete, internal, noWait bool) error
-    
+    DeclareExchange(name string, kind string) error
     // DeclareQueue declares a queue
-    DeclareQueue(name string, durable, autoDelete, exclusive, noWait bool) (amqp.Queue, error)
-    
+    DeclareQueue(name string) (amqp.Queue, error)
     // BindQueue binds a queue to an exchange
-    BindQueue(name, key, exchange string, noWait bool) error
-    
-    // IsConnected checks if broker is connected
+    BindQueue(queue, exchange, routingKey string) error
+    // IsConnected checks the connection status
     IsConnected() bool
 }

@@ -87,6 +87,8 @@ func DefaultConfig() *RabbitMQConfig {
         Host:              "localhost",
         Port:             5672,
         VHost:            "/",
+        Username:         "guest",
+        Password:         "guest",
         ConnectionTimeout: 10 * time.Second,
         HeartbeatInterval: 10 * time.Second,
         PrefetchCount:    1,

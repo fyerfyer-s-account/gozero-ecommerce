@@ -10,6 +10,7 @@ import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/payment"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -81,8 +82,39 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyRequest) (*p
             "pay_time": time.Now(),
             "channel_data": in.NotifyData,
         })
+
+        if err != nil {
+            return nil, err
+        }
+
+        // Publish payment success event
+        successEvent := &types.PaymentSuccessEvent {
+            Amount: p.Amount,
+            PaymentMethod: in.Channel,
+            PaidTime: time.Now(),
+        }
+
+        if err := l.svcCtx.Producer.PublishPaymentSuccess(l.ctx, successEvent); err != nil {
+            logx.Errorf("Failed to publish payment success event: %v", err)
+        }
+
     } else {
         err = l.svcCtx.PaymentOrdersModel.UpdateStatus(l.ctx, p.Id, 5) // Closed
+
+        if err != nil {
+            return nil, err 
+        }
+
+        // Publish payment failed event
+        failedEvent := &types.PaymentFailedEvent {
+            Amount: p.Amount,
+            Reason: "Payment notification failed",
+            ErrorCode: "PAYMENT_NOTIFY_FAILED",
+        }
+
+        if err := l.svcCtx.Producer.PublishPaymentFailed(l.ctx, failedEvent); err != nil {
+            logx.Errorf("Failed to publish payment failed event: %v", err)
+        }
     }
 
     if err != nil {

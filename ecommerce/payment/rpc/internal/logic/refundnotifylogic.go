@@ -10,6 +10,7 @@ import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/model"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/payment"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -91,8 +92,43 @@ func (l *RefundNotifyLogic) RefundNotify(in *payment.RefundNotifyRequest) (*paym
                 logx.Errorf("Failed to update payment status: %v", err)
             }
         }
+
+        // Publish refund success event
+        refundEvent := &types.PaymentRefundEvent{
+            PaymentEvent: types.PaymentEvent{
+                Type:      types.PaymentRefund,
+                OrderNo:   refund.OrderNo,
+                PaymentNo: refund.PaymentNo,
+                Timestamp: time.Now(),
+            },
+            RefundNo:     refund.RefundNo,
+            RefundAmount: refund.Amount,
+            Reason:       refund.Reason,
+            RefundTime:   time.Now(),
+        }
+
+        if err := l.svcCtx.Producer.PublishPaymentRefund(l.ctx, refundEvent); err != nil {
+            logx.Errorf("Failed to publish refund event: %v", err)
+        }
     } else {
         updates["status"] = 4 // Refund failed
+
+        // Publish refund failure as payment failed event
+        failedEvent := &types.PaymentFailedEvent{
+            PaymentEvent: types.PaymentEvent{
+                Type:      types.PaymentFailed,
+                OrderNo:   refund.OrderNo,
+                PaymentNo: refund.PaymentNo,
+                Timestamp: time.Now(),
+            },
+            Amount:    refund.Amount,
+            Reason:    "Refund notification failed",
+            ErrorCode: "REFUND_NOTIFY_FAILED",
+        }
+
+        if err := l.svcCtx.Producer.PublishPaymentFailed(l.ctx, failedEvent); err != nil {
+            logx.Errorf("Failed to publish refund failure event: %v", err)
+        }
     }
 
     err = l.svcCtx.RefundOrdersModel.UpdatePartial(l.ctx, refund.Id, updates)

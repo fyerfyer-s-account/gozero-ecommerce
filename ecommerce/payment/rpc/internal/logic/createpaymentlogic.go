@@ -9,6 +9,8 @@ import (
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/model"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/util"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
+
     "github.com/zeromicro/go-zero/core/logx"
 	"database/sql"
 )
@@ -77,6 +79,23 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentRequest) (*p
         payUrl = fmt.Sprintf("alipay://pay?orderNo=%s&amount=%.2f", paymentNo, in.Amount)
     case 3: // Balance
         payUrl = fmt.Sprintf("balance://pay?orderNo=%s&amount=%.2f", paymentNo, in.Amount)
+    }
+
+    // Publish payment created event
+    createdEvent := &types.PaymentCreatedEvent{
+        PaymentEvent: types.PaymentEvent{
+            Type:      types.PaymentCreated,
+            OrderNo:   in.OrderNo,
+            PaymentNo: paymentNo,
+            Timestamp: time.Now(),
+        },
+        Amount:        in.Amount,
+        PaymentMethod: int32(in.Channel),
+        PayURL:        payUrl,
+    }
+
+    if err := l.svcCtx.Producer.PublishPaymentCreated(l.ctx, createdEvent); err != nil {
+        logx.Errorf("Failed to publish payment created event: %v", err)
     }
 
     return &payment.CreatePaymentResponse{

@@ -3,10 +3,12 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/payment"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -64,6 +66,20 @@ func (l *UpdatePaymentChannelLogic) UpdatePaymentChannel(in *payment.UpdatePayme
         err = l.svcCtx.PaymentChannelsModel.UpdateFields(l.ctx, channel.Id, updates)
         if err != nil {
             return nil, zeroerr.ErrChannelUpdateFailed
+        }
+
+        // Publish channel updated event
+        verificationEvent := &types.PaymentVerificationEvent{
+            PaymentEvent: types.PaymentEvent{
+                Type:      types.PaymentVerified,
+                Timestamp: time.Now(),
+            },
+            Verified: in.Status == 1, // 1 means enabled
+            Message:  fmt.Sprintf("Payment channel %d status updated to %d", in.Id, in.Status),
+        }
+
+        if err := l.svcCtx.Producer.PublishPaymentVerification(l.ctx, verificationEvent); err != nil {
+            logx.Errorf("Failed to publish payment channel update event: %v", err)
         }
     }
 

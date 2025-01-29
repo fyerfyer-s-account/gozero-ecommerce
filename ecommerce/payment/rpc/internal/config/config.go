@@ -14,12 +14,12 @@ type Config struct {
 
     CacheRedis cache.CacheConf
 
-    PaymentTimeout  int64   `json:",default=7200"`   
-    RefundTimeout   int64   `json:",default=604800"` 
-    MaxRetries      int     `json:",default=3"`
-    DefaultPageSize int     `json:",default=10"`
-    MaxAmount       float64 `json:",default=100000"`
-    MinAmount       float64 `json:",default=0.01"`
+    PaymentTimeout  int64      
+    RefundTimeout   int64   
+    MaxRetries      int     
+    DefaultPageSize int     
+    MaxAmount       float64 
+    MinAmount       float64 
 
     RabbitMQ struct {
         Host              string

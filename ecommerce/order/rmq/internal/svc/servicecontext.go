@@ -6,10 +6,10 @@ import (
     "log"
     "time"
 
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/consumer"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/internal/config"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rmq/consumer"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rmq/internal/config"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rmq/producer"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/model"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/broker"
     rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/config"
     "github.com/streadway/amqp"
@@ -22,15 +22,14 @@ type ServiceContext struct {
     Channel *amqp.Channel
 
     // Models
-    OrdersModel        model.OrdersModel
-    OrderItemsModel    model.OrderItemsModel
-    OrderShippingModel model.OrderShippingModel
-    OrderRefundsModel  model.OrderRefundsModel
-    OrderPaymentsModel model.OrderPaymentsModel
+    PaymentOrdersModel   model.PaymentOrdersModel
+    PaymentLogsModel    model.PaymentLogsModel
+    PaymentChannelsModel model.PaymentChannelsModel
+    RefundOrdersModel    model.RefundOrdersModel
 
     // RMQ Components
-    Producer *producer.OrderProducer
-    Consumer *consumer.OrderConsumer
+    Producer *producer.PaymentProducer
+    Consumer *consumer.PaymentConsumer
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -57,33 +56,31 @@ func NewServiceContext(c config.Config) *ServiceContext {
     }
 
     // Initialize models
-    ordersModel := model.NewOrdersModel(conn, c.CacheRedis)
-    orderItemsModel := model.NewOrderItemsModel(conn, c.CacheRedis)
-    orderShippingModel := model.NewOrderShippingModel(conn, c.CacheRedis)
-    orderRefundsModel := model.NewOrderRefundsModel(conn, c.CacheRedis)
-    orderPaymentsModel := model.NewOrderPaymentsModel(conn, c.CacheRedis)
+    paymentOrdersModel := model.NewPaymentOrdersModel(conn, c.CacheRedis)
+    paymentLogsModel := model.NewPaymentLogsModel(conn, c.CacheRedis)
+    paymentChannelsModel := model.NewPaymentChannelsModel(conn, c.CacheRedis)
+    refundOrdersModel := model.NewRefundOrdersModel(conn, c.CacheRedis)
 
     // Initialize producer and consumer
-    prod := producer.NewOrderProducer(ch, "order.events")
-    cons := consumer.NewOrderConsumer(
+    prod := producer.NewPaymentProducer(ch, "payment.events")
+    cons := consumer.NewPaymentConsumer(
         ch,
-        ordersModel,
-        orderPaymentsModel,
-        orderShippingModel,
-        orderRefundsModel,
+        paymentOrdersModel,
+        paymentLogsModel,
+        paymentChannelsModel,
+        refundOrdersModel,
     )
 
     return &ServiceContext{
-        Config:             c,
-        Broker:             rmqBroker,
-        Channel:            ch,
-        OrdersModel:        ordersModel,
-        OrderItemsModel:    orderItemsModel,
-        OrderShippingModel: orderShippingModel,
-        OrderRefundsModel:  orderRefundsModel,
-        OrderPaymentsModel: orderPaymentsModel,
-        Producer:           prod,
-        Consumer:           cons,
+        Config:               c,
+        Broker:              rmqBroker,
+        Channel:             ch,
+        PaymentOrdersModel:   paymentOrdersModel,
+        PaymentLogsModel:    paymentLogsModel,
+        PaymentChannelsModel: paymentChannelsModel,
+        RefundOrdersModel:    refundOrdersModel,
+        Producer:            prod,
+        Consumer:            cons,
     }
 }
 
@@ -147,55 +144,55 @@ func setupRabbitMQ(ch *amqp.Channel, c *config.Config) error {
 }
 
 func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
-	log.Println("Converting RabbitMQ configuration...")
+    log.Println("Converting RabbitMQ configuration...")
 
-	exchanges := make([]rmqconfig.ExchangeConfig, len(c.RabbitMQ.Exchanges))
-	for i, e := range c.RabbitMQ.Exchanges {
-		log.Printf("Configuring exchange: %s", e.Name)
-		exchanges[i] = rmqconfig.ExchangeConfig{
-			Name:       e.Name,
-			Type:       e.Type,
-			Durable:    e.Durable,
-			AutoDelete: e.AutoDelete,
-			Internal:   e.Internal,
-			NoWait:     e.NoWait,
-		}
-	}
+    exchanges := make([]rmqconfig.ExchangeConfig, len(c.RabbitMQ.Exchanges))
+    for i, e := range c.RabbitMQ.Exchanges {
+        log.Printf("Configuring exchange: %s", e.Name)
+        exchanges[i] = rmqconfig.ExchangeConfig{
+            Name:       e.Name,
+            Type:       e.Type,
+            Durable:    e.Durable,
+            AutoDelete: e.AutoDelete,
+            Internal:   e.Internal,
+            NoWait:     e.NoWait,
+        }
+    }
 
-	queues := make([]rmqconfig.QueueConfig, len(c.RabbitMQ.Queues))
-	for i, q := range c.RabbitMQ.Queues {
-		log.Printf("Configuring queue: %s", q.Name)
-		bindings := make([]rmqconfig.BindingConfig, len(q.Bindings))
-		for j, b := range q.Bindings {
-			log.Printf("Configuring binding: Exchange=%s, RoutingKey=%s", b.Exchange, b.RoutingKey)
-			bindings[j] = rmqconfig.BindingConfig{
-				Exchange:   b.Exchange,
-				RoutingKey: b.RoutingKey,
-				NoWait:     b.NoWait,
-			}
-		}
-		queues[i] = rmqconfig.QueueConfig{
-			Name:       q.Name,
-			Durable:    q.Durable,
-			AutoDelete: q.AutoDelete,
-			Exclusive:  q.Exclusive,
-			NoWait:     q.NoWait,
-			Bindings:   bindings,
-		}
-	}
+    queues := make([]rmqconfig.QueueConfig, len(c.RabbitMQ.Queues))
+    for i, q := range c.RabbitMQ.Queues {
+        log.Printf("Configuring queue: %s", q.Name)
+        bindings := make([]rmqconfig.BindingConfig, len(q.Bindings))
+        for j, b := range q.Bindings {
+            log.Printf("Configuring binding: Exchange=%s, RoutingKey=%s", b.Exchange, b.RoutingKey)
+            bindings[j] = rmqconfig.BindingConfig{
+                Exchange:   b.Exchange,
+                RoutingKey: b.RoutingKey,
+                NoWait:     b.NoWait,
+            }
+        }
+        queues[i] = rmqconfig.QueueConfig{
+            Name:       q.Name,
+            Durable:    q.Durable,
+            AutoDelete: q.AutoDelete,
+            Exclusive:  q.Exclusive,
+            NoWait:     q.NoWait,
+            Bindings:   bindings,
+        }
+    }
 
-	log.Println("RabbitMQ configuration conversion complete.")
-	return &rmqconfig.RabbitMQConfig{
-		Host:              c.RabbitMQ.Host,
-		Port:              c.RabbitMQ.Port,
-		Username:          c.RabbitMQ.Username,
-		Password:          c.RabbitMQ.Password,
-		VHost:             c.RabbitMQ.VHost,
-		ConnectionTimeout: time.Duration(c.RabbitMQ.ConnectionTimeout) * time.Second,
-		HeartbeatInterval: time.Duration(c.RabbitMQ.HeartbeatInterval) * time.Second,
-		PrefetchCount:     c.RabbitMQ.PrefetchCount,
-		PrefetchGlobal:    c.RabbitMQ.PrefetchGlobal,
-		Exchanges:         exchanges,
-		Queues:            queues,
-	}
+    log.Println("RabbitMQ configuration conversion complete.")
+    return &rmqconfig.RabbitMQConfig{
+        Host:              c.RabbitMQ.Host,
+        Port:              c.RabbitMQ.Port,
+        Username:          c.RabbitMQ.Username,
+        Password:          c.RabbitMQ.Password,
+        VHost:             c.RabbitMQ.VHost,
+        ConnectionTimeout: time.Duration(c.RabbitMQ.ConnectionTimeout) * time.Second,
+        HeartbeatInterval: time.Duration(c.RabbitMQ.HeartbeatInterval) * time.Second,
+        PrefetchCount:     c.RabbitMQ.PrefetchCount,
+        PrefetchGlobal:    c.RabbitMQ.PrefetchGlobal,
+        Exchanges:         exchanges,
+        Queues:            queues,
+    }
 }

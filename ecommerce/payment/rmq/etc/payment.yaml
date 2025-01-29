@@ -1,0 +1,86 @@
+Name: payment.rmq
+ListenOn: 0.0.0.0:9084
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_payment?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+  PrefetchCount: 1
+  PrefetchGlobal: false
+
+  # Exchange definitions
+  Exchanges:
+    - Name: payment.events
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+
+  # Queue definitions  
+  Queues:
+    - Name: payment.order
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: order.payment.*
+          NoWait: false
+
+    - Name: payment.refund
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: order.refund.*
+          NoWait: false
+          
+    - Name: payment.verification
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.verification.*
+          NoWait: false
+
+Log:
+  ServiceName: payment-rmq
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9184
+  Path: /metrics
+
+Telemetry:
+  Name: payment.rmq
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: payment.rmq

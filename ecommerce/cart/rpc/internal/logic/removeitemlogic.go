@@ -2,14 +2,12 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
-	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -51,22 +49,29 @@ func (l *RemoveItemLogic) RemoveItem(in *cart.RemoveItemRequest) (*cart.RemoveIt
         return nil, zeroerr.ErrStatsUpdateFailed
     }
 
-    event := &types.CartEvent{
-        ID:        uuid.New().String(),
-        Type:      types.EventTypeItemRemoved,
-        Timestamp: time.Now(),
-        Data: &types.CartItemRemovedData{
-            UserID:    in.UserId,
+    // After cart item deletion and statistics update
+    items := []types.CartItem{
+        {
             ProductID: in.ProductId,
-        },
-        Metadata: types.EventMetadata{
-            TraceID: l.ctx.Value("trace_id").(string),
-            UserID:  fmt.Sprint(in.UserId),
+            SkuID:     in.SkuId,
+            Quantity:  0, // Set to 0 since item is removed
+            Selected:  (item.Selected == 1),
+            Price:     item.Price,
         },
     }
 
-    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
-        logx.Errorf("Failed to publish cart.item.removed event: %v", err)
+    updatedEvent := &types.CartUpdatedEvent{
+        CartEvent: types.CartEvent{
+            Type:      types.CartUpdated,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
+        Items: items,
+    }
+
+    if err := l.svcCtx.Producer.PublishCartUpdated(l.ctx, updatedEvent); err != nil {
+        logx.Errorf("Failed to publish cart updated event: %v", err)
+        // Don't return error as item is already removed
     }
 
     return &cart.RemoveItemResponse{

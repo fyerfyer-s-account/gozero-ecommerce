@@ -3,16 +3,14 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/cart"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/cart/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/product/rpc/product"
-	"github.com/google/uuid"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -108,26 +106,30 @@ func (l *AddItemLogic) AddItem(in *cart.AddItemRequest) (*cart.AddItemResponse, 
         return nil, err
     }
     
-    event := &types.CartEvent{
-        ID:        uuid.New().String(),
-        Type:      types.EventTypeItemAdded,
-        Timestamp: time.Now(),
-        Data: &types.CartItemAddedData{
-            CartItemData: types.CartItemData{
-                UserID:    in.UserId,
-                ProductID: in.ProductId,
-                Quantity:  int32(in.Quantity),
-            },
-        },
-        Metadata: types.EventMetadata{
-            TraceID: l.ctx.Value("trace_id").(string),
-            UserID:  fmt.Sprint(in.UserId),
+    // After cart item and statistics are updated successfully
+    // Create and publish cart updated event
+    items := []types.CartItem{
+        {
+            ProductID: in.ProductId,
+            SkuID:     in.SkuId,
+            Quantity:  int32(in.Quantity),
+            Selected:  true,
+            Price:     sku.Sku.Price,
         },
     }
 
-    if err := l.svcCtx.Producer.PublishEvent(event); err != nil {
-        logx.Errorf("Failed to publish cart.item.added event: %v", err)
-        // Continue execution as this is not critical
+    updatedEvent := &types.CartUpdatedEvent{
+        CartEvent: types.CartEvent{
+            Type:      types.CartUpdated,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
+        Items: items,
+    }
+
+    if err := l.svcCtx.Producer.PublishCartUpdated(l.ctx, updatedEvent); err != nil {
+        logx.Errorf("Failed to publish cart updated event: %v", err)
+        // Don't return error as cart item is already added
     }
 
     return &cart.AddItemResponse{

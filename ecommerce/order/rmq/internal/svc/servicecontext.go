@@ -6,10 +6,10 @@ import (
     "log"
     "time"
 
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rmq/consumer"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rmq/internal/config"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rmq/producer"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/payment/rpc/model"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/consumer"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/internal/config"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rmq/producer"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/broker"
     rmqconfig "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/config"
     "github.com/streadway/amqp"
@@ -22,14 +22,15 @@ type ServiceContext struct {
     Channel *amqp.Channel
 
     // Models
-    PaymentOrdersModel   model.PaymentOrdersModel
-    PaymentLogsModel    model.PaymentLogsModel
-    PaymentChannelsModel model.PaymentChannelsModel
-    RefundOrdersModel    model.RefundOrdersModel
+    OrdersModel        model.OrdersModel
+    OrderItemsModel    model.OrderItemsModel
+    OrderShippingModel model.OrderShippingModel
+    OrderRefundsModel  model.OrderRefundsModel
+    OrderPaymentsModel model.OrderPaymentsModel
 
-    // RMQ Components
-    Producer *producer.PaymentProducer
-    Consumer *consumer.PaymentConsumer
+    // RMQ Components 
+    Producer *producer.OrderProducer
+    Consumer *consumer.OrderConsumer
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -56,31 +57,33 @@ func NewServiceContext(c config.Config) *ServiceContext {
     }
 
     // Initialize models
-    paymentOrdersModel := model.NewPaymentOrdersModel(conn, c.CacheRedis)
-    paymentLogsModel := model.NewPaymentLogsModel(conn, c.CacheRedis)
-    paymentChannelsModel := model.NewPaymentChannelsModel(conn, c.CacheRedis)
-    refundOrdersModel := model.NewRefundOrdersModel(conn, c.CacheRedis)
+    ordersModel := model.NewOrdersModel(conn, c.CacheRedis)
+    orderItemsModel := model.NewOrderItemsModel(conn, c.CacheRedis)
+    orderShippingModel := model.NewOrderShippingModel(conn, c.CacheRedis)
+    orderRefundsModel := model.NewOrderRefundsModel(conn, c.CacheRedis)
+    orderPaymentsModel := model.NewOrderPaymentsModel(conn, c.CacheRedis)
 
     // Initialize producer and consumer
-    prod := producer.NewPaymentProducer(ch, "payment.events")
-    cons := consumer.NewPaymentConsumer(
+    prod := producer.NewOrderProducer(ch, "order.events")
+    cons := consumer.NewOrderConsumer(
         ch,
-        paymentOrdersModel,
-        paymentLogsModel,
-        paymentChannelsModel,
-        refundOrdersModel,
+        ordersModel,
+        orderPaymentsModel,
+        orderShippingModel,
+        orderRefundsModel,
     )
 
     return &ServiceContext{
-        Config:               c,
-        Broker:              rmqBroker,
-        Channel:             ch,
-        PaymentOrdersModel:   paymentOrdersModel,
-        PaymentLogsModel:    paymentLogsModel,
-        PaymentChannelsModel: paymentChannelsModel,
-        RefundOrdersModel:    refundOrdersModel,
-        Producer:            prod,
-        Consumer:            cons,
+        Config:             c,
+        Broker:             rmqBroker,
+        Channel:            ch,
+        OrdersModel:        ordersModel,
+        OrderItemsModel:    orderItemsModel,
+        OrderShippingModel: orderShippingModel,
+        OrderRefundsModel:  orderRefundsModel,
+        OrderPaymentsModel: orderPaymentsModel,
+        Producer:           prod,
+        Consumer:           cons,
     }
 }
 
@@ -125,7 +128,6 @@ func setupRabbitMQ(ch *amqp.Channel, c *config.Config) error {
             return fmt.Errorf("failed to declare queue %s: %w", q.Name, err)
         }
 
-        // Setup bindings
         for _, b := range q.Bindings {
             if err := ch.QueueBind(
                 queue.Name,
@@ -148,7 +150,6 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
 
     exchanges := make([]rmqconfig.ExchangeConfig, len(c.RabbitMQ.Exchanges))
     for i, e := range c.RabbitMQ.Exchanges {
-        log.Printf("Configuring exchange: %s", e.Name)
         exchanges[i] = rmqconfig.ExchangeConfig{
             Name:       e.Name,
             Type:       e.Type,
@@ -161,10 +162,8 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
 
     queues := make([]rmqconfig.QueueConfig, len(c.RabbitMQ.Queues))
     for i, q := range c.RabbitMQ.Queues {
-        log.Printf("Configuring queue: %s", q.Name)
         bindings := make([]rmqconfig.BindingConfig, len(q.Bindings))
         for j, b := range q.Bindings {
-            log.Printf("Configuring binding: Exchange=%s, RoutingKey=%s", b.Exchange, b.RoutingKey)
             bindings[j] = rmqconfig.BindingConfig{
                 Exchange:   b.Exchange,
                 RoutingKey: b.RoutingKey,
@@ -181,7 +180,6 @@ func convertToEventbusConfig(c *config.Config) *rmqconfig.RabbitMQConfig {
         }
     }
 
-    log.Println("RabbitMQ configuration conversion complete.")
     return &rmqconfig.RabbitMQConfig{
         Host:              c.RabbitMQ.Host,
         Port:              c.RabbitMQ.Port,

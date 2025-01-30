@@ -106,3 +106,31 @@ type OrderRefundedEvent struct {
     Amount     float64     `json:"amount"`
     Reason     string      `json:"reason"`
 }
+
+// OrderPaymentSuccessEvent represents successful payment notification for order
+type OrderPaymentSuccessEvent struct {
+    OrderEvent
+    PaymentNo     string    `json:"payment_no"`
+    PaymentMethod int32     `json:"payment_method"`
+    Amount        float64   `json:"amount"`
+    PaidTime      time.Time `json:"paid_time"`
+}
+
+// OrderPaymentFailedEvent represents failed payment notification for order
+type OrderPaymentFailedEvent struct {
+    OrderEvent
+    PaymentNo  string  `json:"payment_no"`
+    Amount     float64 `json:"amount"`
+    Reason     string  `json:"reason"`
+    ErrorCode  string  `json:"error_code"`
+}
+
+// OrderPaymentRefundedEvent represents refund notification for order
+type OrderPaymentRefundedEvent struct {
+    OrderEvent
+    PaymentNo    string    `json:"payment_no"`
+    RefundNo     string    `json:"refund_no"`
+    RefundAmount float64   `json:"refund_amount"`
+    Reason       string    `json:"reason"`
+    RefundTime   time.Time `json:"refund_time"`
+}

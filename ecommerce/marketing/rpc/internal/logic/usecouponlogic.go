@@ -2,10 +2,12 @@ package logic
 
 import (
 	"context"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -31,8 +33,15 @@ func (l *UseCouponLogic) UseCoupon(in *marketing.UseCouponRequest) (*marketing.U
         return nil, zeroerr.ErrInvalidMarketingParam
     }
 
-    var success bool
+    var coupon *model.Coupons
     err := l.svcCtx.UserCouponsModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+        // Get coupon info for event
+        var err error
+        coupon, err = l.svcCtx.CouponsModel.FindOne(ctx, uint64(in.CouponId))
+        if err != nil {
+            return err
+        }
+
         // Verify user coupon
         userCoupon, err := l.svcCtx.UserCouponsModel.VerifyCoupon(ctx, in.UserId, in.CouponId)
         if err != nil {
@@ -56,7 +65,6 @@ func (l *UseCouponLogic) UseCoupon(in *marketing.UseCouponRequest) (*marketing.U
             return err
         }
 
-        success = true
         return nil
     })
 
@@ -65,18 +73,25 @@ func (l *UseCouponLogic) UseCoupon(in *marketing.UseCouponRequest) (*marketing.U
         return &marketing.UseCouponResponse{Success: false}, err
     }
 
-    // Publish event
-    event := types.NewMarketingEvent(types.EventTypeCouponUsed, &types.CouponEventData{
-        CouponID: in.CouponId,
-        UserID:   in.UserId,
-        OrderNo:  in.OrderNo,
-    })
-    
-    if err := l.svcCtx.Producer.PublishCouponEvent(event); err != nil {
+    // Publish coupon used event
+    couponEvent := &types.CouponEvent{
+        MarketingEvent: types.MarketingEvent{
+            Type:      types.CouponUsed,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
+        CouponID:   in.CouponId,
+        CouponCode: coupon.Code,
+        Amount:     coupon.Value,
+        OrderNo:    in.OrderNo,
+    }
+
+    if err := l.svcCtx.Producer.PublishCouponEvent(l.ctx, couponEvent); err != nil {
         l.Logger.Errorf("Failed to publish coupon used event: %v", err)
+        // Don't return error as the main transaction succeeded
     }
 
     return &marketing.UseCouponResponse{
-        Success: success,
+        Success: true,
     }, nil
 }

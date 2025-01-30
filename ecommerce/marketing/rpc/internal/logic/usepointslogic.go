@@ -3,11 +3,12 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -57,12 +58,13 @@ func (l *UsePointsLogic) UsePoints(in *marketing.UsePointsRequest) (*marketing.U
 
         // Create points record
         _, err = l.svcCtx.PointsRecordsModel.Insert(ctx, &model.PointsRecords{
-            UserId:  uint64(in.UserId),
-            Points:  in.Points,
-            Type:    2, // Use points
-            Source:  in.Usage,
-            Remark:  sql.NullString{String: "Points usage", Valid: true},
-            OrderNo: sql.NullString{String: in.OrderNo, Valid: true},
+            UserId:    uint64(in.UserId),
+            Points:    -in.Points, // Negative for points used
+            Type:      2,         // Use points
+            Source:    in.Usage,
+            Remark:    sql.NullString{String: "Points usage", Valid: true},
+            OrderNo:   sql.NullString{String: in.OrderNo, Valid: true},
+            CreatedAt: time.Now(),
         })
         if err != nil {
             return err
@@ -79,16 +81,22 @@ func (l *UsePointsLogic) UsePoints(in *marketing.UsePointsRequest) (*marketing.U
     }
 
     // Publish points used event
-    event := types.NewMarketingEvent(types.EventTypePointsUsed, &types.PointsEventData{
-        UserID:  in.UserId,
+    pointsEvent := &types.PointsEvent{
+        MarketingEvent: types.MarketingEvent{
+            Type:      types.PointsUsed,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
         Points:  in.Points,
-        Type:    2,
+        Balance: currentPoints,
         Source:  in.Usage,
         OrderNo: in.OrderNo,
-    })
+        Reason:  "Points usage",
+    }
 
-    if err := l.svcCtx.Producer.PublishPointsEvent(event); err != nil {
+    if err := l.svcCtx.Producer.PublishPointsEvent(l.ctx, pointsEvent); err != nil {
         l.Logger.Errorf("Failed to publish points used event: %v", err)
+        // Don't return error as the main transaction succeeded
     }
 
     return &marketing.UsePointsResponse{

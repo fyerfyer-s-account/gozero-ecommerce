@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -34,13 +34,14 @@ func (l *ReceiveCouponLogic) ReceiveCoupon(in *marketing.ReceiveCouponRequest) (
         return nil, zeroerr.ErrInvalidMarketingParam
     }
 
-    var success bool
+    var couponCode string
     err := l.svcCtx.CouponsModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
         // Get coupon
         coupon, err := l.svcCtx.CouponsModel.FindOne(ctx, uint64(in.CouponId))
         if err != nil {
             return zeroerr.ErrCouponNotFound
         }
+        couponCode = coupon.Code
 
         // Check coupon status and time
         now := time.Now()
@@ -73,19 +74,34 @@ func (l *ReceiveCouponLogic) ReceiveCoupon(in *marketing.ReceiveCouponRequest) (
             Status:    0,
             UsedTime:  sql.NullTime{},
             OrderNo:   sql.NullString{},
+            CreatedAt: time.Now(),
         })
         if err != nil {
             return err
         }
 
         // Update coupon received count
-        coupon.Received++
-        err = l.svcCtx.CouponsModel.Update(ctx, coupon)
-        if err != nil {
+        if err := l.svcCtx.CouponsModel.IncrReceived(ctx, uint64(in.CouponId)); err != nil {
             return err
         }
 
-        success = true
+        // Publish coupon issued event
+        couponEvent := &types.CouponEvent{
+            MarketingEvent: types.MarketingEvent{
+                Type:      types.CouponIssued,
+                UserID:    in.UserId,
+                Timestamp: time.Now(),
+            },
+            CouponID:   in.CouponId,
+            CouponCode: couponCode,
+            Amount:     coupon.Value,
+        }
+
+        if err := l.svcCtx.Producer.PublishCouponEvent(ctx, couponEvent); err != nil {
+            logx.Errorf("Failed to publish coupon issued event: %v", err)
+            // Don't return error as this shouldn't affect the main transaction
+        }
+
         return nil
     })
 
@@ -94,17 +110,7 @@ func (l *ReceiveCouponLogic) ReceiveCoupon(in *marketing.ReceiveCouponRequest) (
         return &marketing.ReceiveCouponResponse{Success: false}, err
     }
 
-    // Publish coupon received event
-    event := types.NewMarketingEvent(types.EventTypeCouponReceived, &types.CouponEventData{
-        CouponID: in.CouponId,
-        UserID:   in.UserId,
-    })
-
-    if err := l.svcCtx.Producer.PublishCouponEvent(event); err != nil {
-        l.Logger.Errorf("Failed to publish coupon received event: %v", err)
-    }
-
     return &marketing.ReceiveCouponResponse{
-        Success: success,
+        Success: true,
     }, nil
 }

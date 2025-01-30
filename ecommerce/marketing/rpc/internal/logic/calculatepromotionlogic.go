@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"sort"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -70,7 +71,7 @@ func (l *CalculatePromotionLogic) CalculatePromotion(in *marketing.CalculateProm
 	var (
         bestDiscount   float64
         bestPromotion *model.Promotions
-        appliedRule   string
+        // appliedRule   string
     )
 
     // Calculate discounts
@@ -100,7 +101,7 @@ func (l *CalculatePromotionLogic) CalculatePromotion(in *marketing.CalculateProm
         if discountAmount > bestDiscount {
             bestDiscount = discountAmount
             bestPromotion = promotion
-            appliedRule = promotion.Rules
+            // appliedRule = promotion.Rules
         }
     }
 
@@ -112,24 +113,27 @@ func (l *CalculatePromotionLogic) CalculatePromotion(in *marketing.CalculateProm
             PromotionName:  bestPromotion.Name,
             DiscountAmount: bestDiscount,
         })
+
+        // Publish promotion applied event
+        promotionEvent := &types.PromotionEvent{
+            MarketingEvent: types.MarketingEvent{
+                Type:      types.PromotionApplied,
+                Timestamp: time.Now(),
+            },
+            PromotionID:   int64(bestPromotion.Id),
+            PromotionType: int32(bestPromotion.Type),
+            Discount:      bestDiscount,
+        }
+
+        if err := l.svcCtx.Producer.PublishPromotionEvent(l.ctx, promotionEvent); err != nil {
+            logx.Errorf("failed to publish promotion applied event: %v", err)
+            // Don't return error as the main calculation succeeded
+        }
     }
 
     finalAmount := originalAmount - bestDiscount
     if finalAmount < 0 {
         finalAmount = 0
-    }
-
-    // Publish calculation event
-    event := types.NewMarketingEvent(types.EventTypePromotionCalculated, &types.PromotionCalculateData{
-        OrderAmount:    originalAmount,
-        DiscountAmount: bestDiscount,
-        FinalAmount:    finalAmount,
-        AppliedRules:   []string{appliedRule},
-        PromotionIds:   []int64{int64(bestPromotion.Id)},
-    })
-
-    if err := l.svcCtx.Producer.PublishPromotionEvent(event); err != nil {
-        l.Logger.Errorf("Failed to publish promotion calculation event: %v", err)
     }
 
     return &marketing.CalculatePromotionResponse{

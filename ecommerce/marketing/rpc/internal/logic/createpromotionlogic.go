@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
@@ -38,7 +37,7 @@ func (l *CreatePromotionLogic) CreatePromotion(in *marketing.CreatePromotionRequ
     }
 
     // Validate promotion rules
-    var rule types.PromotionRule
+    var rule interface{}
     if err := json.Unmarshal([]byte(in.Rules), &rule); err != nil {
         return nil, zeroerr.ErrInvalidPromotionRules
     }
@@ -69,21 +68,6 @@ func (l *CreatePromotionLogic) CreatePromotion(in *marketing.CreatePromotionRequ
 
     if err != nil {
         return nil, err
-    }
-
-    // Publish promotion created event
-    event := types.NewMarketingEvent(types.EventTypePromotionCreated, &types.PromotionEventData{
-        PromotionID: int64(promotionId),
-        Name:        in.Name,
-        Type:        in.Type,
-        Rules:       in.Rules,
-        Status:      0,
-        StartTime:   in.StartTime,
-        EndTime:     in.EndTime,
-    })
-
-    if err := l.svcCtx.Producer.PublishPromotionEvent(event); err != nil {
-        l.Logger.Errorf("Failed to publish promotion created event: %v", err)
     }
 
     return &marketing.CreatePromotionResponse{

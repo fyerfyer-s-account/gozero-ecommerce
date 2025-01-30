@@ -2,9 +2,11 @@ package logic
 
 import (
 	"context"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
+	"time"
+
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -59,17 +61,22 @@ func (l *AddPointsLogic) AddPoints(in *marketing.AddPointsRequest) (*marketing.A
         return nil, err
     }
 
-    // Publish event
-    event := types.NewMarketingEvent(types.EventTypePointsAdded, &types.PointsEventData{
-        UserID:  in.UserId,
+    // Publish points earned event
+    pointsEvent := &types.PointsEvent{
+        MarketingEvent: types.MarketingEvent{
+            Type:      types.PointsEarned,
+            UserID:    in.UserId,
+            Timestamp: time.Now(),
+        },
         Points:  in.Points,
-        Type:    1,
+        Balance: currentPoints,
         Source:  in.Source,
-        Remark:  in.Remark,
-    })
+        Reason:  in.Remark,
+    }
 
-    if err := l.svcCtx.Producer.PublishPointsEvent(event); err != nil {
-        logx.Errorf("Failed to publish points event: %v", err)
+    if err := l.svcCtx.Producer.PublishPointsEvent(l.ctx, pointsEvent); err != nil {
+        logx.Errorf("Failed to publish points earned event: %v", err)
+        // Don't return error as the main transaction succeeded
     }
 
     return &marketing.AddPointsResponse{

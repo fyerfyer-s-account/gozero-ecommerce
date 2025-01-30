@@ -1,32 +1,32 @@
 package logic
 
 import (
-	"context"
-	"database/sql"
-	"time"
+    "context"
+    "database/sql"
+    "time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rmq/types"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/internal/svc"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/marketing"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/marketing/rpc/model"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/util"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
+    "github.com/zeromicro/go-zero/core/logx"
+    "github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type CreateCouponLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+    ctx    context.Context
+    svcCtx *svc.ServiceContext
+    logx.Logger
 }
 
 func NewCreateCouponLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateCouponLogic {
-	return &CreateCouponLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
-	}
+    return &CreateCouponLogic{
+        ctx:    ctx,
+        svcCtx: svcCtx,
+        Logger: logx.WithContext(ctx),
+    }
 }
 
 // 优惠券管理
@@ -35,13 +35,12 @@ func (l *CreateCouponLogic) CreateCoupon(in *marketing.CreateCouponRequest) (*ma
     if err := l.validateInput(in); err != nil {
         return nil, err
     }
-	
-	var code string 
-
+    
+    var code string 
     var couponId uint64
     err := l.svcCtx.CouponsModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-        // Generate unique code
-        code = types.RandomString(12)
+        // Generate unique code using util package
+        code = util.GenerateRandomString(12)
 
         // Create coupon
         result, err := l.svcCtx.CouponsModel.Insert(ctx, &model.Coupons{
@@ -74,20 +73,6 @@ func (l *CreateCouponLogic) CreateCoupon(in *marketing.CreateCouponRequest) (*ma
 
     if err != nil {
         return nil, err
-    }
-
-    // Publish coupon created event
-    event := types.NewMarketingEvent(types.EventTypeCouponCreated, &types.CouponEventData{
-        CouponID:  int64(couponId),
-        Code:      code,
-        Type:      in.Type,
-        Value:     in.Value,
-        MinAmount: in.MinAmount,
-        Status:    1,
-    })
-
-    if err := l.svcCtx.Producer.PublishCouponEvent(event); err != nil {
-        l.Logger.Errorf("Failed to publish coupon created event: %v", err)
     }
 
     return &marketing.CreateCouponResponse{

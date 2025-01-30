@@ -1,31 +1,6 @@
 Name: marketing.rpc
 ListenOn: 0.0.0.0:8086
 
-RabbitMQ:
-  Host: localhost
-  Port: 5672
-  Username: guest
-  Password: guest
-  VHost: /
-  Exchanges:
-    MarketingEvent:
-      Name: marketing.events
-      Type: topic
-      Durable: true
-  Queues:
-    CouponEvent:
-      Name: marketing.coupon
-      RoutingKey: coupon.#
-      Durable: true
-    PromotionEvent:
-      Name: marketing.promotion
-      RoutingKey: promotion.#
-      Durable: true
-    PointsEvent:
-      Name: marketing.points
-      RoutingKey: points.#
-      Durable: true
-
 Mysql:
   DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_marketing?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
@@ -34,20 +9,30 @@ CacheRedis:
     Pass: 
     Type: node
 
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  Exchange: marketing.events
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+
 # Marketing specific settings
 CouponLimits:
-  MaxPerUser: 10          # Maximum coupons per user
-  MaxActive: 100          # Maximum active coupons
-  BatchSize: 1000        # Batch processing size
+  MaxPerUser: 10
+  MaxActive: 100
+  BatchSize: 1000
 
 PromotionLimits:
-  MaxActive: 50          # Maximum active promotions
-  MaxRules: 10          # Maximum rules per promotion
+  MaxActive: 50
+  MaxRules: 10
 
 PointsLimits:
-  MaxPoints: 1000000    # Maximum points per user
-  MinPoints: 0          # Minimum points balance
-  ExpireDays: 365      # Points expiration in days
+  MaxPoints: 1000000
+  MinPoints: 0
+  ExpireDays: 365
 
 Log:
   ServiceName: marketing-rpc

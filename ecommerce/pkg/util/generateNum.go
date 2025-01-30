@@ -7,6 +7,8 @@ import (
     "time"
 )
 
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 var (
     numberMutex sync.Mutex
     lastTime    int64
@@ -33,4 +35,13 @@ func GenerateNo(prefix string) string {
     randomNum := random.Intn(1000000)
 
     return fmt.Sprintf("%s%s%06d", prefix, timestamp, randomNum)
+}
+
+func GenerateRandomString(length int) string {
+	rand.Seed(time.Now().UnixNano()) 
+	result := make([]byte, length)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(result)
 }

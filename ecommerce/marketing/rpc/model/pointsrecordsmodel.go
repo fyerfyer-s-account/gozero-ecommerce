@@ -17,6 +17,7 @@ type (
 		pointsRecordsModel
 		Trans(ctx context.Context, fn func(context.Context, sqlx.Session) error) error
 		FindByUserId(ctx context.Context, userId int64, page, pageSize int32) ([]*PointsRecords, error)
+		FindByOrderNo(ctx context.Context, orderNo string) ([]*PointsRecords, error)
 		BatchInsert(ctx context.Context, records []*PointsRecords) error
 		CountByUserId(ctx context.Context, userId int64) (int64, error)
 		SumPointsByUserId(ctx context.Context, userId int64) (int64, error)
@@ -86,5 +87,12 @@ func (m *customPointsRecordsModel) FindByDateRange(ctx context.Context, userId i
 	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `created_at` between ? and ? order by id desc",
 		pointsRecordsRows, m.table)
 	err := m.QueryRowsNoCacheCtx(ctx, &records, query, userId, startTime, endTime)
+	return records, err
+}
+
+func (m *customPointsRecordsModel) FindByOrderNo(ctx context.Context, orderNo string) ([]*PointsRecords, error) {
+	var records []*PointsRecords
+	query := fmt.Sprintf("select %s from %s where `order_no` = ?", pointsRecordsRows, m.table)
+	err := m.QueryRowsNoCacheCtx(ctx, &records, query, orderNo)
 	return records, err
 }

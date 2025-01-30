@@ -1,0 +1,106 @@
+Name: marketing.rmq
+ListenOn: 0.0.0.0:9086
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_marketing?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+  PrefetchCount: 1
+  PrefetchGlobal: false
+
+  # Exchange definitions
+  Exchanges:
+    - Name: marketing.events
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+
+  # Queue definitions  
+  Queues:
+    - Name: marketing.coupon
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: marketing.events
+          RoutingKey: marketing.coupon.*
+          NoWait: false
+
+    - Name: marketing.promotion
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: marketing.events
+          RoutingKey: marketing.promotion.*
+          NoWait: false
+
+    - Name: marketing.points
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: marketing.events
+          RoutingKey: marketing.points.*
+          NoWait: false
+
+    - Name: marketing.payment.success
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.success
+          NoWait: false
+
+    - Name: marketing.payment.failed
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.failed
+          NoWait: false
+
+Log:
+  ServiceName: marketing-rmq
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9185
+  Path: /metrics
+
+Telemetry:
+  Name: marketing.rmq
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: marketing.rmq

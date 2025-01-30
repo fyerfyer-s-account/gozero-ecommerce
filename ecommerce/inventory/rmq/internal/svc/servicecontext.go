@@ -61,25 +61,25 @@ func NewServiceContext(c config.Config) *ServiceContext {
     stockRecordsModel := model.NewStockRecordsModel(conn, c.CacheRedis)
     warehousesModel := model.NewWarehousesModel(conn, c.CacheRedis)
 
-    // Initialize producer and consumer
+    // Initialize producer and updated consumer
     prod := producer.NewInventoryProducer(ch, "inventory.events")
     cons := consumer.NewInventoryConsumer(
         ch,
         stocksModel,
-        stockLocksModel,
+        stockLocksModel, 
         stockRecordsModel,
     )
 
     return &ServiceContext{
-        Config:             c,
-        Broker:             rmqBroker,
-        Channel:            ch,
-        StocksModel:        stocksModel,
-        StockLocksModel:    stockLocksModel,
-        StockRecordsModel:  stockRecordsModel,
-        WarehousesModel:    warehousesModel,
-        Producer:           prod,
-        Consumer:           cons,
+        Config:            c,
+        Broker:            rmqBroker,
+        Channel:           ch,
+        StocksModel:       stocksModel,
+        StockLocksModel:   stockLocksModel,
+        StockRecordsModel: stockRecordsModel,
+        WarehousesModel:   warehousesModel,
+        Producer:          prod,
+        Consumer:          cons,
     }
 }
 

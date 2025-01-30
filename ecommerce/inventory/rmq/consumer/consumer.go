@@ -12,13 +12,15 @@ import (
 )
 
 type InventoryConsumer struct {
-    logger        *zerolog.Logger
-    channel       *amqp.Channel
-    updateHandler *handlers.UpdateHandler
-    alertHandler  *handlers.AlertHandler
-    lockHandler   *handlers.LockHandler
-    orderHandler  *handlers.OrderHandler
-    consumers     []*consumer.Consumer
+    logger               *zerolog.Logger
+    channel              *amqp.Channel
+    updateHandler        *handlers.UpdateHandler
+    alertHandler         *handlers.AlertHandler
+    lockHandler          *handlers.LockHandler
+    orderHandler         *handlers.OrderHandler
+    paymentSuccessHandler *handlers.PaymentSuccessHandler
+    paymentFailedHandler  *handlers.PaymentFailedHandler
+    consumers            []*consumer.Consumer
 }
 
 func NewInventoryConsumer(
@@ -44,6 +46,16 @@ func NewInventoryConsumer(
             stockRecordsModel,
         ),
         orderHandler: handlers.NewOrderHandler(
+            stocksModel,
+            stockLocksModel,
+            stockRecordsModel,
+        ),
+        paymentSuccessHandler: handlers.NewPaymentSuccessHandler(
+            stocksModel,
+            stockLocksModel,
+            stockRecordsModel,
+        ),
+        paymentFailedHandler: handlers.NewPaymentFailedHandler(
             stocksModel,
             stockLocksModel,
             stockRecordsModel,
@@ -128,21 +140,70 @@ func (c *InventoryConsumer) Start(ctx context.Context) error {
         return err
     }
 
-    // Start all consumers
-    if err := updateConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := alertConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := lockConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := orderConsumer.Start(ctx); err != nil {
+    // Create payment success consumer
+    paymentSuccessConsumer, err := consumer.NewConsumer(
+        c.channel,
+        c.paymentSuccessHandler.Handle,
+        consumer.WithQueue("inventory.payment.success"),
+        consumer.WithExchange("payment.events"),
+        consumer.WithRoutingKey("payment.success"),
+        consumer.WithAutoAck(false),
+        consumer.WithMiddlewares(
+            middleware.Recovery,
+            middleware.Logging,
+            middleware.Retry(nil),
+            middleware.Tracing("inventory-consumer"),
+        ),
+    )
+    if err != nil {
         return err
     }
 
-    c.consumers = append(c.consumers, updateConsumer, alertConsumer, lockConsumer, orderConsumer)
+    // Create payment failed consumer
+    paymentFailedConsumer, err := consumer.NewConsumer(
+        c.channel,
+        c.paymentFailedHandler.Handle,
+        consumer.WithQueue("inventory.payment.failed"),
+        consumer.WithExchange("payment.events"),
+        consumer.WithRoutingKey("payment.failed"),
+        consumer.WithAutoAck(false),
+        consumer.WithMiddlewares(
+            middleware.Recovery,
+            middleware.Logging,
+            middleware.Retry(nil),
+            middleware.Tracing("inventory-consumer"),
+        ),
+    )
+    if err != nil {
+        return err
+    }
+
+    // Start all consumers
+    for _, c := range []struct {
+        name     string
+        consumer *consumer.Consumer
+    }{
+        {"update", updateConsumer},
+        {"alert", alertConsumer},
+        {"lock", lockConsumer},
+        {"order", orderConsumer},
+        {"payment.success", paymentSuccessConsumer},
+        {"payment.failed", paymentFailedConsumer},
+    } {
+        if err := c.consumer.Start(ctx); err != nil {
+            return err
+        }
+    }
+
+    c.consumers = []*consumer.Consumer{
+        updateConsumer,
+        alertConsumer,
+        lockConsumer,
+        orderConsumer,
+        paymentSuccessConsumer,
+        paymentFailedConsumer,
+    }
+
     return nil
 }
 

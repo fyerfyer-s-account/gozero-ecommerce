@@ -39,10 +39,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
     // Initialize database connection
     conn := sqlx.NewMysql(c.Mysql.DataSource)
 
+    // Initialize models
+    cartItemsModel := model.NewCartItemsModel(conn, c.CacheRedis)
+    cartStatsModel := model.NewCartStatisticsModel(conn, c.CacheRedis)
+
     // Initialize RabbitMQ broker
     rmqBroker := initializeBroker(ctx, &c)
-
-    // Initialize channel
     ch, err := rmqBroker.Channel()
     if err != nil {
         log.Fatalf("Failed to create channel: %v", err)
@@ -53,11 +55,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
         log.Fatalf("Failed to setup RabbitMQ: %v", err)
     }
 
-    // Initialize models
-    cartItemsModel := model.NewCartItemsModel(conn, c.CacheRedis)
-    cartStatsModel := model.NewCartStatisticsModel(conn, c.CacheRedis)
-
-    // Initialize producer and consumer
+    // Initialize producer and consumer with updated structure
     prod := producer.NewCartProducer(ch, "cart.events")
     cons := consumer.NewCartConsumer(
         ch,

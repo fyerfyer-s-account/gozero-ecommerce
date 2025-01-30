@@ -12,14 +12,15 @@ import (
 )
 
 type CartConsumer struct {
-    logger           *zerolog.Logger
-    channel          *amqp.Channel
-    statusHandler    *handlers.StatusHandler
-    clearHandler     *handlers.ClearHandler
-    selectionHandler *handlers.SelectionHandler
-    inventoryHandler *handlers.InventoryHandler
-    orderHandler     *handlers.OrderHandler
-    consumers        []*consumer.Consumer
+    logger               *zerolog.Logger
+    channel             *amqp.Channel
+    statusHandler       *handlers.StatusHandler
+    orderHandler        *handlers.OrderHandler
+    inventoryHandler    *handlers.InventoryHandler
+    clearHandler        *handlers.ClearHandler
+    selectionHandler    *handlers.SelectionHandler
+    paymentSuccessHandler *handlers.PaymentSuccessHandler
+    consumers           []*consumer.Consumer
 }
 
 func NewCartConsumer(
@@ -28,136 +29,116 @@ func NewCartConsumer(
     cartStatsModel model.CartStatisticsModel,
 ) *CartConsumer {
     return &CartConsumer{
-        logger:           zerolog.GetLogger(),
-        channel:          ch,
-        statusHandler:    handlers.NewStatusHandler(cartItemsModel, cartStatsModel),
-        clearHandler:     handlers.NewClearHandler(cartItemsModel, cartStatsModel),
-        selectionHandler: handlers.NewSelectionHandler(cartItemsModel, cartStatsModel),
-        inventoryHandler: handlers.NewInventoryHandler(cartItemsModel, cartStatsModel),
-        orderHandler:     handlers.NewOrderHandler(cartItemsModel, cartStatsModel),
+        logger:  zerolog.GetLogger(),
+        channel: ch,
+        statusHandler: handlers.NewStatusHandler(
+            cartItemsModel,
+            cartStatsModel,
+        ),
+        orderHandler: handlers.NewOrderHandler(
+            cartItemsModel,
+            cartStatsModel,
+        ),
+        inventoryHandler: handlers.NewInventoryHandler(
+            cartItemsModel,
+            cartStatsModel,
+        ),
+        clearHandler: handlers.NewClearHandler(
+            cartItemsModel,
+            cartStatsModel,
+        ),
+        selectionHandler: handlers.NewSelectionHandler(
+            cartItemsModel,
+            cartStatsModel,
+        ),
+        paymentSuccessHandler: handlers.NewPaymentSuccessHandler(
+            cartItemsModel,
+            cartStatsModel,
+        ),
     }
 }
 
 func (c *CartConsumer) Start(ctx context.Context) error {
-    // Create status consumer
-    statusConsumer, err := consumer.NewConsumer(
-        c.channel,
-        c.statusHandler.Handle,
-        consumer.WithQueue("cart.status"),
-        consumer.WithExchange("cart.events"),
-        consumer.WithRoutingKey("cart.status.*"),
-        consumer.WithAutoAck(false),
-        consumer.WithMiddlewares(
-            middleware.Recovery,
-            middleware.Logging,
-            middleware.Retry(nil),
-            middleware.Tracing("cart-consumer"),
-        ),
-    )
-    if err != nil {
-        return err
+    // Create handlers with their respective configurations
+    consumers := []struct {
+        name        string
+        handler     middleware.HandlerFunc
+        queue       string
+        exchange    string
+        routingKey  string
+    }{
+        {
+            name:       "status",
+            handler:    c.statusHandler.Handle,
+            queue:      "cart.status",
+            exchange:   "cart.events",
+            routingKey: "cart.status.*",
+        },
+        {
+            name:       "order",
+            handler:    c.orderHandler.Handle,
+            queue:      "cart.order",
+            exchange:   "order.events",
+            routingKey: "order.*",
+        },
+        {
+            name:       "inventory",
+            handler:    c.inventoryHandler.Handle,
+            queue:      "cart.inventory",
+            exchange:   "inventory.events",
+            routingKey: "inventory.stock.*",
+        },
+        {
+            name:       "clear",
+            handler:    c.clearHandler.Handle,
+            queue:      "cart.clear",
+            exchange:   "cart.events",
+            routingKey: "cart.clear",
+        },
+        {
+            name:       "selection",
+            handler:    c.selectionHandler.Handle,
+            queue:      "cart.selection",
+            exchange:   "cart.events",
+            routingKey: "cart.select.*",
+        },
+        {
+            name:       "payment.success",
+            handler:    c.paymentSuccessHandler.Handle,
+            queue:      "cart.payment.success",
+            exchange:   "payment.events",
+            routingKey: "payment.success",
+        },
     }
 
-    // Create clear consumer
-    clearConsumer, err := consumer.NewConsumer(
-        c.channel,
-        c.clearHandler.Handle,
-        consumer.WithQueue("cart.clear"),
-        consumer.WithExchange("cart.events"),
-        consumer.WithRoutingKey("cart.clear.*"),
-        consumer.WithAutoAck(false),
-        consumer.WithMiddlewares(
-            middleware.Recovery,
-            middleware.Logging,
-            middleware.Retry(nil),
-            middleware.Tracing("cart-consumer"),
-        ),
-    )
-    if err != nil {
-        return err
+    // Initialize and start all consumers
+    c.consumers = make([]*consumer.Consumer, 0, len(consumers))
+    for _, cfg := range consumers {
+        cons, err := consumer.NewConsumer(
+            c.channel,
+            cfg.handler,
+            consumer.WithQueue(cfg.queue),
+            consumer.WithExchange(cfg.exchange),
+            consumer.WithRoutingKey(cfg.routingKey),
+            consumer.WithAutoAck(false),
+            consumer.WithMiddlewares(
+                middleware.Recovery,
+                middleware.Logging,
+                middleware.Retry(nil),
+                middleware.Tracing("cart-consumer"),
+            ),
+        )
+        if err != nil {
+            return err
+        }
+
+        if err := cons.Start(ctx); err != nil {
+            return err
+        }
+
+        c.consumers = append(c.consumers, cons)
     }
 
-    // Create selection consumer
-    selectionConsumer, err := consumer.NewConsumer(
-        c.channel,
-        c.selectionHandler.Handle,
-        consumer.WithQueue("cart.selection"),
-        consumer.WithExchange("cart.events"),
-        consumer.WithRoutingKey("cart.selection.*"),
-        consumer.WithAutoAck(false),
-        consumer.WithMiddlewares(
-            middleware.Recovery,
-            middleware.Logging,
-            middleware.Retry(nil),
-            middleware.Tracing("cart-consumer"),
-        ),
-    )
-    if err != nil {
-        return err
-    }
-
-    // Create inventory consumer
-    inventoryConsumer, err := consumer.NewConsumer(
-        c.channel,
-        c.inventoryHandler.Handle,
-        consumer.WithQueue("cart.inventory"),
-        consumer.WithExchange("inventory.events"),
-        consumer.WithRoutingKey("inventory.stock.*"),
-        consumer.WithAutoAck(false),
-        consumer.WithMiddlewares(
-            middleware.Recovery,
-            middleware.Logging,
-            middleware.Retry(nil),
-            middleware.Tracing("cart-consumer"),
-        ),
-    )
-    if err != nil {
-        return err
-    }
-
-    // Create order consumer
-    orderConsumer, err := consumer.NewConsumer(
-        c.channel,
-        c.orderHandler.Handle,
-        consumer.WithQueue("cart.order"),
-        consumer.WithExchange("order.events"),
-        consumer.WithRoutingKey("order.status.*"),
-        consumer.WithAutoAck(false),
-        consumer.WithMiddlewares(
-            middleware.Recovery,
-            middleware.Logging,
-            middleware.Retry(nil),
-            middleware.Tracing("cart-consumer"),
-        ),
-    )
-    if err != nil {
-        return err
-    }
-
-    // Start all consumers
-    if err := statusConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := clearConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := selectionConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := inventoryConsumer.Start(ctx); err != nil {
-        return err
-    }
-    if err := orderConsumer.Start(ctx); err != nil {
-        return err
-    }
-
-    c.consumers = append(c.consumers, 
-        statusConsumer, 
-        clearConsumer, 
-        selectionConsumer,
-        inventoryConsumer,
-        orderConsumer,
-    )
     return nil
 }
 

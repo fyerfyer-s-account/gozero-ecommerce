@@ -5,10 +5,11 @@ import "time"
 type CartEventType string
 
 const (
-	CartUpdated    CartEventType = "cart.updated"
-	CartCleared    CartEventType = "cart.cleared"
-	CartSelected   CartEventType = "cart.selected"
-	CartUnselected CartEventType = "cart.unselected"
+	CartUpdated        CartEventType = "cart.updated"
+	CartCleared        CartEventType = "cart.cleared"
+	CartSelected       CartEventType = "cart.selected"
+	CartUnselected     CartEventType = "cart.unselected"
+	CartPaymentSuccess CartEventType = "cart.payment.success"
 )
 
 // CartEvent represents the base cart event structure
@@ -43,4 +44,26 @@ type CartClearedEvent struct {
 type CartSelectionEvent struct {
 	CartEvent
 	Items []CartItem `json:"items"`
+}
+
+// CartPaymentSuccessEvent represents cart clearing after successful payment
+type CartPaymentSuccessEvent struct {
+    CartEvent
+    OrderNo    string    `json:"order_no"`
+    PaymentNo  string    `json:"payment_no"`
+    ClearTime  time.Time `json:"clear_time"`
+    Items      []CartItem `json:"items"`
+}
+
+// Add validation method
+func (e *CartPaymentSuccessEvent) Validate() error {
+    if e.OrderNo == "" || e.PaymentNo == "" {
+        return &NonRetryableError{
+            EventError: &EventError{
+                Code:    "INVALID_CART_PAYMENT_SUCCESS",
+                Message: "order_no and payment_no are required",
+            },
+        }
+    }
+    return nil
 }

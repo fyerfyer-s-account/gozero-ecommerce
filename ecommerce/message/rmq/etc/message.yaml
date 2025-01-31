@@ -1,0 +1,112 @@
+Name: message.rmq
+ListenOn: 0.0.0.0:9088
+
+Mysql:
+  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_message?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+
+CacheRedis:
+  - Host: 172.17.0.3:6379
+    Pass: 
+    Type: node
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+  PrefetchCount: 1
+  PrefetchGlobal: false
+
+  # Exchange definitions
+  Exchanges:
+    - Name: message.events
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+    - Name: payment.events
+      Type: topic
+      Durable: true 
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+
+  # Queue definitions  
+  Queues:
+    - Name: message.event
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: message.events
+          RoutingKey: message.event.*
+          NoWait: false
+
+    - Name: message.template
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: message.events
+          RoutingKey: message.template.*
+          NoWait: false
+
+    - Name: message.batch
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: message.events
+          RoutingKey: message.batch.*
+          NoWait: false
+
+    - Name: message.payment.success
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.success
+          NoWait: false
+
+    - Name: message.payment.failed
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.failed
+          NoWait: false
+
+Log:
+  ServiceName: message-rmq
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9184
+  Path: /metrics
+
+Telemetry:
+  Name: message.rmq
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: message.rmq

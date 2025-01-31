@@ -3,11 +3,14 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/message"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/util"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -76,21 +79,29 @@ func (l *SendMessageLogic) SendMessage(in *message.SendMessageRequest) (*message
 			return zeroerr.ErrMessageCreateFailed
 		}
 
-		// Publish message created event
-		err = l.svcCtx.Producer.PublishMessageCreated(ctx, &types.MessageCreatedData{
-			ID:          messageId,
-			UserID:      in.UserId,
-			Title:       in.Title,
-			Content:     in.Content,
-			Type:        in.Type,
-			SendChannel: in.SendChannel,
-			ExtraData:   in.ExtraData,
-		}, types.Metadata{
-			Source: "message-service",
-			UserID: in.UserId,
-		})
-		if err != nil {
-			logx.Errorf("Failed to publish message created event: %v", err)
+		// Create message event
+		messageEvent := &types.MessageEventSentEvent{
+			MessageEvent: types.MessageEvent{
+				Type:      types.MessageEventSent,
+				UserID:    in.UserId,
+				Timestamp: time.Now(),
+			},
+			MessageID: fmt.Sprintf("%d", messageId),
+			Channel:   util.GetChannelString(in.SendChannel),
+			Content:   in.Content,
+			Recipient: fmt.Sprintf("%d", in.UserId),
+			Status:    "pending",
+			Variables: map[string]string{
+				"title":     in.Title,
+				"type":      fmt.Sprintf("%d", in.Type),
+				"extraData": in.ExtraData,
+			},
+		}
+
+		// Publish message event
+		if err := l.svcCtx.Producer.PublishMessageEvent(ctx, messageEvent); err != nil {
+			logx.Errorf("Failed to publish message sent event: %v", err)
+			// Don't return error here as the message is already created in database
 		}
 
 		return nil

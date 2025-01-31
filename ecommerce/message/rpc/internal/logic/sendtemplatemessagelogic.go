@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rmq/types"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/internal/svc"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/message"
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/model"
@@ -101,24 +100,6 @@ func (l *SendTemplateMessageLogic) SendTemplateMessage(in *message.SendTemplateM
 			_, err = l.svcCtx.MessageSendsModel.Insert(ctx, send)
 			if err != nil {
 				return zeroerr.ErrMessageCreateFailed
-			}
-
-			// Publish message created event
-			err = l.svcCtx.Producer.PublishMessageCreated(ctx, &types.MessageCreatedData{
-				ID:          messageId,
-				UserID:      in.UserId,
-				Title:       title,
-				Content:     content,
-				Type:        int32(template.Type),
-				SendChannel: channel,
-				ExtraData:   getExtraData(in.Params),
-			}, types.Metadata{
-				Source: "message-service",
-				UserID: in.UserId,
-			})
-			if err != nil {
-				logx.Errorf("Failed to publish message created event: %v", err)
-				// Continue since message is created
 			}
 		}
 		return nil

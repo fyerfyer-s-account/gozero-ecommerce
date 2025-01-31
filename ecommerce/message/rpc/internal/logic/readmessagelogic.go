@@ -2,9 +2,7 @@ package logic
 
 import (
     "context"
-    "time"
 
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rmq/types"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/internal/svc"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/message/rpc/message"
     "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zeroerr"
@@ -41,27 +39,6 @@ func (l *ReadMessageLogic) ReadMessage(in *message.ReadMessageRequest) (*message
     err = l.svcCtx.MessagesModel.UpdateReadStatus(l.ctx, uint64(in.MessageId), uint64(in.UserId))
     if err != nil {
         return nil, zeroerr.ErrMessageUpdateFailed
-    }
-
-    // Publish message read event
-    readTime := time.Now()
-    metadata := types.Metadata{
-        Source: "message-service",
-        UserID: in.UserId,
-    }
-    // 安全获取trace_id
-    if traceID, ok := l.ctx.Value("trace_id").(string); ok {
-        metadata.TraceID = traceID
-    }
-    
-    err = l.svcCtx.Producer.PublishMessageRead(l.ctx, &types.MessageReadData{
-        MessageID: in.MessageId,
-        UserID:    in.UserId,
-        ReadTime:  readTime,
-    }, metadata)
-    if err != nil {
-        logx.Errorf("Failed to publish message read event: %v", err)
-        // Don't return error as the message is already marked as read
     }
 
     return &message.ReadMessageResponse{

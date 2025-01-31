@@ -1,0 +1,10 @@
+{
+    "type": "payment.refund",
+    "order_no": "ORD202403210003",
+    "payment_no": "PAY202403210003",
+    "timestamp": "2024-03-21T10:10:00Z",
+    "refund_no": "REF202403210001",
+    "refund_amount": 200.00,
+    "reason": "Customer request",
+    "refund_time": "2024-03-21T10:10:00Z"
+}

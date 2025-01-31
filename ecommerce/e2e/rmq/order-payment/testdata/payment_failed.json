@@ -1,0 +1,9 @@
+{
+    "type": "payment.failed",
+    "order_no": "ORD202403210002",
+    "payment_no": "PAY202403210002",
+    "timestamp": "2024-03-21T10:05:00Z",
+    "amount": 150.00,
+    "reason": "Insufficient funds",
+    "error_code": "INSUFFICIENT_FUNDS"
+}

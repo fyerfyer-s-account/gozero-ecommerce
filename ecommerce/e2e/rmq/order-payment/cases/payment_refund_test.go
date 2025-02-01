@@ -1,65 +1,93 @@
 package cases
 
 import (
-	// "context"
-	"encoding/json"
-	"testing"
-	"time"
+    "context"
+    "testing"
+    "time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/mocks"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/setup"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+    "github.com/stretchr/testify/require"
 )
 
 func TestPaymentRefundFlow(t *testing.T) {
-    // Setup
-    orderPaymentsModel := &mocks.OrderPaymentsModel{}
-    ordersModel := &mocks.OrdersModel{}
-    orderRefundsModel := &mocks.OrderRefundsModel{}
+    // Initialize test context with timeout
+    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    defer cancel()
 
-    rmqHelper, err := helpers.NewRMQHelper()
-    assert.NoError(t, err)
-    defer rmqHelper.Close()
+    testCtx, err := setup.NewTestContext()
+    require.NoError(t, err)
+    defer testCtx.Close()
 
-    // Load test event from fixture
-    var event types.PaymentRefundEvent
-    err = helpers.LoadFixture("payment_refund.json", &event)
-    assert.NoError(t, err)
+    // Clean test data before start
+    require.NoError(t, testCtx.DB.CleanTestData(ctx))
 
-    // Setup expectations
-    ordersModel.On("FindByOrderNo", mock.Anything, event.OrderNo).Return(&model.Orders{
-        Id:     1,
-        Status: 4, // Completed
-    }, nil)
-    ordersModel.On("UpdateStatus", mock.Anything, uint64(1), int64(6)).Return(nil)
+    // Load test event fixture
+    var event struct {
+        OrderNo      string    `json:"order_no"`
+        PaymentNo    string    `json:"payment_no"`
+        RefundNo     string    `json:"refund_no"`
+        RefundAmount float64   `json:"refund_amount"`
+        Reason       string    `json:"reason"`
+        Timestamp    time.Time `json:"timestamp"`
+    }
+    require.NoError(t, helpers.LoadFixture("payment_refund.json", &event))
 
-    orderPaymentsModel.On("FindOneByPaymentNo", mock.Anything, event.PaymentNo).Return(&model.OrderPayments{
-        Id:     1,
-        Status: 1, // Paid
-    }, nil)
-    orderPaymentsModel.On("UpdateStatus", mock.Anything, event.PaymentNo, 2, mock.Anything).Return(nil)
+    // Initialize test data - Order
+    order := &model.Orders{
+        OrderNo:     event.OrderNo,
+        Status:      4, // Completed
+        UserId:      1,
+        TotalAmount: event.RefundAmount,
+        CreatedAt:   time.Now(),
+        UpdatedAt:   time.Now(),
+    }
+    
+    // Insert order
+    result, err := testCtx.DB.GetOrdersModel().Insert(ctx, order)
+    require.NoError(t, err)
+    orderId, err := result.LastInsertId()
+    require.NoError(t, err)
 
-    orderRefundsModel.On("FindOneByRefundNo", mock.Anything, event.RefundNo).Return(&model.OrderRefunds{
-        Id:     1,
-        Status: 2, // Processing
-    }, nil)
-    orderRefundsModel.On("UpdateStatus", mock.Anything, event.RefundNo, 3, "Refund completed").Return(nil)
+    // Initialize test data - Payment
+    payment := &model.OrderPayments{
+        OrderId:       uint64(orderId),
+        PaymentNo:     event.PaymentNo,
+        PaymentMethod: 1, // Default payment method
+        Amount:        event.RefundAmount,
+        Status:        1, // Success
+        CreatedAt:     time.Now(),
+        UpdatedAt:     time.Now(),
+    }
+    _, err = testCtx.DB.GetPaymentsModel().Insert(ctx, payment)
+    require.NoError(t, err)
 
-    eventJSON, err := json.Marshal(event)
-    assert.NoError(t, err)
+    // Initialize test data - Refund
+    refund := &model.OrderRefunds{
+        OrderId:   uint64(orderId),
+        RefundNo:  event.RefundNo,
+        Amount:    event.RefundAmount,
+        Status:    2, // Processing
+        Reason:    event.Reason,
+        CreatedAt: time.Now(),
+        UpdatedAt: time.Now(),
+    }
+    _, err = testCtx.DB.GetRefundsModel().Insert(ctx, refund)
+    require.NoError(t, err)
 
-    // Publish event
-    err = rmqHelper.PublishMessage("payment.events", "payment.success", eventJSON)
-    assert.NoError(t, err)
+    // Publish refund event
+    err = testCtx.RMQ.PublishEvent("payment.events", "payment.refund", event)
+    require.NoError(t, err)
 
-    // Wait and verify order service received and processed the message
-    helpers.AssertMessageReceived(t, rmqHelper, "order.payment.refund", 5*time.Second)
+    // Verify message received and content
+    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, "order.payment.refund", 5*time.Second)
+    helpers.AssertMessageContent(t, msg, "application/json", "payment.refund")
 
-    // Verify model calls
-    ordersModel.AssertExpectations(t)
-    orderPaymentsModel.AssertExpectations(t)
-    orderRefundsModel.AssertExpectations(t)
+    // Verify final database state
+    helpers.AssertDatabaseState(t, testCtx.DB, map[string]int64{
+        event.OrderNo:   6, // Refunded
+        event.PaymentNo: 2, // Refunded
+        event.RefundNo:  1, // Success
+    })
 }

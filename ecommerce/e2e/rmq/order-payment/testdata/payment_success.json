@@ -1,7 +1,7 @@
 {
     "type": "payment.success",
-    "order_no": "ORD202403210001",
-    "payment_no": "PAY202403210001",
+    "order_no": "TEST_ORD_SUCCESS_001",
+    "payment_no": "TEST_PAY_SUCCESS_001",
     "timestamp": "2024-03-21T10:00:00Z",
     "amount": 100.00,
     "payment_method": 1,

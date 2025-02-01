@@ -1,57 +1,76 @@
 package cases
 
 import (
-	// "context"
-	"encoding/json"
-	"testing"
-	"time"
+    "context"
+    "testing"
+    "time"
 
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/mocks"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/setup"
+    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+    "github.com/stretchr/testify/require"
 )
 
-func TestPaymentSuccessFlow(t *testing.T) {
-	// Setup
-	orderPaymentsModel := &mocks.OrderPaymentsModel{}
-	ordersModel := &mocks.OrdersModel{}
+func TestPaymentSuccess(t *testing.T) {
+    // Initialize test context
+    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    defer cancel()
 
-	rmqHelper, err := helpers.NewRMQHelper()
-	assert.NoError(t, err)
-	defer rmqHelper.Close()
+    testCtx, err := setup.NewTestContext()
+    require.NoError(t, err)
+    defer testCtx.Close()
 
-	// Load test event from fixture
-	var event types.PaymentSuccessEvent
-	err = helpers.LoadFixture("payment_success.json", &event)
-	assert.NoError(t, err)
+    // Load test data
+    var event struct {
+        OrderNo      string    `json:"order_no"`
+        PaymentNo    string    `json:"payment_no"`
+        PaymentMethod int64    `json:"payment_method"`
+        Amount       float64   `json:"amount"`
+        Timestamp    time.Time `json:"timestamp"`
+    }
+    require.NoError(t, helpers.LoadFixture("payment_success.json", &event))
 
-	// Setup expectations
-	ordersModel.On("FindByOrderNo", mock.Anything, event.OrderNo).Return(&model.Orders{
-		Id:     1,
-		Status: 1, // Pending payment
-	}, nil)
-	ordersModel.On("UpdateStatus", mock.Anything, uint64(1), int64(2)).Return(nil)
+    // Initialize database state
+    order := &model.Orders{
+        OrderNo:     event.OrderNo,
+        Status:      1, // Pending Payment
+        UserId:      1,
+        TotalAmount: event.Amount,
+        CreatedAt:   time.Now(),
+        UpdatedAt:   time.Now(),
+    }
+    
+    // Insert order
+    result, err := testCtx.DB.GetOrdersModel().Insert(ctx, order)
+    require.NoError(t, err)
+    orderId, err := result.LastInsertId()
+    require.NoError(t, err)
 
-	orderPaymentsModel.On("FindOneByPaymentNo", mock.Anything, event.PaymentNo).Return(&model.OrderPayments{
-		Id:     1,
-		Status: 1, // Processing
-	}, nil)
-	orderPaymentsModel.On("UpdateStatus", mock.Anything, event.PaymentNo, 1, mock.Anything).Return(nil)
+    // Insert payment
+    payment := &model.OrderPayments{
+        OrderId:       uint64(orderId),
+        PaymentNo:     event.PaymentNo,
+        PaymentMethod: event.PaymentMethod,
+        Amount:        event.Amount,
+        Status:        1, // Processing
+        CreatedAt:     time.Now(),
+        UpdatedAt:     time.Now(),
+    }
+    require.NoError(t, helpers.SaveFixture("payment.json", payment))
+    _, err = testCtx.DB.GetPaymentsModel().Insert(ctx, payment)
+    require.NoError(t, err)
 
-	eventJSON, err := json.Marshal(event)
-	assert.NoError(t, err)
+    // Publish payment success event
+    err = testCtx.RMQ.PublishEvent("payment.events", "payment.success", event)
+    require.NoError(t, err)
 
-	// Publish event
-	err = rmqHelper.PublishMessage("payment.events", "payment.success", eventJSON)
-	assert.NoError(t, err)
+    // Verify message received
+    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, "order.payment.success", 5*time.Second)
+    helpers.AssertMessageContent(t, msg, "application/json", "payment.success")
 
-	// Wait and verify order service received and processed the message
-	helpers.AssertMessageReceived(t, rmqHelper, "order.payment.success", 5*time.Second)
-
-	// Verify model calls
-	ordersModel.AssertExpectations(t)
-	orderPaymentsModel.AssertExpectations(t)
+    // Verify final state
+    helpers.AssertDatabaseState(t, testCtx.DB, map[string]int64{
+        event.OrderNo:   2, // Paid
+        event.PaymentNo: 1, // Success
+    })
 }

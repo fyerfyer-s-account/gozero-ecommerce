@@ -1,7 +1,7 @@
 {
     "type": "payment.failed",
-    "order_no": "ORD202403210002",
-    "payment_no": "PAY202403210002",
+    "order_no": "TEST_ORD_FAIL_001",
+    "payment_no": "TEST_PAY_FAIL_001",
     "timestamp": "2024-03-21T10:05:00Z",
     "amount": 150.00,
     "reason": "Insufficient funds",

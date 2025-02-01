@@ -2,10 +2,10 @@ Name: payment.rmq
 ListenOn: 0.0.0.0:9084
 
 Mysql:
-  DataSource: root:pa55word@tcp(my-mysql:3306)/mall_payment?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+  DataSource: root:pa55word@tcp(localhost:3306)/mall_payment?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
 CacheRedis:
-  - Host: my-redis:6379
+  - Host: localhost:6379
     Pass: 
     Type: node
 

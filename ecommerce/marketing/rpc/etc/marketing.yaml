@@ -2,10 +2,10 @@ Name: marketing.rpc
 ListenOn: 0.0.0.0:8086
 
 Mysql:
-  DataSource: root:pa55word@tcp(my-mysql)/mall_marketing?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+  DataSource: root:pa55word@tcp(localhost:3306)/mall_marketing?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
 CacheRedis:
-  - Host: my-redis:6379
+  - Host: localhost:6379
     Pass: 
     Type: node
 

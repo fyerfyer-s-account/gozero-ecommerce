@@ -1,0 +1,27 @@
+Name: order.payment.e2e
+ListenOn: 0.0.0.0:9100
+
+MySQL:
+  DataSource: root:pa55word@tcp(localhost:3306)/mall_order?charset=utf8mb4&parseTime=true&loc=Local
+
+CacheRedis:
+  - Host: localhost:6379
+    Pass:
+    Type: node 
+
+RabbitMQ:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  VHost: /
+  ConnectionTimeout: 10
+  HeartbeatInterval: 10
+
+Log:
+  ServiceName: order-payment-e2e
+  Mode: console
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 7

@@ -28,6 +28,13 @@ RabbitMQ:
       AutoDelete: false
       Internal: false
       NoWait: false
+    # Add payment events exchange
+    - Name: payment.events
+      Type: topic  
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
 
   # Queue definitions  
   Queues:
@@ -69,6 +76,28 @@ RabbitMQ:
       Bindings:
         - Exchange: order.events
           RoutingKey: order.*
+          NoWait: false
+
+    # Add payment success queue
+    - Name: inventory.payment.success
+      Durable: true
+      AutoDelete: false 
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.success
+          NoWait: false
+
+    # Add payment failed queue  
+    - Name: inventory.payment.failed
+      Durable: true
+      AutoDelete: false
+      Exclusive: false 
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.failed
           NoWait: false
 
 Log:

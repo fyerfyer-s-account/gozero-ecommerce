@@ -29,6 +29,13 @@ RabbitMQ:
       Internal: false
       NoWait: false
 
+    - Name: payment.events 
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+
   # Queue definitions  
   Queues:
     - Name: order.status
@@ -51,6 +58,36 @@ RabbitMQ:
           RoutingKey: order.alert.*
           NoWait: false
 
+    - Name: order.payment.success
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.success
+          NoWait: false
+
+    - Name: order.payment.failed
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.failed
+          NoWait: false
+
+    - Name: order.payment.refund
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.refund
+          NoWait: false
+          
 Log:
   ServiceName: order-rmq
   Mode: file

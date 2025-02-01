@@ -28,9 +28,28 @@ RabbitMQ:
       AutoDelete: false
       Internal: false
       NoWait: false
+    - Name: order.events
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false  
+    - Name: inventory.events
+      Type: topic
+      Durable: true
+      AutoDelete: false
+      Internal: false
+      NoWait: false
+    - Name: payment.events
+      Type: topic
+      Durable: true 
+      AutoDelete: false
+      Internal: false
+      NoWait: false
 
   # Queue definitions  
   Queues:
+    # Existing queues
     - Name: cart.status
       Durable: true
       AutoDelete: false
@@ -49,6 +68,47 @@ RabbitMQ:
       Bindings:
         - Exchange: cart.events
           RoutingKey: cart.selection.*
+          NoWait: false
+
+    # Add missing queues
+    - Name: cart.order
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: order.events
+          RoutingKey: order.*
+          NoWait: false
+
+    - Name: cart.inventory
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: inventory.events
+          RoutingKey: inventory.stock.*
+          NoWait: false
+
+    - Name: cart.clear
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: cart.events
+          RoutingKey: cart.clear
+          NoWait: false
+
+    - Name: cart.payment.success
+      Durable: true
+      AutoDelete: false
+      Exclusive: false
+      NoWait: false
+      Bindings:
+        - Exchange: payment.events
+          RoutingKey: payment.success
           NoWait: false
 
 Log:

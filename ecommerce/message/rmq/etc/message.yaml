@@ -2,10 +2,10 @@ Name: message.rmq
 ListenOn: 0.0.0.0:9088
 
 Mysql:
-  DataSource: root:pa55word@tcp(172.17.0.2:3306)/mall_message?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+  DataSource: root:pa55word@tcp(my-mysql)/mall_message?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 
 CacheRedis:
-  - Host: 172.17.0.3:6379
+  - Host: my-redis:6379
     Pass: 
     Type: node
 

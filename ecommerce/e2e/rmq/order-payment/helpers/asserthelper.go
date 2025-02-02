@@ -92,18 +92,24 @@ func AssertMessageContent(t *testing.T, msg *amqp.Delivery, expectedType string,
 // AssertDatabaseState verifies multiple database conditions in one call
 func AssertDatabaseState(t *testing.T, db *DBHelper, checks map[string]int64) {
     t.Helper()
-    // ctx := context.Background()
     
     for id, expectedStatus := range checks {
-        switch len(id) {
-        case 16: // Order number format
-            AssertOrderStatus(t, db, id, expectedStatus)
-        case 15: // Payment number format
-            AssertPaymentStatus(t, db, id, expectedStatus)
-        case 14: // Refund number format
-            AssertRefundStatus(t, db, id, expectedStatus)
+        switch {
+        case id[0:5] == "TEST_": // Order number format
+            // Check if it's an order number
+            if len(id) >= 8 && id[5:8] == "ORD" {
+                AssertOrderStatus(t, db, id, expectedStatus)
+            // Check if it's a payment number    
+            } else if len(id) >= 8 && id[5:8] == "PAY" {
+                AssertPaymentStatus(t, db, id, expectedStatus)
+            // Check if it's a refund number    
+            } else if len(id) >= 8 && id[5:8] == "REF" {
+                AssertRefundStatus(t, db, id, expectedStatus)
+            } else {
+                t.Errorf("invalid ID format: %s", id)
+            }
         default:
-            t.Errorf("invalid ID format: %s", id)
+            t.Errorf("ID must start with TEST_: %s", id)
         }
     }
 }

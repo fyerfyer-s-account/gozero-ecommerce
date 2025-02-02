@@ -20,17 +20,20 @@ func TestPaymentSuccess(t *testing.T) {
     require.NoError(t, err)
     defer testCtx.Close()
 
+    // Clean test data
+    require.NoError(t, testCtx.DB.CleanTestData(ctx))
+
     // Load test data
     var event struct {
-        OrderNo      string    `json:"order_no"`
-        PaymentNo    string    `json:"payment_no"`
-        PaymentMethod int64    `json:"payment_method"`
-        Amount       float64   `json:"amount"`
-        Timestamp    time.Time `json:"timestamp"`
+        OrderNo       string    `json:"order_no"`
+        PaymentNo     string    `json:"payment_no"`
+        PaymentMethod int64     `json:"payment_method"`
+        Amount        float64   `json:"amount"`
+        Timestamp     time.Time `json:"timestamp"`
     }
     require.NoError(t, helpers.LoadFixture("payment_success.json", &event))
 
-    // Initialize database state
+    // Initialize database state - Order
     order := &model.Orders{
         OrderNo:     event.OrderNo,
         Status:      1, // Pending Payment
@@ -46,7 +49,7 @@ func TestPaymentSuccess(t *testing.T) {
     orderId, err := result.LastInsertId()
     require.NoError(t, err)
 
-    // Insert payment
+    // Initialize database state - Payment
     payment := &model.OrderPayments{
         OrderId:       uint64(orderId),
         PaymentNo:     event.PaymentNo,
@@ -56,19 +59,58 @@ func TestPaymentSuccess(t *testing.T) {
         CreatedAt:     time.Now(),
         UpdatedAt:     time.Now(),
     }
-    require.NoError(t, helpers.SaveFixture("payment.json", payment))
     _, err = testCtx.DB.GetPaymentsModel().Insert(ctx, payment)
     require.NoError(t, err)
 
+    // Create temporary queue
+    queue, err := testCtx.RMQ.GetChannel().QueueDeclare(
+        "",    // Empty name
+        false, // Non-durable
+        true,  // Auto-delete
+        true,  // Exclusive
+        false,
+        nil,
+    )
+    require.NoError(t, err)
+
+    t.Logf("Created temporary queue: %s", queue.Name)
+
+    // Bind queue to exchange
+    err = testCtx.RMQ.GetChannel().QueueBind(
+        queue.Name,
+        "payment.success",
+        "payment.events",
+        false,
+        nil,
+    )
+    require.NoError(t, err)
+
     // Publish payment success event
+    t.Logf("Publishing payment success event: %+v", event)
     err = testCtx.RMQ.PublishEvent("payment.events", "payment.success", event)
     require.NoError(t, err)
 
     // Verify message received
-    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, "order.payment.success", 5*time.Second)
+    t.Log("Waiting for message...")
+    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, queue.Name, 5*time.Second)
+    t.Logf("Received message: %s", string(msg.Body))
     helpers.AssertMessageContent(t, msg, "application/json", "payment.success")
 
-    // Verify final state
+    // Add retry mechanism for state changes
+    t.Log("Waiting for order processing...")
+    maxRetries := 5
+    for i := 0; i < maxRetries; i++ {
+        // Check states
+        order, err := testCtx.DB.GetOrdersModel().FindByOrderNo(ctx, event.OrderNo)
+        require.NoError(t, err)
+        if order.Status == 2 { // Paid
+            break
+        }
+        t.Logf("Current order status: %d, attempt %d/%d", order.Status, i+1, maxRetries)
+        time.Sleep(time.Second)
+    }
+
+    // Verify final states
     helpers.AssertDatabaseState(t, testCtx.DB, map[string]int64{
         event.OrderNo:   2, // Paid
         event.PaymentNo: 1, // Success

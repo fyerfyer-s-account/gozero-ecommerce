@@ -1,13 +1,14 @@
 package handlers
 
 import (
-    "context"
-    "encoding/json"
+	"context"
+	"encoding/json"
+	"time"
 
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zerolog"
-    "github.com/streadway/amqp"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zerolog"
+	"github.com/streadway/amqp"
 )
 
 type PaymentRefundHandler struct {
@@ -46,35 +47,35 @@ func (h *PaymentRefundHandler) Handle(ctx context.Context, msg amqp.Delivery) er
     }
     h.logger.Info(ctx, "Processing payment refund event", fields)
 
-    // Get order
+    // Get order and update status
     order, err := h.ordersModel.FindByOrderNo(ctx, event.OrderNo)
     if err != nil {
         h.logger.Error(ctx, "Failed to find order", err, fields)
         return err
     }
 
-    // Update order status to refunded
-    if err := h.ordersModel.UpdateStatus(ctx, order.Id, 6); err != nil { // 6: Refunded
+    // Update order status to refunded (6)
+    if err := h.ordersModel.UpdateStatus(ctx, order.Id, 6); err != nil {
         h.logger.Error(ctx, "Failed to update order status", err, fields)
         return err
     }
 
-    // Update payment status
-    _, err = h.paymentsModel.FindOneByPaymentNo(ctx, event.PaymentNo)
+    // Update payment status with current time as pay_time
+    payment, err := h.paymentsModel.FindOneByPaymentNo(ctx, event.PaymentNo)
     if err != nil {
         h.logger.Error(ctx, "Failed to find payment", err, fields)
         return err
     }
 
-    if err := h.paymentsModel.UpdateStatus(ctx, event.PaymentNo, 2, event.RefundTime); err != nil { // 2: Refunded
+    if err := h.paymentsModel.UpdateStatus(ctx, payment.PaymentNo, 2, time.Now()); err != nil {
         h.logger.Error(ctx, "Failed to update payment status", err, fields)
         return err
     }
 
-    // Update refund status if exists
+    // Update refund status
     _, err = h.refundsModel.FindOneByRefundNo(ctx, event.RefundNo)
     if err == nil {
-        if err := h.refundsModel.UpdateStatus(ctx, event.RefundNo, 3, "Refund completed"); err != nil { // 3: Refunded
+        if err := h.refundsModel.UpdateStatus(ctx, event.RefundNo, 1, "Refund processed"); err != nil {
             h.logger.Error(ctx, "Failed to update refund status", err, fields)
             return err
         }

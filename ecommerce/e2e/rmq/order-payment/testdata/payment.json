@@ -1,0 +1,14 @@
+{
+  "Id": 0,
+  "OrderId": 22,
+  "PaymentNo": "TEST_PAY_SUCCESS_001",
+  "PaymentMethod": 1,
+  "Amount": 100,
+  "Status": 1,
+  "PayTime": {
+    "Time": "0001-01-01T00:00:00Z",
+    "Valid": false
+  },
+  "CreatedAt": "2025-02-02T02:22:53.237206404Z",
+  "UpdatedAt": "2025-02-02T02:22:53.237206464Z"
+}

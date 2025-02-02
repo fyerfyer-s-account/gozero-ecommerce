@@ -50,31 +50,6 @@ func NewRMQHelper(config *rmqconfig.RabbitMQConfig) (*RMQHelper, error) {
     return helper, nil
 }
 
-// ConsumeMessage consumes a single message from the specified queue with timeout
-func (h *RMQHelper) ConsumeMessage(queueName string, timeout time.Duration) (*amqp.Delivery, error) {
-    // Create exclusive consumer
-    msgs, err := h.channel.Consume(
-        queueName,
-        "",    // consumer tag
-        true,  // auto-ack
-        true,  // exclusive
-        false, // no-local
-        false, // no-wait
-        nil,   // args
-    )
-    if err != nil {
-        return nil, fmt.Errorf("failed to create consumer: %w", err)
-    }
-
-    // Wait for message with timeout
-    select {
-    case msg := <-msgs:
-        return &msg, nil
-    case <-time.After(timeout):
-        return nil, fmt.Errorf("timeout waiting for message on queue %s", queueName)
-    }
-}
-
 // PublishEvent publishes an event message to the specified exchange
 func (h *RMQHelper) PublishEvent(exchange, routingKey string, event interface{}) error {
     // Marshal event to JSON
@@ -98,7 +73,7 @@ func (h *RMQHelper) PublishEvent(exchange, routingKey string, event interface{})
 
 // SetupTestQueues declares required exchanges and queues for testing
 func (h *RMQHelper) SetupTestQueues() error {
-    // Define test exchanges
+    // Declare exchanges only
     exchanges := []struct {
         name string
         kind string
@@ -107,63 +82,44 @@ func (h *RMQHelper) SetupTestQueues() error {
         {"payment.events", "topic"},
     }
 
-    // Declare exchanges
     for _, e := range exchanges {
         err := h.channel.ExchangeDeclare(
-            e.name,  // name
-            e.kind,  // type
-            true,    // durable
-            false,   // auto-deleted
-            false,   // internal
-            false,   // no-wait
-            nil,     // arguments
+            e.name, // name
+            e.kind, // type
+            true,   // durable
+            false,  // auto-delete
+            false,  // internal
+            false,  // no-wait
+            nil,    // arguments
         )
         if err != nil {
             return fmt.Errorf("failed to declare exchange %s: %w", e.name, err)
         }
     }
 
-    // Define test queues
-    queues := []struct {
-        name       string
-        exchange   string
-        routingKey string
-    }{
-        {"order.payment.success", "payment.events", "payment.success"},
-        {"order.payment.failed", "payment.events", "payment.failed"},
-        {"order.payment.refund", "payment.events", "payment.refund"},
-        {"order.status", "order.events", "order.status.*"},
-    }
-
-    // Declare queues and bindings
-    for _, q := range queues {
-        // Declare queue
-        _, err := h.channel.QueueDeclare(
-            q.name,  // name
-            true,    // durable
-            false,   // delete when unused
-            false,   // exclusive
-            false,   // no-wait
-            nil,     // arguments
-        )
-        if err != nil {
-            return fmt.Errorf("failed to declare queue %s: %w", q.name, err)
-        }
-
-        // Bind queue
-        err = h.channel.QueueBind(
-            q.name,      // queue name
-            q.routingKey, // routing key
-            q.exchange,   // exchange
-            false,       // no-wait
-            nil,         // arguments
-        )
-        if err != nil {
-            return fmt.Errorf("failed to bind queue %s: %w", q.name, err)
-        }
-    }
-
     return nil
+}
+
+func (h *RMQHelper) ConsumeMessage(queueName string, timeout time.Duration) (*amqp.Delivery, error) {
+    msgs, err := h.channel.Consume(
+        queueName,
+        "",    // consumer
+        true,  // auto-ack
+        false, // not exclusive
+        false, // no-local
+        false, // no-wait
+        nil,   // args
+    )
+    if err != nil {
+        return nil, fmt.Errorf("failed to create consumer: %w", err)
+    }
+
+    select {
+    case msg := <-msgs:
+        return &msg, nil
+    case <-time.After(timeout):
+        return nil, fmt.Errorf("timeout waiting for message on queue %s", queueName)
+    }
 }
 
 // Close closes the RabbitMQ connection and channel

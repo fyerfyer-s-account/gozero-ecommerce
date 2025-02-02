@@ -52,14 +52,17 @@ func (h *DBHelper) GetRefundsModel() model.OrderRefundsModel {
 
 // CleanTestData removes test data from all relevant tables
 func (h *DBHelper) CleanTestData(ctx context.Context) error {
-    tables := []string{"orders", "order_payments", "order_refunds"}
-    
-    for _, table := range tables {
-        query := fmt.Sprintf("DELETE FROM %s WHERE order_no LIKE 'TEST_%%'", table)
-        if _, err := h.conn.ExecCtx(ctx, query); err != nil {
-            return fmt.Errorf("failed to clean table %s: %w", table, err) 
-        }
+    if _, err := h.conn.ExecCtx(ctx, "DELETE FROM orders WHERE order_no LIKE 'TEST_%'"); err != nil {
+        return fmt.Errorf("failed to clean table orders: %w", err)
     }
-    
+
+    if _, err := h.conn.ExecCtx(ctx, "DELETE FROM order_payments WHERE payment_no LIKE 'TEST_%'"); err != nil {
+        return fmt.Errorf("failed to clean table order_payments: %w", err)
+    }
+
+    if _, err := h.conn.ExecCtx(ctx, "DELETE FROM order_refunds WHERE refund_no LIKE 'TEST_%'"); err != nil {
+        return fmt.Errorf("failed to clean table order_refunds: %w", err)
+    }
+
     return nil
 }

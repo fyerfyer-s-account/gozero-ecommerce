@@ -1,13 +1,13 @@
 package handlers
 
 import (
-    "context"
-    "encoding/json"
+	"context"
+	"encoding/json"
 
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zerolog"
-    "github.com/streadway/amqp"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/eventbus/types"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/pkg/zerolog"
+	"github.com/streadway/amqp"
 )
 
 type PaymentFailedHandler struct {
@@ -33,41 +33,44 @@ func (h *PaymentFailedHandler) Handle(ctx context.Context, msg amqp.Delivery) er
         return err
     }
 
-    fields := map[string]interface{}{
+    h.logger.Info(ctx, "Received payment failed event", map[string]interface{}{
         "order_no":    event.OrderNo,
         "payment_no":  event.PaymentNo,
         "amount":      event.Amount,
         "reason":      event.Reason,
         "error_code":  event.ErrorCode,
-    }
-    h.logger.Info(ctx, "Processing payment failed event", fields)
+    })
 
-    // Get order
+    // 1. Update order status
     order, err := h.ordersModel.FindByOrderNo(ctx, event.OrderNo)
     if err != nil {
-        h.logger.Error(ctx, "Failed to find order", err, fields)
+        h.logger.Error(ctx, "Failed to find order", err, nil)
         return err
     }
 
-    // Update order status to cancelled (5)
     if err := h.ordersModel.UpdateStatus(ctx, order.Id, 5); err != nil {
-        h.logger.Error(ctx, "Failed to update order status", err, fields)
+        h.logger.Error(ctx, "Failed to update order status", err, nil)
         return err
     }
 
-    // Get payment record
+    // 2. Update payment status
     payment, err := h.paymentsModel.FindOneByPaymentNo(ctx, event.PaymentNo)
     if err != nil {
-        h.logger.Error(ctx, "Failed to find payment", err, fields)
+        h.logger.Error(ctx, "Failed to find payment", err, nil)
         return err
     }
 
-    // Update payment status to failed
-    if err := h.paymentsModel.UpdateStatus(ctx, event.PaymentNo, 0, payment.PayTime.Time); err != nil {
-        h.logger.Error(ctx, "Failed to update payment status", err, fields)
+    if err := h.paymentsModel.UpdateStatus(ctx, payment.PaymentNo, 0, payment.CreatedAt); err != nil {
+        h.logger.Error(ctx, "Failed to update payment status", err, nil)
         return err
     }
 
-    h.logger.Info(ctx, "Successfully processed payment failed event", fields)
+    // Acknowledge message
+    if err := msg.Ack(false); err != nil {
+        h.logger.Error(ctx, "Failed to acknowledge message", err, nil)
+        return err
+    }
+
+    h.logger.Info(ctx, "Successfully processed payment failed event", nil)
     return nil
 }

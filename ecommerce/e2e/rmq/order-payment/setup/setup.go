@@ -64,6 +64,11 @@ func NewTestContext() (*TestContext, error) {
 func (tc *TestContext) Close() error {
     var errs []error
 
+    // Clean up any test queues first
+    if tc.RMQ != nil && tc.RMQ.GetChannel() != nil {
+        // Channel is already closed in RMQ.Close()
+    }
+
     // Close RMQ connections
     if tc.RMQ != nil {
         if err := tc.RMQ.Close(); err != nil {

@@ -1,14 +1,15 @@
 package cases
 
 import (
-    "context"
-    "testing"
-    "time"
+	"context"
+	"database/sql"
+	"testing"
+	"time"
 
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/setup"
-    "github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
-    "github.com/stretchr/testify/require"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/setup"
+	"github.com/fyerfyer/gozero-ecommerce/ecommerce/order/rpc/model"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPaymentRefundFlow(t *testing.T) {
@@ -54,9 +55,10 @@ func TestPaymentRefundFlow(t *testing.T) {
     payment := &model.OrderPayments{
         OrderId:       uint64(orderId),
         PaymentNo:     event.PaymentNo,
-        PaymentMethod: 1, // Default payment method
+        PaymentMethod: 1,
         Amount:        event.RefundAmount,
         Status:        1, // Success
+        PayTime:       sql.NullTime{Time: time.Now(), Valid: true}, 
         CreatedAt:     time.Now(),
         UpdatedAt:     time.Now(),
     }
@@ -76,15 +78,55 @@ func TestPaymentRefundFlow(t *testing.T) {
     _, err = testCtx.DB.GetRefundsModel().Insert(ctx, refund)
     require.NoError(t, err)
 
-    // Publish refund event
+    // Create and bind temporary queue
+    queue, err := testCtx.RMQ.GetChannel().QueueDeclare(
+        "",    // Empty name
+        false, // Non-durable
+        true,  // Auto-delete
+        true,  // Exclusive
+        false,
+        nil,
+    )
+    require.NoError(t, err)
+
+    t.Logf("Created temporary queue: %s", queue.Name)
+
+    // Bind to exchange
+    err = testCtx.RMQ.GetChannel().QueueBind(
+        queue.Name,
+        "payment.refund",  
+        "payment.events",
+        false,
+        nil,
+    )
+    require.NoError(t, err)
+
+    // Publish refund event with correct routing key
+    t.Logf("Publishing refund event: %+v", event)
     err = testCtx.RMQ.PublishEvent("payment.events", "payment.refund", event)
     require.NoError(t, err)
 
-    // Verify message received and content
-    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, "order.payment.refund", 5*time.Second)
+    // Add verification
+    t.Log("Waiting for message...")
+    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, queue.Name, 5*time.Second)
+    t.Logf("Received message: %s", string(msg.Body))
     helpers.AssertMessageContent(t, msg, "application/json", "payment.refund")
 
-    // Verify final database state
+    // Add retry mechanism for state changes
+    t.Log("Waiting for order processing...")
+    maxRetries := 5
+    for i := 0; i < maxRetries; i++ {
+        // Check states
+        order, err := testCtx.DB.GetOrdersModel().FindByOrderNo(ctx, event.OrderNo)
+        require.NoError(t, err)
+        if order.Status == 6 { // Refunded
+            break
+        }
+        t.Logf("Current order status: %d, attempt %d/%d", order.Status, i+1, maxRetries)
+        time.Sleep(time.Second)
+    }
+
+    // Verify final states
     helpers.AssertDatabaseState(t, testCtx.DB, map[string]int64{
         event.OrderNo:   6, // Refunded
         event.PaymentNo: 2, // Refunded

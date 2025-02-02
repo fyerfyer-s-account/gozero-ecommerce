@@ -3,7 +3,6 @@ package cases
 import (
 	"context"
 	"database/sql"
-	"testing"
 	"time"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
@@ -12,17 +11,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPaymentRefundFlow(t *testing.T) {
+func (s *PaymentTestSuite)TestPaymentRefundFlow() {
     // Initialize test context with timeout
     ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
     defer cancel()
 
     testCtx, err := setup.NewTestContext()
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
     defer testCtx.Close()
-
-    // Clean test data before start
-    require.NoError(t, testCtx.DB.CleanTestData(ctx))
 
     // Load test event fixture
     var event struct {
@@ -33,7 +29,7 @@ func TestPaymentRefundFlow(t *testing.T) {
         Reason       string    `json:"reason"`
         Timestamp    time.Time `json:"timestamp"`
     }
-    require.NoError(t, helpers.LoadFixture("payment_refund.json", &event))
+    require.NoError(s.T(), helpers.LoadFixture("payment_refund.json", &event))
 
     // Initialize test data - Order
     order := &model.Orders{
@@ -47,9 +43,9 @@ func TestPaymentRefundFlow(t *testing.T) {
     
     // Insert order
     result, err := testCtx.DB.GetOrdersModel().Insert(ctx, order)
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
     orderId, err := result.LastInsertId()
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
     // Initialize test data - Payment
     payment := &model.OrderPayments{
@@ -63,7 +59,7 @@ func TestPaymentRefundFlow(t *testing.T) {
         UpdatedAt:     time.Now(),
     }
     _, err = testCtx.DB.GetPaymentsModel().Insert(ctx, payment)
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
     // Initialize test data - Refund
     refund := &model.OrderRefunds{
@@ -76,7 +72,7 @@ func TestPaymentRefundFlow(t *testing.T) {
         UpdatedAt: time.Now(),
     }
     _, err = testCtx.DB.GetRefundsModel().Insert(ctx, refund)
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
     // Create and bind temporary queue
     queue, err := testCtx.RMQ.GetChannel().QueueDeclare(
@@ -87,9 +83,9 @@ func TestPaymentRefundFlow(t *testing.T) {
         false,
         nil,
     )
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
-    t.Logf("Created temporary queue: %s", queue.Name)
+    s.T().Logf("Created temporary queue: %s", queue.Name)
 
     // Bind to exchange
     err = testCtx.RMQ.GetChannel().QueueBind(
@@ -99,35 +95,35 @@ func TestPaymentRefundFlow(t *testing.T) {
         false,
         nil,
     )
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
     // Publish refund event with correct routing key
-    t.Logf("Publishing refund event: %+v", event)
+    s.T().Logf("Publishing refund event: %+v", event)
     err = testCtx.RMQ.PublishEvent("payment.events", "payment.refund", event)
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
     // Add verification
-    t.Log("Waiting for message...")
-    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, queue.Name, 5*time.Second)
-    t.Logf("Received message: %s", string(msg.Body))
-    helpers.AssertMessageContent(t, msg, "application/json", "payment.refund")
+    s.T().Log("Waiting for message...")
+    msg := helpers.AssertMessageReceived(s.T(), testCtx.RMQ, queue.Name, 5*time.Second)
+    s.T().Logf("Received message: %s", string(msg.Body))
+    helpers.AssertMessageContent(s.T(), msg, "application/json", "payment.refund")
 
     // Add retry mechanism for state changes
-    t.Log("Waiting for order processing...")
+    s.T().Log("Waiting for order processing...")
     maxRetries := 5
     for i := 0; i < maxRetries; i++ {
         // Check states
         order, err := testCtx.DB.GetOrdersModel().FindByOrderNo(ctx, event.OrderNo)
-        require.NoError(t, err)
+        require.NoError(s.T(), err)
         if order.Status == 6 { // Refunded
             break
         }
-        t.Logf("Current order status: %d, attempt %d/%d", order.Status, i+1, maxRetries)
+        s.T().Logf("Current order status: %d, attempt %d/%d", order.Status, i+1, maxRetries)
         time.Sleep(time.Second)
     }
 
     // Verify final states
-    helpers.AssertDatabaseState(t, testCtx.DB, map[string]int64{
+    helpers.AssertDatabaseState(s.T(), testCtx.DB, map[string]int64{
         event.OrderNo:   6, // Refunded
         event.PaymentNo: 2, // Refunded
         event.RefundNo:  1, // Success

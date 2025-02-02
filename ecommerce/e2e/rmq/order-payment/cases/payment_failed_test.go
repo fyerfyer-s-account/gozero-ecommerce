@@ -2,7 +2,6 @@ package cases
 
 import (
 	"context"
-	"testing"
 	"time"
 
 	"github.com/fyerfyer/gozero-ecommerce/ecommerce/e2e/rmq/order-payment/helpers"
@@ -11,17 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPaymentFailedFlow(t *testing.T) {
+func (s *PaymentTestSuite)TestPaymentFailedFlow() {
 	// Initialize test context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	testCtx, err := setup.NewTestContext()
-	require.NoError(t, err)
+	require.NoError(s.T(), err)
 	defer testCtx.Close()
-
-	// Clean test data before start
-	require.NoError(t, testCtx.DB.CleanTestData(ctx))
 
 	// Load test event fixture
 	var event struct {
@@ -32,7 +28,7 @@ func TestPaymentFailedFlow(t *testing.T) {
 		ErrorCode string    `json:"error_code"`
 		Timestamp time.Time `json:"timestamp"`
 	}
-	require.NoError(t, helpers.LoadFixture("payment_failed.json", &event))
+	require.NoError(s.T(), helpers.LoadFixture("payment_failed.json", &event))
 
 	// Initialize test data - Order
 	order := &model.Orders{
@@ -46,9 +42,9 @@ func TestPaymentFailedFlow(t *testing.T) {
 
 	// Insert order
 	result, err := testCtx.DB.GetOrdersModel().Insert(ctx, order)
-	require.NoError(t, err)
+	require.NoError(s.T(), err)
 	orderId, err := result.LastInsertId()
-	require.NoError(t, err)
+	require.NoError(s.T(), err)
 
 	// Initialize test data - Payment
 	payment := &model.OrderPayments{
@@ -61,7 +57,7 @@ func TestPaymentFailedFlow(t *testing.T) {
 		UpdatedAt:     time.Now(),
 	}
 	_, err = testCtx.DB.GetPaymentsModel().Insert(ctx, payment)
-	require.NoError(t, err)
+	require.NoError(s.T(), err)
 
 	// Create a temporary test queue
 	queue, err := testCtx.RMQ.GetChannel().QueueDeclare(
@@ -72,9 +68,9 @@ func TestPaymentFailedFlow(t *testing.T) {
 		false,
 		nil,
 	)
-	require.NoError(t, err)
+	require.NoError(s.T(), err)
 
-	t.Logf("Created temporary queue: %s", queue.Name)	
+	s.T().Logf("Created temporary queue: %s", queue.Name)
 
 	// Bind to the payment.events exchange
 	err = testCtx.RMQ.GetChannel().QueueBind(
@@ -84,41 +80,41 @@ func TestPaymentFailedFlow(t *testing.T) {
 		false,
 		nil,
 	)
-	require.NoError(t, err)
+	require.NoError(s.T(), err)
 
 	// Publish payment failed event
-	t.Logf("Publishing payment failed event: %+v", event)
+	s.T().Logf("Publishing payment failed event: %+v", event)
     err = testCtx.RMQ.PublishEvent("payment.events", "payment.failed", event)
-    require.NoError(t, err)
+    require.NoError(s.T(), err)
 
 	// Verify message received using the generated queue name
-	t.Log("Waiting for message...")
-    msg := helpers.AssertMessageReceived(t, testCtx.RMQ, queue.Name, 5*time.Second)
-    t.Logf("Received message: %s", string(msg.Body))
-	helpers.AssertMessageContent(t, msg, "application/json", "payment.failed")
+	s.T().Log("Waiting for message...")
+    msg := helpers.AssertMessageReceived(s.T(), testCtx.RMQ, queue.Name, 5*time.Second)
+    s.T().Logf("Received message: %s", string(msg.Body))
+	helpers.AssertMessageContent(s.T(), msg, "application/json", "payment.failed")
 
 	time.Sleep(2 * time.Second)
 
-	t.Log("Waiting for order processing...")
+	s.T().Log("Waiting for order processing...")
     maxRetries := 5
     for i := 0; i < maxRetries; i++ {
         // Check order status
         order, err := testCtx.DB.GetOrdersModel().FindByOrderNo(ctx, event.OrderNo)
-        require.NoError(t, err)
+        require.NoError(s.T(), err)
         if order.Status == 5 { // Payment Failed
             break
         }
-        t.Logf("Current order status: %d, attempt %d/%d", order.Status, i+1, maxRetries)
+        s.T().Logf("Current order status: %d, attempt %d/%d", order.Status, i+1, maxRetries)
         time.Sleep(time.Second)
     }
 
     // Check payment status
     payment, err = testCtx.DB.GetPaymentsModel().FindOneByPaymentNo(ctx, event.PaymentNo)
-    require.NoError(t, err)
-    t.Logf("Final payment status: %d", payment.Status)
+    require.NoError(s.T(), err)
+    s.T().Logf("Final payment status: %d", payment.Status)
 
 	// Verify final state
-	helpers.AssertDatabaseState(t, testCtx.DB, map[string]int64{
+	helpers.AssertDatabaseState(s.T(), testCtx.DB, map[string]int64{
 		event.OrderNo:   5, // Payment Failed
 		event.PaymentNo: 0, // Failed
 	})

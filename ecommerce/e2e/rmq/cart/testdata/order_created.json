@@ -1,0 +1,15 @@
+{
+    "type": "order.created",
+    "order_no": "TEST_ORD_001",
+    "user_id": 1,
+    "timestamp": "2024-03-21T10:00:00Z",
+    "items": [
+        {
+            "product_id": 100,
+            "sku_id": 1001,
+            "quantity": 2,
+            "price": 100.00
+        }
+    ],
+    "total_amount": 200.00
+}
